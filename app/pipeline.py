@@ -166,6 +166,9 @@ def analyse_url(url, say=lambda msg: None):
     if not re.search(r"/(a|pa)/\d+", url):
         raise Refusal("That Mubawab link is not a single listing. Open one property and paste its address "
                       "(it contains /a/ or /pa/ and a number).")
+    # Any language version of the page (/en/, /ar/, /es/) is read through the French one, which the reader understands.
+    m_id = re.search(r"/(pa|a)/(\d+)", url)
+    url = "https://www.mubawab.ma/fr/%s/%s/x" % (m_id.group(1), m_id.group(2))
     c = context()
     A = c["A"]
 
@@ -180,7 +183,7 @@ def analyse_url(url, say=lambda msg: None):
             li["_price_note"] = "Advertised at €%s; converted at %.4f MAD/EUR." % (format(int(li["price"]), ","), A["fx_eur"])
         else:
             raise Refusal("The advert shows no price (“prix à consulter”). Ask the agent for the price, then ask Claude to analyse it.")
-    lid = li["id"]
+    lid = li.get("id") or m_id.group(2)
     area = (li.get("breadcrumb") or [None])[-1] if li.get("comparable_searches", {}).get("for_sale", "").count("/sd/") else None
     city = None
     m = re.search(r"/fr/s[dt]/([^/]+)/", li.get("comparable_searches", {}).get("for_sale", ""))
@@ -251,16 +254,17 @@ def analyse_url(url, say=lambda msg: None):
     adr, adr_note, comps_str, str_ev = None, "", [], {"method": None}
     geo = geocode(area, city) if (area and city) else None
     if geo:
-        for radius in (1.0, 1.5, 2.5):
+        for radius in (1.0, 1.5, 2.5, 6.0, 40.0):   # widen until there are enough; the last one is the whole city
             r = str_comps.comps(geo["lat"], geo["lng"], beds=beds, radius_km=radius, min_reviews=5, file=LISTINGS)
             if "error" in r or r.get("matches", 0) >= 8:
                 break
         if "error" not in r and r.get("matches", 0) >= 8 and (r.get("market") or "").lower() == _norm(city):
             sp = r["one_night_price_mad"]
             adr = {"bear": _round10(sp["p25"] * SPOT_TO_ACHIEVED), "base": _round10(sp["median"] * SPOT_TO_ACHIEVED), "bull": _round10(sp["p75"] * SPOT_TO_ACHIEVED)}
-            adr_note = ("Automatic: %d established %s-bed Airbnb homes within %.1f km of central %s (your dashboard data, collected %s) show one-night prices of %s / %s / %s MAD "
+            adr_note = ("Automatic: %d established %s-bed Airbnb homes %s (your dashboard data, collected %s) show one-night prices of %s / %s / %s MAD "
                         "(lower quartile / median / upper quartile). Taken down 18%% for the cleaning fee, the one-night premium and a new listing's lack of reviews."
-                        % (r["matches"], beds, r["filters"]["radius_km"], area, r.get("collected_on"), format(sp["p25"], ","), format(sp["median"], ","), format(sp["p75"], ",")))
+                        % (r["matches"], beds, ("within %.1f km of central %s" % (r["filters"]["radius_km"], area)) if r["filters"]["radius_km"] <= 6 else ("across %s — too few this size near %s" % (city, area)),
+                           r.get("collected_on"), format(sp["p25"], ","), format(sp["median"], ","), format(sp["p75"], ",")))
             for x in r["most_established"][:8]:
                 comps_str.append({"desc": ("%s (%s★, %.2f km)" % (x["name"][:60], x.get("rating"), x["km_away"])) if x.get("name") else "%s-bed Airbnb home, %.2f km away" % (x.get("bedrooms"), x["km_away"]),
                                   "nightly_mad": x["price_mad"],
@@ -485,18 +489,35 @@ def _screening_message(rec, li):
 
 
 # ---------------------------------------------------------------- history
+def row_of(r):
+    m, rec, fx = r.get("metrics") or {}, r.get("record") or {}, r.get("fx_home") or 1
+    return {"run_id": r["run_id"], "at": r["at"], "title": rec.get("title"), "city": rec.get("city"), "area": rec.get("neighbourhood"),
+            "asking_mad": rec.get("asking_price_mad"), "ask_m2": m.get("ask_m2"), "verdict": rec.get("verdict"), "source": r.get("source"),
+            "video_profit_home": (m.get("v_profit") or 0) / fx, "checked_profit_home": (m.get("c_profit") or 0) / fx,
+            "be_occ": (m.get("be_occ_m") or {}).get("base"), "home_currency": r.get("home_currency"), "url": r.get("url"),
+            "failed": bool(r.get("failed")), "error": r.get("error")}
+
+
 def history():
     rows = []
     for f in sorted((DATA / "runs").glob("*.json"), reverse=True):
         r = _json_file(f, None)
-        if not r:
-            continue
-        m, rec, fx = r.get("metrics") or {}, r.get("record") or {}, r.get("fx_home") or 1
-        rows.append({"run_id": r["run_id"], "at": r["at"], "title": rec.get("title"), "city": rec.get("city"), "area": rec.get("neighbourhood"),
-                     "asking_mad": rec.get("asking_price_mad"), "ask_m2": m.get("ask_m2"), "verdict": rec.get("verdict"), "source": r.get("source"),
-                     "video_profit_home": (m.get("v_profit") or 0) / fx, "checked_profit_home": (m.get("c_profit") or 0) / fx,
-                     "home_currency": r.get("home_currency"), "url": r.get("url")})
+        if r:
+            rows.append(row_of(r))
     return rows
+
+
+def log_failure(url, message):
+    """Every link pasted is kept, including ones that could not be analysed, with the reason."""
+    now = dt.datetime.now()
+    c = context()
+    m = re.search(r"/(?:pa|a)/(\d+)", url or "")
+    run = {"run_id": "%s-%s" % (now.strftime("%Y%m%d-%H%M%S"), ("x" + m.group(1)) if m else "notread"), "at": now.isoformat(timespec="seconds"),
+           "url": (url or "")[:500], "failed": True, "error": message, "source": "auto", "home_currency": c["home"], "fx_home": c["A"]["fx_home"],
+           "record": {"title": "Not analysed", "verdict": "not read"}, "metrics": {}}
+    (DATA / "runs").mkdir(exist_ok=True)
+    (DATA / "runs" / (run["run_id"] + ".json")).write_text(json.dumps(run, ensure_ascii=False, indent=1), encoding="utf-8")
+    return run
 
 
 def load_run(run_id):

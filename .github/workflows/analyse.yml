@@ -54,6 +54,7 @@ jobs:
           path: "Morocco Property Tracker.xlsx"
           if-no-files-found: ignore
       - name: Save the result to the repository
+        if: always()
         run: |
           git config user.name "deal-desk"
           git config user.email "deal-desk@users.noreply.github.com"

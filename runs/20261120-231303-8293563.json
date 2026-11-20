@@ -1,0 +1,635 @@
+{
+ "run_id": "20261120-231303-8293563",
+ "at": "2026-11-20T23:13:03",
+ "url": "https://www.mubawab.ma/fr/a/8293563/appartement-à-vendre-190-m²-4-chambres-hay-riad-rabat",
+ "source": "auto",
+ "sheet": "P02 Rabat Riyad",
+ "home_currency": "GBP",
+ "fx_home": 13.154,
+ "terms": {
+  "ltv": 0.7,
+  "rate": 0.0453,
+  "rate_eff": 0.049830000000000006,
+  "term_years": 25,
+  "video_occ": 0.7,
+  "video_mgmt_pct": 0.1,
+  "mgmt_pct": 0.22,
+  "platform_pct": 0.155,
+  "utilities_month": 650,
+  "internet_month": 400,
+  "subs_month": 200,
+  "home_tax_rate": 0.4,
+  "defaults_as_of": "2026-11-20"
+ },
+ "record": {
+  "id": "mubawab-8293563",
+  "origin": "auto",
+  "short_name": "Rabat Riyad",
+  "added": "2026-11-20",
+  "added_at": "2026-11-20T23:10:41",
+  "title": "4-bed, 190 m² — Riyad, Rabat",
+  "advert_title": "Appartement à vendre 190 m², 4 chambres Hay Riad Rabat",
+  "source_url": "https://www.mubawab.ma/fr/a/8293563/appartement-à-vendre-190-m²-4-chambres-hay-riad-rabat",
+  "listing_date": "2026-01-28",
+  "contact": "AGENZ ref RBA-AG-1136",
+  "city": "Rabat",
+  "neighbourhood": "Riyad",
+  "address_note": "Advert gives the neighbourhood only; Airbnb comparables use its centre.",
+  "property_type": "appartement",
+  "bedrooms": 4,
+  "bathrooms": 2,
+  "floor": "2ème",
+  "lift": true,
+  "year_built": null,
+  "condition": "Bon état / habitable",
+  "furnished": false,
+  "title_status": "unknown",
+  "off_plan": false,
+  "seller_type": "agent",
+  "asking_price_mad": 3850000,
+  "asking_note": "From the advert (read 2026-11-20).",
+  "surface_m2": 190.0,
+  "surface_note": "From the advert. Confirm on the title certificate.",
+  "furniture_value_mad": 0,
+  "syndic_mad_month": null,
+  "agent_fee_pct": null,
+  "comps_sale": [
+   {
+    "desc": "4-bed 210 m², Riyad, Rabat",
+    "price_mad": 5100000.0,
+    "surface_m2": 210.0,
+    "url": "https://www.mubawab.ma/fr/a/8455925/joli-appartement-%C3%A0-vendre-au-1er-%C3%A9tage",
+    "note": ""
+   },
+   {
+    "desc": "4-bed 220 m², Riyad, Rabat",
+    "price_mad": 5500000.0,
+    "surface_m2": 220.0,
+    "url": "https://www.mubawab.ma/fr/a/8448038/appartement-spacieux-a-vendre-hay-riyad-rabat",
+    "note": ""
+   },
+   {
+    "desc": "4-bed 158 m², Riyad, Rabat",
+    "price_mad": 3400000.0,
+    "surface_m2": 158.0,
+    "url": "https://www.mubawab.ma/fr/a/8358538/vente-appartement-%C3%A0-rabat-hay-riad",
+    "note": ""
+   },
+   {
+    "desc": "4-bed 230 m², Riyad, Rabat",
+    "price_mad": 4675000.0,
+    "surface_m2": 230.0,
+    "url": "https://www.mubawab.ma/fr/a/8454349/appartement-%C3%A0-vendre-bonne-affaire",
+    "note": ""
+   },
+   {
+    "desc": "4-bed 245 m², Riyad, Rabat",
+    "price_mad": 4700000.0,
+    "surface_m2": 245.0,
+    "url": "https://www.mubawab.ma/fr/a/8450515/vente-d-un-bel-appartement-%C3%A0-riyad-6-pi%C3%A8ces-salon-typique-marocain-r%C3%A9sidence-s%C3%A9curis%C3%A9e",
+    "note": ""
+   }
+  ],
+  "furnishing_mad": 228000,
+  "furnishing_note": "ASSUMPTION: 1,200 MAD/m² to furnish and equip for letting; the advert does not mention furniture.",
+  "renovation_mad": 0,
+  "str": {
+   "comps": [
+    {
+     "desc": "Beautiful apartment center rabat 3/410 (4.77★, 8.83 km)",
+     "nightly_mad": 871,
+     "bedrooms": 4,
+     "reviews": 188,
+     "url": "https://www.airbnb.co.uk/rooms/36204235",
+     "note": "one-night price on 2026-11-23"
+    },
+    {
+     "desc": "Beautiful apartment center rabat 5/311 (4.77★, 8.74 km)",
+     "nightly_mad": 838,
+     "bedrooms": 4,
+     "reviews": 88,
+     "url": "https://www.airbnb.co.uk/rooms/51156804",
+     "note": "one-night price on 2026-11-22"
+    },
+    {
+     "desc": "Peaceful Villa with Garden in Hay Riad (4.78★, 1.32 km)",
+     "nightly_mad": 2018,
+     "bedrooms": 4,
+     "reviews": 76,
+     "url": "https://www.airbnb.co.uk/rooms/926876884167429564",
+     "note": "one-night price on 2026-12-14"
+    },
+    {
+     "desc": "Agdal Center · 4BR · Walk to Mall & Parking (4.7★, 6.21 km)",
+     "nightly_mad": 1951,
+     "bedrooms": 4,
+     "reviews": 64,
+     "url": "https://www.airbnb.co.uk/rooms/1041856263758090142",
+     "note": "one-night price on 2026-11-22"
+    },
+    {
+     "desc": "House overlooking the Haut-Agdal forest | Swimming pool & ga (4.68★, 5.79 km)",
+     "nightly_mad": 1543,
+     "bedrooms": 4,
+     "reviews": 22,
+     "url": "https://www.airbnb.co.uk/rooms/1118836133321804057",
+     "note": "one-night price on 2027-01-04"
+    },
+    {
+     "desc": "Dar Azami (4.38★, 9.35 km)",
+     "nightly_mad": 1421,
+     "bedrooms": 4,
+     "reviews": 13,
+     "url": "https://www.airbnb.co.uk/rooms/1285498699944855880",
+     "note": "one-night price on 2026-11-25"
+    },
+    {
+     "desc": "PEACE house, 4-bedroom in the heart of Rabat (4.56★, 9.20 km)",
+     "nightly_mad": 2159,
+     "bedrooms": 4,
+     "reviews": 9,
+     "url": "https://www.airbnb.co.uk/rooms/657056443058698240",
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Three-room Panorama apartment with a sea view (4.29★, 10.96 km)",
+     "nightly_mad": 606,
+     "bedrooms": 4,
+     "reviews": 7,
+     "url": "https://www.airbnb.co.uk/rooms/1119434959205169752",
+     "note": "one-night price on 2026-11-21"
+    }
+   ],
+   "adr_mad": {
+    "bear": 710,
+    "base": 1170,
+    "bull": 1600
+   },
+   "adr_note": "Automatic: 9 established 4-bed Airbnb homes across Rabat — too few this size near Riyad (your dashboard data, collected 2026-11-20) show one-night prices of 871 / 1,421 / 1,951 MAD (lower quartile / median / upper quartile). Taken down 18% for the cleaning fee, the one-night premium and a new listing's lack of reviews.",
+   "occupancy": {
+    "bear": 0.35,
+    "base": 0.45,
+    "bull": 0.57
+   },
+   "occupancy_note": "Automatic: Rabat 4-bed average occupancy 35% (AirROI, 12 months to Oct 2026) as the bear case; +10 points for an always-available managed flat (base); +22 points, about the top quarter of listings (bull)."
+  },
+  "notes": "2026-11-20: automatic first pass from the web app.",
+  "area_price_per_m2": {
+   "low": 18609,
+   "mid": 18988.04430379747,
+   "high": 19367.088607594935,
+   "basis": "Automatic: midpoint of Agenz's reference for Riyad (18,609 MAD/m², updated 29/01/2026) and the median of 5 comparable adverts less 10% (19,367). A placeholder until agents tell you what flats actually sold for."
+  },
+  "flags": [
+   {
+    "severity": "red",
+    "text": "Title status is not in the advert. Ask for the title number (titre foncier) before anything else."
+   },
+   {
+    "severity": "red",
+    "text": "On a 70% mortgage the flat loses about £965 a month in the checked base case (the video's way shows +£516)."
+   },
+   {
+    "severity": "amber",
+    "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."
+   },
+   {
+    "severity": "amber",
+    "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."
+   },
+   {
+    "severity": "amber",
+    "text": "Furnishing budget is an assumption (228,000 MAD)."
+   }
+  ],
+  "unknowns": [
+   "Is it titled (titre foncier)? Title number?",
+   "Exact address / map pin",
+   "Year the building was built",
+   "Monthly syndic charge and what it covers",
+   "Surface on the title",
+   "Do the building rules allow short-term letting?",
+   "Agent's buyer-side commission",
+   "Is any furniture or equipment included?"
+  ],
+  "verdict": "pass",
+  "verdict_reason": "Automatic first pass. The video's way shows +£516 a month; with realistic occupancy and the costs it leaves out, the flat loses £965 a month on the mortgage."
+ },
+ "metrics": {
+  "asking": 3850000.0,
+  "surface": 190.0,
+  "furniture_value": 0.0,
+  "syndic_month": 1900.0,
+  "ask_m2": 20263.0,
+  "ask_m2_exfurn": 20263.0,
+  "comp_count": 5,
+  "comp_median_m2": 21519.0,
+  "comp_min_m2": 19184.0,
+  "comp_max_m2": 25000.0,
+  "area_low": 18609.0,
+  "area_mid": 18988.0,
+  "area_high": 19367.0,
+  "fair_low": 3535710.0,
+  "fair_mid": 3607728.0,
+  "fair_high": 3679747.0,
+  "ask_vs_mid": 0.0672,
+  "asking_over_fair": 0.0672,
+  "offer_target": 3607728.0,
+  "offer_open": 3355187.0,
+  "offer_walk": 3679747.0,
+  "price": 3607728.0,
+  "reg": 144309.0,
+  "cf": 54216.0,
+  "notary": 43293.0,
+  "misc": 1900,
+  "agent_pct": 0.025,
+  "agent": 90193.0,
+  "closing_total": 333911.0,
+  "closing_pct": 0.0926,
+  "furnishing": 228000.0,
+  "renovation": 0.0,
+  "total_cost": 4169639.0,
+  "cash_needed_c": 4211336.0,
+  "cash_needed_c_home": 320156.0,
+  "loan": 2525410.0,
+  "deposit": 1082319.0,
+  "mort_costs": 38507.0,
+  "cash_needed_m": 1699563.0,
+  "cash_needed_m_home": 129205.0,
+  "pmt_month": 14738.0,
+  "ins_month": 842.0,
+  "debt_service": 186961.0,
+  "ds_pct": 0.0518,
+  "adr": {
+   "bear": 710.0,
+   "base": 1170.0,
+   "bull": 1600.0
+  },
+  "occ": {
+   "bear": 0.35,
+   "base": 0.45,
+   "bull": 0.57
+  },
+  "syndic_y": 22800.0,
+  "utilities_y": 7800,
+  "internet_y": 7200,
+  "insurance_y": 1500,
+  "owner_tax_y": 0.0,
+  "fixed_y": 39300.0,
+  "var_ex_tax": 0.495,
+  "var_share": 0.575,
+  "nights": {
+   "bear": 128.0,
+   "base": 164.0,
+   "bull": 208.0
+  },
+  "gross": {
+   "bear": 90702.0,
+   "base": 192172.0,
+   "bull": 332880.0
+  },
+  "platform": {
+   "bear": 14059.0,
+   "base": 29787.0,
+   "bull": 51596.0
+  },
+  "mgmt": {
+   "bear": 19955.0,
+   "base": 42278.0,
+   "bull": 73234.0
+  },
+  "maint": {
+   "bear": 4535.0,
+   "base": 9609.0,
+   "bull": 16644.0
+  },
+  "local_tax": {
+   "bear": 6349.0,
+   "base": 13452.0,
+   "bull": 23302.0
+  },
+  "opex": {
+   "bear": 84198.0,
+   "base": 134425.0,
+   "bull": 204076.0
+  },
+  "noi": {
+   "bear": 6505.0,
+   "base": 57747.0,
+   "bull": 128804.0
+  },
+  "tax": {
+   "bear": 7256.0,
+   "base": 15374.0,
+   "bull": 26630.0
+  },
+  "home_tax": {
+   "bear": 0.0,
+   "base": 7725.0,
+   "bull": 24891.0
+  },
+  "net": {
+   "bear": -751.0,
+   "base": 34648.0,
+   "bull": 77283.0
+  },
+  "gross_yield": {
+   "bear": 0.0251,
+   "base": 0.0533,
+   "bull": 0.0923
+  },
+  "net_yield_c": {
+   "bear": -0.0002,
+   "base": 0.0083,
+   "bull": 0.0185
+  },
+  "net_month_c": {
+   "bear": -63.0,
+   "base": 2887.0,
+   "bull": 6440.0
+  },
+  "cf_m": {
+   "bear": -187713.0,
+   "base": -152313.0,
+   "bull": -109679.0
+  },
+  "cf_m_month": {
+   "bear": -15643.0,
+   "base": -12693.0,
+   "bull": -9140.0
+  },
+  "coc_m": {
+   "bear": -0.1104,
+   "base": -0.0896,
+   "bull": -0.0645
+  },
+  "dscr": {
+   "bear": 0.0348,
+   "base": 0.3089,
+   "bull": 0.6889
+  },
+  "be_occ_c": {
+   "bear": 0.3568,
+   "base": 0.2165,
+   "bull": 0.1583
+  },
+  "be_occ_m": {
+   "bear": 2.0543,
+   "base": 1.2466,
+   "bull": 0.9116
+  },
+  "v_adr": 1170.0,
+  "v_nights": 21.0,
+  "v_rev": 24570.0,
+  "v_mort": 14080.0,
+  "v_mgmt": 2457.0,
+  "v_profit": 6783.0,
+  "v_profit_home": 516.0,
+  "v_profit_cont": 4326.0,
+  "c_adr": 1170.0,
+  "c_nights": 14.0,
+  "c_rev": 16014.0,
+  "c_mort": 15580.0,
+  "c_mgmt": 3523.0,
+  "c_platform": 2482.0,
+  "c_syndic": 1900.0,
+  "c_upkeep": 926.0,
+  "c_ma_tax": 2402.0,
+  "c_home_tax": 644.0,
+  "c_profit": -12693.0,
+  "c_profit_home": -965.0,
+  "rent": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_gross": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_mgmt": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_maint": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_tsc": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_opex": {
+   "bear": 24300.0,
+   "base": 24300.0,
+   "bull": 24300.0
+  },
+  "ltr_noi": {
+   "bear": -24300.0,
+   "base": -24300.0,
+   "bull": -24300.0
+  },
+  "ltr_tax": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_home_tax": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_net": {
+   "bear": -24300.0,
+   "base": -24300.0,
+   "bull": -24300.0
+  },
+  "ltr_net_yield": {
+   "bear": null,
+   "base": null,
+   "bull": null
+  },
+  "ltr_cf_m": {
+   "bear": -211261.0,
+   "base": -211261.0,
+   "bull": -211261.0
+  },
+  "ltr_syndic": 22800.0,
+  "ds_stress": 205042.0,
+  "st_base_gross": 192172.0,
+  "st_base_net": 34648.0,
+  "st_base_cf": -152313.0,
+  "st_occ_gross": 149468.0,
+  "st_occ_net": 21709.0,
+  "st_occ_cf": -165252.0,
+  "st_adr_gross": 163347.0,
+  "st_adr_net": 25914.0,
+  "st_adr_cf": -161047.0,
+  "st_both_gross": 127047.0,
+  "st_both_net": 14695.0,
+  "st_both_cf": -172266.0,
+  "st_rate_gross": 192172.0,
+  "st_rate_net": 34648.0,
+  "st_rate_cf": -170394.0,
+  "st_all_gross": 127047.0,
+  "st_all_net": 14695.0,
+  "st_all_cf": -190347.0,
+  "growth": {
+   "bear": 0.0,
+   "base": 0.015,
+   "bull": 0.035
+  },
+  "sale": {
+   "bear": 3607728.0,
+   "base": 4186916.0,
+   "bull": 5089057.0
+  },
+  "sale_costs": {
+   "bear": 90193.0,
+   "base": 104673.0,
+   "bull": 127226.0
+  },
+  "tpi": {
+   "bear": 108232.0,
+   "base": 125607.0,
+   "bull": 162589.0
+  },
+  "home_cgt": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 82257.0
+  },
+  "proceeds_c": {
+   "bear": 3409303.0,
+   "base": 3956636.0,
+   "bull": 4716985.0
+  },
+  "proceeds_m": {
+   "bear": 1543480.0,
+   "base": 2090813.0,
+   "bull": 2851162.0
+  },
+  "profit_c": {
+   "bear": -455550.0,
+   "base": 91783.0,
+   "bull": 852132.0
+  },
+  "profit_m": {
+   "bear": -1679212.0,
+   "base": -1131880.0,
+   "bull": -371530.0
+  },
+  "irr_c": {
+   "bear": -0.0119,
+   "base": 0.0022,
+   "bull": 0.0192
+  },
+  "irr_m": {
+   "bear": -0.1039,
+   "base": -0.0597,
+   "bull": -0.0166
+  },
+  "cost_base": 4148888.0,
+  "loan_bal_10": 1865823.0
+ },
+ "extras": {
+  "real_costs_at_video_occ": -9996.986807668824,
+  "be_adr_at_base_occ": 4230.473483169841,
+  "be_price": 668596.344728658,
+  "gap": [
+   [
+    "Fewer nights booked than the video assumes",
+    7700.0625
+   ],
+   [
+    "Airbnb's fee",
+    2482.228125
+   ],
+   [
+    "Moroccan taxes",
+    2402.15625
+   ],
+   [
+    "Management at 22% instead of 10%",
+    1921.725
+   ],
+   [
+    "Building service charge",
+    1900.0
+   ],
+   [
+    "VAT and insurance on the mortgage",
+    1500.0096491579534
+   ],
+   [
+    "Upkeep, linen, insurance",
+    925.71875
+   ],
+   [
+    "Home-country tax",
+    643.75375
+   ]
+  ]
+ },
+ "evidence": {
+  "sale": {
+   "count": 5,
+   "stats_mad_per_m2": {
+    "n": 5,
+    "p25": 20326.08695652174,
+    "median": 21518.98734177215,
+    "p75": 24285.714285714286
+   },
+   "search": "https://www.mubawab.ma/fr/sd/rabat/riyad/appartements-a-vendre"
+  },
+  "agenz": {
+   "mad_per_m2": 18609,
+   "area": "Riyad",
+   "updated": "29/01/2026",
+   "url": "https://agenz.ma/fr/prix-immobilier-maroc/rabat"
+  },
+  "rent": {
+   "count": 0,
+   "stats_mad_per_m2_month": null,
+   "search": "https://www.mubawab.ma/fr/sd/rabat/riyad/appartements-a-louer"
+  },
+  "str": {
+   "method": "airbnb_file",
+   "matches": 9,
+   "radius_km": 40.0,
+   "spot_mad": {
+    "n": 9,
+    "min": 606,
+    "p25": 871,
+    "median": 1421,
+    "p75": 1951,
+    "max": 2159
+   },
+   "collected_on": "2026-11-20",
+   "centre": {
+    "lat": 33.951829,
+    "lng": -6.884073,
+    "name": "Riyad, Riad, Arrondissement Agdal-Riyad, Rabat, Pachalik de Rabat, Préfecture de Rabat, Rabat-Salé-Kénitra, 10150, Maroc"
+   }
+  },
+  "market": {
+   "occ": 0.35,
+   "adr_mad": 2460,
+   "city": "rabat",
+   "bedroom_specific": true
+  }
+ },
+ "check": {
+  "verified": true,
+  "cells_checked": 482,
+  "mismatches": [],
+  "formula_errors": [],
+  "note": null
+ },
+ "message_fr": "Bonjour, je suis intéressé par votre annonce « Appartement à vendre 190 m², 4 chambres Hay Riad Rabat », réf. RBA-AG-1136, à 3 850 000 DH.\nAvant d'organiser une visite, pourriez-vous me confirmer :\n1. Le bien est-il titré (titre foncier) ? Si oui, quel est le numéro du titre ?\n2. S'agit-il d'un bien achevé avec permis d'habiter, ou d'une vente sur plan ?\n3. L'adresse ou la localisation exacte (point Google Maps) ?\n4. La superficie exacte inscrite sur le titre (hors terrasse) et l'année de construction ?\n5. Le montant mensuel des charges de syndic ?\n6. La location de courte durée (type Airbnb) est-elle autorisée par le règlement de copropriété ?\n7. Le prix comprend-il des meubles ou de l'équipement ?\n8. Votre commission d'agence côté acheteur, TVA comprise ?\nMerci d'avance.",
+ "message_en": "Hello, I'm interested in your listing “Appartement à vendre 190 m², 4 chambres Hay Riad Rabat”, ref. RBA-AG-1136, at 3 850 000 DH. Before arranging a viewing, could you confirm: 1. Is it titled, and what is the title number? 2. Is it finished with a certificate of occupancy, or an off-plan sale? 3. The exact address or a map pin? 4. The exact surface on the title (excluding terrace) and the year built? 5. The monthly service charge? 6. Do the building rules allow short-term letting? 7. Does the price include any furniture or equipment? 8. Your buyer-side commission including VAT? Thank you."
+}

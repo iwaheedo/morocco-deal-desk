@@ -1,0 +1,194 @@
+{
+  "id": "mubawab-8293563",
+  "origin": "auto",
+  "short_name": "Rabat Riyad",
+  "added": "2026-11-20",
+  "added_at": "2026-11-20T23:10:41",
+  "title": "4-bed, 190 m² — Riyad, Rabat",
+  "advert_title": "Appartement à vendre 190 m², 4 chambres Hay Riad Rabat",
+  "source_url": "https://www.mubawab.ma/fr/a/8293563/appartement-à-vendre-190-m²-4-chambres-hay-riad-rabat",
+  "listing_date": "2026-01-28",
+  "contact": "AGENZ ref RBA-AG-1136",
+  "city": "Rabat",
+  "neighbourhood": "Riyad",
+  "address_note": "Advert gives the neighbourhood only; Airbnb comparables use its centre.",
+  "property_type": "appartement",
+  "bedrooms": 4,
+  "bathrooms": 2,
+  "floor": "2ème",
+  "lift": true,
+  "year_built": null,
+  "condition": "Bon état / habitable",
+  "furnished": false,
+  "title_status": "unknown",
+  "off_plan": false,
+  "seller_type": "agent",
+  "asking_price_mad": 3850000,
+  "asking_note": "From the advert (read 2026-11-20).",
+  "surface_m2": 190.0,
+  "surface_note": "From the advert. Confirm on the title certificate.",
+  "furniture_value_mad": 0,
+  "syndic_mad_month": null,
+  "agent_fee_pct": null,
+  "comps_sale": [
+    {
+      "desc": "4-bed 210 m², Riyad, Rabat",
+      "price_mad": 5100000.0,
+      "surface_m2": 210.0,
+      "url": "https://www.mubawab.ma/fr/a/8455925/joli-appartement-%C3%A0-vendre-au-1er-%C3%A9tage",
+      "note": ""
+    },
+    {
+      "desc": "4-bed 220 m², Riyad, Rabat",
+      "price_mad": 5500000.0,
+      "surface_m2": 220.0,
+      "url": "https://www.mubawab.ma/fr/a/8448038/appartement-spacieux-a-vendre-hay-riyad-rabat",
+      "note": ""
+    },
+    {
+      "desc": "4-bed 158 m², Riyad, Rabat",
+      "price_mad": 3400000.0,
+      "surface_m2": 158.0,
+      "url": "https://www.mubawab.ma/fr/a/8358538/vente-appartement-%C3%A0-rabat-hay-riad",
+      "note": ""
+    },
+    {
+      "desc": "4-bed 230 m², Riyad, Rabat",
+      "price_mad": 4675000.0,
+      "surface_m2": 230.0,
+      "url": "https://www.mubawab.ma/fr/a/8454349/appartement-%C3%A0-vendre-bonne-affaire",
+      "note": ""
+    },
+    {
+      "desc": "4-bed 245 m², Riyad, Rabat",
+      "price_mad": 4700000.0,
+      "surface_m2": 245.0,
+      "url": "https://www.mubawab.ma/fr/a/8450515/vente-d-un-bel-appartement-%C3%A0-riyad-6-pi%C3%A8ces-salon-typique-marocain-r%C3%A9sidence-s%C3%A9curis%C3%A9e",
+      "note": ""
+    }
+  ],
+  "furnishing_mad": 228000,
+  "furnishing_note": "ASSUMPTION: 1,200 MAD/m² to furnish and equip for letting; the advert does not mention furniture.",
+  "renovation_mad": 0,
+  "str": {
+    "comps": [
+      {
+        "desc": "Beautiful apartment center rabat 3/410 (4.77★, 8.83 km)",
+        "nightly_mad": 871,
+        "bedrooms": 4,
+        "reviews": 188,
+        "url": "https://www.airbnb.co.uk/rooms/36204235",
+        "note": "one-night price on 2026-11-23"
+      },
+      {
+        "desc": "Beautiful apartment center rabat 5/311 (4.77★, 8.74 km)",
+        "nightly_mad": 838,
+        "bedrooms": 4,
+        "reviews": 88,
+        "url": "https://www.airbnb.co.uk/rooms/51156804",
+        "note": "one-night price on 2026-11-22"
+      },
+      {
+        "desc": "Peaceful Villa with Garden in Hay Riad (4.78★, 1.32 km)",
+        "nightly_mad": 2018,
+        "bedrooms": 4,
+        "reviews": 76,
+        "url": "https://www.airbnb.co.uk/rooms/926876884167429564",
+        "note": "one-night price on 2026-12-14"
+      },
+      {
+        "desc": "Agdal Center · 4BR · Walk to Mall & Parking (4.7★, 6.21 km)",
+        "nightly_mad": 1951,
+        "bedrooms": 4,
+        "reviews": 64,
+        "url": "https://www.airbnb.co.uk/rooms/1041856263758090142",
+        "note": "one-night price on 2026-11-22"
+      },
+      {
+        "desc": "House overlooking the Haut-Agdal forest | Swimming pool & ga (4.68★, 5.79 km)",
+        "nightly_mad": 1543,
+        "bedrooms": 4,
+        "reviews": 22,
+        "url": "https://www.airbnb.co.uk/rooms/1118836133321804057",
+        "note": "one-night price on 2027-01-04"
+      },
+      {
+        "desc": "Dar Azami (4.38★, 9.35 km)",
+        "nightly_mad": 1421,
+        "bedrooms": 4,
+        "reviews": 13,
+        "url": "https://www.airbnb.co.uk/rooms/1285498699944855880",
+        "note": "one-night price on 2026-11-25"
+      },
+      {
+        "desc": "PEACE house, 4-bedroom in the heart of Rabat (4.56★, 9.20 km)",
+        "nightly_mad": 2159,
+        "bedrooms": 4,
+        "reviews": 9,
+        "url": "https://www.airbnb.co.uk/rooms/657056443058698240",
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Three-room Panorama apartment with a sea view (4.29★, 10.96 km)",
+        "nightly_mad": 606,
+        "bedrooms": 4,
+        "reviews": 7,
+        "url": "https://www.airbnb.co.uk/rooms/1119434959205169752",
+        "note": "one-night price on 2026-11-21"
+      }
+    ],
+    "adr_mad": {
+      "bear": 710,
+      "base": 1170,
+      "bull": 1600
+    },
+    "adr_note": "Automatic: 9 established 4-bed Airbnb homes across Rabat — too few this size near Riyad (your dashboard data, collected 2026-11-20) show one-night prices of 871 / 1,421 / 1,951 MAD (lower quartile / median / upper quartile). Taken down 18% for the cleaning fee, the one-night premium and a new listing's lack of reviews.",
+    "occupancy": {
+      "bear": 0.35,
+      "base": 0.45,
+      "bull": 0.57
+    },
+    "occupancy_note": "Automatic: Rabat 4-bed average occupancy 35% (AirROI, 12 months to Oct 2026) as the bear case; +10 points for an always-available managed flat (base); +22 points, about the top quarter of listings (bull)."
+  },
+  "notes": "2026-11-20: automatic first pass from the web app.",
+  "area_price_per_m2": {
+    "low": 18609,
+    "mid": 18988.04430379747,
+    "high": 19367.088607594935,
+    "basis": "Automatic: midpoint of Agenz's reference for Riyad (18,609 MAD/m², updated 29/01/2026) and the median of 5 comparable adverts less 10% (19,367). A placeholder until agents tell you what flats actually sold for."
+  },
+  "flags": [
+    {
+      "severity": "red",
+      "text": "Title status is not in the advert. Ask for the title number (titre foncier) before anything else."
+    },
+    {
+      "severity": "red",
+      "text": "On a 70% mortgage the flat loses about £965 a month in the checked base case (the video's way shows +£516)."
+    },
+    {
+      "severity": "amber",
+      "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."
+    },
+    {
+      "severity": "amber",
+      "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."
+    },
+    {
+      "severity": "amber",
+      "text": "Furnishing budget is an assumption (228,000 MAD)."
+    }
+  ],
+  "unknowns": [
+    "Is it titled (titre foncier)? Title number?",
+    "Exact address / map pin",
+    "Year the building was built",
+    "Monthly syndic charge and what it covers",
+    "Surface on the title",
+    "Do the building rules allow short-term letting?",
+    "Agent's buyer-side commission",
+    "Is any furniture or equipment included?"
+  ],
+  "verdict": "pass",
+  "verdict_reason": "Automatic first pass. The video's way shows +£516 a month; with realistic occupancy and the costs it leaves out, the flat loses £965 a month on the mortgage."
+}

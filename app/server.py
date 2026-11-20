@@ -81,7 +81,9 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, run)
             threading.Thread(target=pipeline.sync, kwargs={"message": "Run: %s" % (run["record"].get("title") or run["run_id"])}, daemon=True).start()
         except pipeline.Refusal as e:
+            pipeline.log_failure(body.get("url"), str(e))
             self._send(422, {"error": str(e)})
+            threading.Thread(target=pipeline.sync, kwargs={"message": "Entry not analysed"}, daemon=True).start()
         except Exception as e:
             traceback.print_exc()
             self._send(500, {"error": "The analysis stopped: %s" % e})

@@ -42,6 +42,7 @@ def main():
     except pipeline.Refusal as e:
         out("## Could not analyse that link\n\n%s\n\nLink given: `%s`" % (e, url[:300]))
         note("Could not analyse that link. %s" % e)
+        pipeline.log_failure(url, str(e))
         sys.exit(1)
     rec = run["record"]
     title = "%s — %s" % (rec.get("title"), (rec.get("verdict") or "").upper())
