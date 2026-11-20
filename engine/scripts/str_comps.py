@@ -94,7 +94,7 @@ def comps(lat, lng, beds=None, radius_km=1.0, min_reviews=0, file=None, fx=None)
         "most_established": [
             {"name": it.get("name"), "bedrooms": it.get("bedrooms"), "rating": it.get("rating"), "reviews": it.get("reviews"),
              "price": it.get("adr"), "price_mad": round(it["adr"] * fx), "price_date": it.get("priceDate"),
-             "km_away": round(d, 2), "superhost": it.get("superhost"), "url": "https://www.airbnb.co.uk/rooms/%s" % it.get("id")}
+             "km_away": round(d, 2), "superhost": it.get("superhost"), "url": ("https://www.airbnb.co.uk/rooms/%s" % it["id"]) if it.get("id") else None}
             for d, it in best
         ],
     }
