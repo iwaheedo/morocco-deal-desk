@@ -48,7 +48,7 @@ UA = "property-research-script/1.0 (personal, low-volume)"
 SPOT_TO_ACHIEVED = 0.82   # one-night Airbnb spot price -> year-round achieved rate for a new listing
 ASKING_RENT_HAIRCUT = 0.95
 FURNISH_PER_M2 = 1200
-OFF_PLAN = re.compile(r"en cours de construction|sur plan|hors[ -]plan|livraison|vefa|à partir de", re.I)
+OFF_PLAN = re.compile(r"en cours de construction|sur plan|hors[ -]plan|\bvefa\b", re.I)   # "livraison immédiate" and "à partir de" alone prove nothing
 FURNISHED = re.compile(r"\bmeubl[ée]e?s?\b", re.I)
 
 
@@ -215,7 +215,8 @@ def analyse_url(url, say=lambda msg: None):
         city = urllib.parse.unquote(m.group(1)).replace("-", " ").title()
     surface, beds = li.get("surface_m2"), li.get("bedrooms")
     text = " ".join([li.get("title") or "", li.get("description") or "", " ".join("%s %s" % kv for kv in (li.get("main_features") or {}).items())])
-    off_plan = bool(li.get("new_development") or OFF_PLAN.search(text))
+    feats = li.get("main_features") or {}
+    off_plan = bool(li.get("new_development") or "Livraison" in feats or "construction" in str(feats.get("État") or "").lower() or OFF_PLAN.search(text))
     furnished = bool(FURNISHED.search(text))
     searches = li.get("comparable_searches") or {}
     evidence, flags, unknowns = {}, [], []
@@ -276,7 +277,14 @@ def analyse_url(url, say=lambda msg: None):
     occ_note = ("Automatic: %s average occupancy %s (AirROI, 12 months to Oct 2026) as the bear case; +10 points for an always-available managed flat (base); +22 points, about the top quarter of listings (bull)."
                 % ((mk["city"] or "national").title() + (" %s-bed" % beds if mk["bedroom_specific"] else ""), "%d%%" % round(mk["occ"] * 100)))
     adr, adr_note, comps_str, str_ev = None, "", [], {"method": None}
-    geo = geocode(area, city) if (area and city) else None
+    geo = None
+    if area and city:   # "Hassan - Centre Ville" is not a place name a map knows; try its parts, then the city itself
+        for name in [area] + [part.strip() for part in re.split(r"\s+-\s+|/", area) if part.strip() and part.strip() != area]:
+            geo = geocode(name, city)
+            if geo:
+                break
+    if not geo and city:
+        geo = geocode(city, "Morocco")
     if geo:
         for radius in (1.0, 1.5, 2.5, 6.0, 40.0):   # widen until there are enough; the last one is the whole city
             r = str_comps.comps(geo["lat"], geo["lng"], beds=beds, radius_km=radius, min_reviews=5, file=LISTINGS)
@@ -375,6 +383,10 @@ def analyse_url(url, say=lambda msg: None):
         if ref and m0.get("ask_m2") and m0["ask_m2"] > ref["mad_per_m2"] * 1.2:
             flags.append({"severity": "amber", "text": "Asking %s MAD/m² is %d%% above Agenz's reference for %s (%s)."
                           % (format(round(m0["ask_m2"]), ","), round((m0["ask_m2"] / ref["mad_per_m2"] - 1) * 100), ref["area"], format(ref["mad_per_m2"], ","))})
+        med = m0.get("comp_median_m2")
+        if med and m0.get("ask_m2") and (m0["ask_m2"] > 2 * med or m0["ask_m2"] < 0.4 * med):
+            flags.insert(1, {"severity": "red", "text": "The asking price works out at %s MAD per m² against about %s for similar flats nearby. That is so far out that the advert probably has a typing error in the price or the size. Confirm both with the agent before reading anything into these numbers."
+                             % (format(round(m0["ask_m2"]), ","), format(round(med), ","))})
         if len(comps_sale) < 5:
             flags.append({"severity": "amber", "text": "Only %d comparable flats for sale found: the price check is weak." % len(comps_sale)})
         flags.append({"severity": "amber", "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."})
