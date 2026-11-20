@@ -1,0 +1,36 @@
+{
+  "_how_to_use": "Copy to <data folder>/profile.json and fill in. build_tracker.py reads buyer_type, home_currency and overrides; the rest guides the analysis. Anything marked ASSUMED has not been confirmed by the buyer yet — say so in every report until it is.",
+  "buyer_type": "foreign_non_resident",
+  "_buyer_type_options": "foreign_non_resident | mre (Moroccan living abroad) | moroccan_resident",
+  "buyer_type_status": "CONFIRMED by the buyer on 2026-11-20: foreign national. That they live outside Morocco is still ASSUMED.",
+  "home_currency": "GBP",
+  "_home_currency_options": "GBP | EUR | USD",
+  "tax_residence": "United Kingdom",
+  "tax_residence_status": "CONFIRMED by the buyer on 2026-11-20: UK income-tax band 40%.",
+  "financing": "mortgage",
+  "_financing_options": "cash | mortgage | islamic | undecided",
+  "cash_available_home_currency": null,
+  "owns_other_home_in_morocco": null,
+  "strategy": [
+    "short_let"
+  ],
+  "_strategy_options": "short_let | long_let | own_use (any mix)",
+  "own_use_weeks_per_year": 0,
+  "safe_return_at_home": null,
+  "_safe_return_at_home": "What the same cash earns risk-free at home, as a fraction (0.04 = 4%). The yield a purchase has to beat.",
+  "target_cities": [],
+  "must_haves": [],
+  "deal_breakers": [],
+  "notes": "",
+  "overrides": {
+    "home_tax_rate": 0.4,
+    "home_cgt_rate": 0.24,
+    "rate_foreign_non_resident": 0.0453,
+    "term_years": 25,
+    "ltv_foreign_non_resident": 0.7
+  },
+  "_overrides_note": "home_tax_rate: confirmed by the buyer (UK 40% band); home_cgt_rate 24% follows from that band. rate_foreign_non_resident 4.53%: the buyer asked for today's fixed home-loan rate — Bank Al-Maghrib's latest published average for new housing loans (Q2 2026; before the 10% VAT on interest; whether foreigners pay more is unverified). term_years 25 and ltv 70%: the video's terms for a foreign buyer (30% deposit, up to 25 years); Banque Populaire publishes 70% over 25 years, CIH 70% over 15, Bank of Africa 50%.",
+  "financing_status": "CONFIRMED by the buyer on 2026-11-20: expects to buy with a Moroccan mortgage.",
+  "strategy_status": "CONFIRMED by the buyer on 2026-11-20: rental income, particularly Airbnb, as in the video.",
+  "playbook": "Buyer's instruction, 2026-11-20: follow the video's playbook exactly. Lead every analysis with the video's own 'analyse the deal' calculation (the ★ section), using a fixed rate at today's market level. Show the checked version beside it."
+}

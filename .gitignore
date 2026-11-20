@@ -1,0 +1,9 @@
+Morocco Property Tracker.xlsx
+*.tmp.xlsx
+~$*
+geocode_cache.json
+__pycache__/
+*.pyc
+.DS_Store
+.venv/
+.run_note.md

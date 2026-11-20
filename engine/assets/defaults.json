@@ -1,0 +1,686 @@
+{
+ "as_of": "2026-11-20",
+ "note": "Every default the deal model uses, with where it came from. 'confidence' is high (read in the law or an official publication), medium (good secondary source, or official text plus an interpretation), low (commercial sources only, or an assumption). To change a value for good, put it under \"overrides\" in the data folder's profile.json rather than editing this file. Full research notes with quotes and links: <data folder>/research/.",
+ "assumptions": [
+  {
+   "key": "fx_gbp",
+   "group": "Currency and your own tax",
+   "label": "Dirhams per £1",
+   "value": 13.154,
+   "fmt": "fx",
+   "confidence": "high",
+   "source": "Bank Al-Maghrib reference rate, 17 Nov 2026. Five-year range about 11.7–13.2: sterling is near its high, so the same flat costs fewer pounds than usual, and future rent converts back to fewer pounds if that persists. REFRESH before each analysis."
+  },
+  {
+   "key": "fx_eur",
+   "group": "Currency and your own tax",
+   "label": "Dirhams per €1",
+   "value": 10.9623,
+   "fmt": "fx",
+   "confidence": "high",
+   "source": "Bank Al-Maghrib reference rate, 17 Nov 2026. The dirham is pegged to a 60% euro / 40% dollar basket within ±5%."
+  },
+  {
+   "key": "fx_usd",
+   "group": "Currency and your own tax",
+   "label": "Dirhams per $1",
+   "value": 9.97,
+   "fmt": "fx",
+   "confidence": "high",
+   "source": "Bank Al-Maghrib reference rate, 17 Nov 2026."
+  },
+  {
+   "key": "fx_home",
+   "group": "Currency and your own tax",
+   "label": "Dirhams per 1 unit of your home currency (used throughout)",
+   "derived": true,
+   "fmt": "fx",
+   "source": "Picked from the rows above by home_currency in profile.json."
+  },
+  {
+   "key": "fx_cost_pct",
+   "group": "Currency and your own tax",
+   "label": "Cost of converting and wiring money to Morocco",
+   "value": 0.01,
+   "fmt": "pct2",
+   "confidence": "low",
+   "source": "Assumption: about 0.5–1% with a currency broker, 2–3% through a high-street bank. Get a quote."
+  },
+  {
+   "key": "home_tax_rate",
+   "group": "Currency and your own tax",
+   "label": "Your marginal income-tax rate at home",
+   "value": 0.4,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "UK higher rate, used as a cautious default — set your own in profile.json (UK: 20% / 40% / 45%; announced to become 22% / 42% / 47% for property income from April 2027). A UK resident is taxed on worldwide rental profit, with credit for Moroccan income tax (UK–Morocco treaty arts 6 and 22). Set 0 if you are tax-resident in Morocco."
+  },
+  {
+   "key": "home_cgt_rate",
+   "group": "Currency and your own tax",
+   "label": "Your capital-gains tax rate at home",
+   "value": 0.24,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "UK higher rate on residential property gains 2026-27 (18% within the basic-rate band); Moroccan tax on the gain is credited. The UK computes the gain in sterling, so exchange-rate moves change it. Set 0 if not applicable."
+  },
+  {
+   "key": "reg_duty_pct",
+   "group": "Buying costs",
+   "label": "Registration duty (droits d'enregistrement)",
+   "value": 0.04,
+   "fmt": "pct2",
+   "confidence": "high",
+   "source": "Code Général des Impôts 2026, art. 133-I-F-1°: 4% on built property, same for Moroccans and foreigners. (Bare land 5%.) Since 1 July 2026 an EXTRA 2% applies to any part of the price not paid by traceable bank means (art. 133-III) — pay everything by transfer through the notary."
+  },
+  {
+   "key": "cf_pct",
+   "group": "Buying costs",
+   "label": "Land registry (conservation foncière)",
+   "value": 0.015,
+   "fmt": "pct2",
+   "confidence": "high",
+   "source": "ANCFCC tariff, Decree 2-16-375: 1.5% of the price."
+  },
+  {
+   "key": "cf_fixed",
+   "group": "Buying costs",
+   "label": "Land registry fixed fee (MAD)",
+   "value": 100,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "ANCFCC tariff: 100 MAD per property."
+  },
+  {
+   "key": "notary_pct",
+   "group": "Buying costs",
+   "label": "Notary's fee, before VAT",
+   "value": 0.01,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "About 1% is custom and negotiable — no published fee decree was found (a Casablanca notary, 2025: 'grosso modo, c'est 1%'). Ask for a written, itemised quote."
+  },
+  {
+   "key": "notary_min",
+   "group": "Buying costs",
+   "label": "Notary's minimum fee (MAD)",
+   "value": 2500,
+   "fmt": "mad",
+   "confidence": "low",
+   "source": "Assumption. Blogs quote minimums of 1,500–4,000 MAD; not verified."
+  },
+  {
+   "key": "notary_vat",
+   "group": "Buying costs",
+   "label": "VAT on the notary's fee",
+   "value": 0.2,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "20% since 1 Jan 2023 (CGI art. 99; Loi de Finances 2023). Many online simulators still use the old 10%."
+  },
+  {
+   "key": "misc_fixed",
+   "group": "Buying costs",
+   "label": "Certificates, stamps, preliminary-contract duty, copies (MAD)",
+   "value": 1900,
+   "fmt": "mad",
+   "confidence": "medium",
+   "source": "2 ownership certificates at 100 MAD, 200 MAD duty on the preliminary contract (CGI art. 135-II-17°), ~1,500 MAD stamps and copies (estimate)."
+  },
+  {
+   "key": "agent_buyer_pct",
+   "group": "Buying costs",
+   "label": "Estate agent's commission charged to the buyer",
+   "value": 0.025,
+   "fmt": "pct2",
+   "confidence": "low",
+   "source": "Agents are unregulated; commission is whatever is agreed. Commonly quoted: 2.5% including VAT, sometimes from each side. The video: 2–3.5%, aim for 2, never above 3. Agree it in writing before viewing; 0 if buying direct from the owner."
+  },
+  {
+   "key": "agent_vat",
+   "group": "Buying costs",
+   "label": "VAT added on top of the agent's commission",
+   "value": 0.0,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "0 because commissions are usually quoted including VAT ('TTC'). Set 0.20 if yours is quoted before VAT ('HT')."
+  },
+  {
+   "key": "ltv_foreign_non_resident",
+   "group": "Mortgage",
+   "label": "Share of the price a bank lends — foreign non-resident",
+   "value": 0.6,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "Exchange-control ceiling is 80% since 1 Jan 2026 (Office des Changes, IGOC 2026 — it was 70% when the video was made), but banks publish less for foreigners: Bank of Africa 50%, CIH 70% (15 years max), Banque Populaire 70%. A foreigner must also declare they own no other home in Morocco."
+  },
+  {
+   "key": "ltv_mre",
+   "group": "Mortgage",
+   "label": "Share of the price a bank lends — Moroccan living abroad (MRE)",
+   "value": 0.7,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "Legal ceiling 80% (IGOC 2026); the balance must arrive in foreign currency. Bank practice 70–80%."
+  },
+  {
+   "key": "ltv_moroccan_resident",
+   "group": "Mortgage",
+   "label": "Share of the price a bank lends — Moroccan resident",
+   "value": 0.8,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "Banks advertise up to 90–100% for residents; 80% is a prudent planning figure."
+  },
+  {
+   "key": "ltv",
+   "group": "Mortgage",
+   "label": "Loan-to-value used (from the buyer type at the top)",
+   "derived": true,
+   "fmt": "pct",
+   "source": "Picked by buyer type."
+  },
+  {
+   "key": "rate_foreign_non_resident",
+   "group": "Mortgage",
+   "label": "Fixed rate before VAT — foreign non-resident",
+   "value": 0.05,
+   "fmt": "pct2",
+   "confidence": "low",
+   "source": "Official average for new housing loans was 4.53% in Q2 2026 (Bank Al-Maghrib); 5.0% adds a prudence margin for a non-resident (the size of any non-resident premium is unverified). The video's 4.3% was a best-profile rate. Rates are negotiable; get three offers."
+  },
+  {
+   "key": "rate_mre",
+   "group": "Mortgage",
+   "label": "Fixed rate before VAT — MRE",
+   "value": 0.047,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "Crédit du Maroc's advertised MRE rate (4.71% excl. VAT, Nov 2026)."
+  },
+  {
+   "key": "rate_moroccan_resident",
+   "group": "Mortgage",
+   "label": "Fixed rate before VAT — Moroccan resident",
+   "value": 0.045,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "Bank Al-Maghrib average for new housing loans, Q2 2026: 4.53%."
+  },
+  {
+   "key": "rate",
+   "group": "Mortgage",
+   "label": "Rate before VAT used (from the buyer type)",
+   "derived": true,
+   "fmt": "pct2",
+   "source": "Picked by buyer type."
+  },
+  {
+   "key": "interest_vat",
+   "group": "Mortgage",
+   "label": "VAT on mortgage interest",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "Moroccan mortgage rates are quoted before a 10% VAT on the interest (CGI arts 89 and 99). The video's figures ignore it."
+  },
+  {
+   "key": "rate_eff",
+   "group": "Mortgage",
+   "label": "Rate actually paid, including VAT on interest",
+   "derived": true,
+   "fmt": "pct2",
+   "source": "Rate × (1 + VAT). This is what the repayment is calculated on."
+  },
+  {
+   "key": "term_years",
+   "group": "Mortgage",
+   "label": "Loan term (years)",
+   "value": 20,
+   "fmt": "int",
+   "confidence": "medium",
+   "source": "25 years is the usual maximum; CIH caps non-resident foreigners at 15. Banks generally want the loan repaid by age 70. Average new loan: 21 years (Bank Al-Maghrib, 2025)."
+  },
+  {
+   "key": "loan_ins_pct",
+   "group": "Mortgage",
+   "label": "Compulsory life/disability insurance, % of the loan per year",
+   "value": 0.004,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "Market average 0.40% a year (Afdal mortgage barometer, Feb 2026). Applied here to the original loan, which slightly overstates it."
+  },
+  {
+   "key": "mort_reg_low_pct",
+   "group": "Mortgage",
+   "label": "Mortgage registration — rate on the first slice",
+   "value": 0.005,
+   "fmt": "pct2",
+   "confidence": "high",
+   "source": "ANCFCC tariff: 0.5% up to 250,000 MAD."
+  },
+  {
+   "key": "mort_reg_slice",
+   "group": "Mortgage",
+   "label": "Mortgage registration — size of the first slice (MAD)",
+   "value": 250000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "ANCFCC tariff."
+  },
+  {
+   "key": "mort_reg_pct",
+   "group": "Mortgage",
+   "label": "Mortgage registration — rate above the first slice",
+   "value": 0.015,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "ANCFCC tariff: 1.5% from 250,001 to 5,000,000 MAD. Applied by slice (a notary's worked example); some offices may charge 1.5% on the whole loan."
+  },
+  {
+   "key": "mort_fixed",
+   "group": "Mortgage",
+   "label": "Mortgage deed duty, fixed fee, stamps (MAD)",
+   "value": 600,
+   "fmt": "mad",
+   "confidence": "medium",
+   "source": "100 MAD registry fee + 200 MAD duty on the mortgage deed + ~300 MAD stamps."
+  },
+  {
+   "key": "bank_fee_pct",
+   "group": "Mortgage",
+   "label": "Bank file fee, % of the loan",
+   "value": 0.001,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "Reported regulatory cap of 0.1% of the loan (2015 order under Law 31-08)."
+  },
+  {
+   "key": "asking_discount",
+   "group": "Price check",
+   "label": "How far sold prices sit below asking prices",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "ASSUMPTION — no published figure exists for Morocco. Adverts are asking prices; in 2026 sales volumes fell sharply while asking prices held, which favours buyers. Replace with what agents tell you flats actually SOLD for (area_price_per_m2 in the property record)."
+  },
+  {
+   "key": "opening_offer_discount",
+   "group": "Price check",
+   "label": "Opening offer, % below your target price",
+   "value": 0.07,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Negotiating convention, not data."
+  },
+  {
+   "key": "platform_pct",
+   "group": "Short-let running costs",
+   "label": "Airbnb / Booking fee, % of bookings",
+   "value": 0.155,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "Airbnb's single host-only fee is 15.5% and became standard through 2026 (the old 3% host fee is gone for most hosts). Booking.com charges about 15%. The video deducts nothing."
+  },
+  {
+   "key": "mgmt_pct",
+   "group": "Short-let running costs",
+   "label": "Management company (conciergerie), % of bookings",
+   "value": 0.22,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Quoted rates: 20–30% of gross in Marrakech, 20% from one Rabat firm (commercial sources, 2026). The video's 10% is not a market rate for full service. Ask exactly what is included (cleaning, linen, check-in)."
+  },
+  {
+   "key": "str_maint_pct",
+   "group": "Short-let running costs",
+   "label": "Upkeep, linen and supplies, % of bookings",
+   "value": 0.05,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "AirROI's cost model for a Moroccan listing: upkeep 3% + supplies 2% of bookings (Nov 2026)."
+  },
+  {
+   "key": "syndic_per_m2",
+   "group": "Short-let running costs",
+   "label": "Building service charge if not stated (MAD per m² per month)",
+   "value": 10,
+   "fmt": "num",
+   "confidence": "low",
+   "source": "Thin evidence: typical 400–1,200 MAD a month; 1,250–2,100 with pool and security; one Rabat Hay Riad example ≈ 11 MAD/m². Always ask for the syndic's latest statement."
+  },
+  {
+   "key": "utilities_month",
+   "group": "Short-let running costs",
+   "label": "Electricity + water (MAD per month)",
+   "value": 650,
+   "fmt": "mad",
+   "confidence": "low",
+   "source": "Assumption in line with the video's ~€60 for electricity. Air-conditioning in summer pushes this up."
+  },
+  {
+   "key": "internet_month",
+   "group": "Short-let running costs",
+   "label": "Fibre internet (MAD per month)",
+   "value": 400,
+   "fmt": "mad",
+   "confidence": "low",
+   "source": "Assumption in line with the video's ~€35."
+  },
+  {
+   "key": "subs_month",
+   "group": "Short-let running costs",
+   "label": "TV / streaming subscriptions (MAD per month)",
+   "value": 200,
+   "fmt": "mad",
+   "confidence": "low",
+   "source": "The video's ~€21."
+  },
+  {
+   "key": "insurance_year",
+   "group": "Short-let running costs",
+   "label": "Home insurance (MAD per year)",
+   "value": 1500,
+   "fmt": "mad",
+   "confidence": "low",
+   "source": "Assumption. Get a quote that covers paying guests."
+  },
+  {
+   "key": "owner_use_tax_pct",
+   "group": "Short-let running costs",
+   "label": "Housing tax if you also use the flat yourself, % of price per year",
+   "value": 0.0,
+   "fmt": "pct2",
+   "confidence": "medium",
+   "source": "0 for a flat let all year. If you keep it as a second home, taxe d'habitation applies with no abatement: roughly 0.6–1.2% of price a year with the communal tax (Law 47-06, arts 19–36); about 0.2% for an MRE's main Moroccan home."
+  },
+  {
+   "key": "str_local_tax_pct",
+   "group": "Short-let running costs",
+   "label": "Moroccan local taxes on a short let, % of bookings",
+   "value": 0.07,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "ESTIMATE, range 5–10%. Communal services tax is 10.5% of rents by the letter of the law (Law 47-06 art. 35-b), or of a lower assessed rental value in practice; if the let is treated as a business, a 10% business tax on rental value follows after a five-year exemption."
+  },
+  {
+   "key": "str_income_tax_pct",
+   "group": "Short-let running costs",
+   "label": "Moroccan income tax on short-let income, % of bookings",
+   "value": 0.08,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "CENTRAL ESTIMATE, range 2.5–15%. The law is unsettled: many hosts declare as ordinary rental income (40% allowance, then the progressive scale — about 8% of bookings at 180,000 MAD a year), but the tax office's written doctrine treats furnished letting as a business. Together with local taxes: about 15% of bookings, range 8–25%, plus VAT risk above 500,000 MAD turnover. The video includes no tax at all. Confirm with a Moroccan tax adviser."
+  },
+  {
+   "key": "ltr_vacancy",
+   "group": "Long-let",
+   "label": "Vacancy (share of the year empty)",
+   "value": 0.083,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Assumption: one month a year."
+  },
+  {
+   "key": "ltr_mgmt_pct",
+   "group": "Long-let",
+   "label": "Letting agent / management, % of rent",
+   "value": 0.08,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Assumption."
+  },
+  {
+   "key": "ltr_maint_pct",
+   "group": "Long-let",
+   "label": "Maintenance, % of rent",
+   "value": 0.05,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Assumption."
+  },
+  {
+   "key": "ltr_owner_pays_syndic",
+   "group": "Long-let",
+   "label": "Owner pays the syndic? (1 = yes, 0 = tenant)",
+   "value": 1,
+   "fmt": "int",
+   "confidence": "low",
+   "source": "Depends on the lease; 1 is the cautious choice."
+  },
+  {
+   "key": "ltr_owner_pays_tsc",
+   "group": "Long-let",
+   "label": "Owner bears the communal tax? (1 = yes, 0 = recharged to tenant)",
+   "value": 1,
+   "fmt": "int",
+   "confidence": "medium",
+   "source": "Legally the owner's (Law 47-06 art. 33); a lease can recharge it."
+  },
+  {
+   "key": "tsc_rate",
+   "group": "Long-let",
+   "label": "Communal services tax (TSC), % of annual rent",
+   "value": 0.105,
+   "fmt": "pct2",
+   "confidence": "high",
+   "source": "Law 47-06 arts 35-b and 36: 10.5% of rents in urban areas (6.5% in outlying zones)."
+  },
+  {
+   "key": "rf_abatement",
+   "group": "Long-let",
+   "label": "Flat allowance on rental income",
+   "value": 0.4,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 64-II: tax is charged on 60% of gross rent. The old flat 10% / 15% regime ended on 31 Dec 2022 — several big-firm summaries still describe it."
+  },
+  {
+   "key": "ir_l0",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Tax-free up to (MAD)",
+   "value": 40000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I. The 2027 finance bill proposes 60,000 — check once the Loi de Finances 2027 is published (January)."
+  },
+  {
+   "key": "ir_l1",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "10% band ends at (MAD)",
+   "value": 60000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_l2",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "20% band ends at (MAD)",
+   "value": 80000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_l3",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "30% band ends at (MAD)",
+   "value": 100000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_l4",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "34% band ends at (MAD)",
+   "value": 180000,
+   "fmt": "mad",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_r1",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Rate, band 1",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_r2",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Rate, band 2",
+   "value": 0.2,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_r3",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Rate, band 3",
+   "value": 0.3,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_r4",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Rate, band 4",
+   "value": 0.34,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I."
+  },
+  {
+   "key": "ir_r5",
+   "group": "Moroccan income-tax scale (2026)",
+   "label": "Top rate",
+   "value": 0.37,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-I. Check: 96,000 taxable gives 10,800, matching the tax office's own 2026 example."
+  },
+  {
+   "key": "stress_occ_pts",
+   "group": "Stress tests",
+   "label": "Occupancy falls by (percentage points)",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Chosen to be uncomfortable but plausible: listings are growing faster than visitors in most Moroccan cities."
+  },
+  {
+   "key": "stress_adr_pct",
+   "group": "Stress tests",
+   "label": "Nightly rate falls by",
+   "value": 0.15,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "As above."
+  },
+  {
+   "key": "stress_rate_pts",
+   "group": "Stress tests",
+   "label": "Mortgage rate comes in higher by (percentage points)",
+   "value": 0.01,
+   "fmt": "pct2",
+   "confidence": "low",
+   "source": "Covers a worse offer than assumed. A fixed-rate loan does not move after signing; 97% of new Moroccan mortgages are fixed."
+  },
+  {
+   "key": "growth_bear",
+   "group": "Selling in 10 years",
+   "label": "Price growth per year — flat-ish",
+   "value": 0.0,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "What actually happened: the official residential price index (Bank Al-Maghrib / ANCFCC, via BIS) rose about 2.5% IN TOTAL from 2010 to mid-2026, and fell about 22% after inflation."
+  },
+  {
+   "key": "growth_base",
+   "group": "Selling in 10 years",
+   "label": "Price growth per year — middle",
+   "value": 0.015,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Assumption: prices merely keep pace with inflation — already better than the last 16 years."
+  },
+  {
+   "key": "growth_bull",
+   "group": "Selling in 10 years",
+   "label": "Price growth per year — optimistic",
+   "value": 0.035,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Assumption. The video's 'worth a million in 30–40 years' needs about 6–7% a year for decades; nothing in the record supports modelling that."
+  },
+  {
+   "key": "sale_agent_pct",
+   "group": "Selling in 10 years",
+   "label": "Selling costs (agent), % of sale price",
+   "value": 0.025,
+   "fmt": "pct2",
+   "confidence": "low",
+   "source": "Same basis as the buying commission."
+  },
+  {
+   "key": "tpi_rate",
+   "group": "Selling in 10 years",
+   "label": "Moroccan tax on the gain",
+   "value": 0.2,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 73-II-F-6°: 20% of the net gain."
+  },
+  {
+   "key": "tpi_min_pct",
+   "group": "Selling in 10 years",
+   "label": "Minimum Moroccan tax, % of sale price",
+   "value": 0.03,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 144-II: at least 3% of the sale price even with no gain. The main-home exemption (5 years) is lost once a flat has been let (art. 63-II-B)."
+  },
+  {
+   "key": "tpi_cost_flat_pct",
+   "group": "Selling in 10 years",
+   "label": "Flat allowance for buying costs in the gain calculation",
+   "value": 0.15,
+   "fmt": "pct",
+   "confidence": "high",
+   "source": "CGI 2026 art. 65-II: 15% of the purchase price unless actual costs are higher. Inflation indexation of the cost is ignored here (cautious)."
+  },
+  {
+   "key": "video_occ",
+   "group": "The video's own assumptions (used only in the ★ section)",
+   "label": "Occupancy the video assumes",
+   "value": 0.7,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Video 1:23:31: 'average occupancy rate in Marrakech is 70%' = 21 nights a month, every month. Airbnb trackers put the market average near 40% (Marrakech) and 38% (Rabat); 70% is the level of classified hotels and of the top quarter of listings."
+  },
+  {
+   "key": "video_mgmt_pct",
+   "group": "The video's own assumptions (used only in the ★ section)",
+   "label": "Management fee the video uses",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Video 1:25:33: 'ranges from 10 to 20%… let's say 10%'. Market quotes for full service: 20–30%."
+  },
+  {
+   "key": "video_contingency_pct",
+   "group": "The video's own assumptions (used only in the ★ section)",
+   "label": "Optional contingency the video mentions, % of revenue",
+   "value": 0.1,
+   "fmt": "pct",
+   "confidence": "low",
+   "source": "Video 1:26:33: 'you could add 10% contingency in case things go wrong'. He does not deduct it in his own example."
+  }
+ ]
+}

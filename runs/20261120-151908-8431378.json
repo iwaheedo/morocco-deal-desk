@@ -1,0 +1,710 @@
+{
+ "run_id": "20261120-151908-8431378",
+ "at": "2026-11-20T15:19:08",
+ "url": "https://www.mubawab.ma/fr/a/8431378/vente-appartement-en-exclusivité-à-rabat-bas-agdal",
+ "source": "curated",
+ "sheet": "P01 Rabat Bas Agdal",
+ "home_currency": "GBP",
+ "fx_home": 13.154,
+ "terms": {
+  "ltv": 0.7,
+  "rate": 0.0453,
+  "rate_eff": 0.049830000000000006,
+  "term_years": 25,
+  "video_occ": 0.7,
+  "video_mgmt_pct": 0.1,
+  "mgmt_pct": 0.22,
+  "platform_pct": 0.155,
+  "utilities_month": 650,
+  "internet_month": 400,
+  "subs_month": 200,
+  "home_tax_rate": 0.4,
+  "defaults_as_of": "2026-11-20"
+ },
+ "record": {
+  "id": "rabat-bas-agdal-2bed-83m2",
+  "short_name": "Rabat Bas Agdal",
+  "added": "2026-11-20",
+  "title": "2-bed, 83 m², 2nd floor with lift and parking — Bas Agdal, Rabat",
+  "source_url": "https://www.mubawab.ma/fr/a/8431378/vente-appartement-en-exclusivité-à-rabat-bas-agdal",
+  "listing_date": "2026-10-09",
+  "contact": "AYKANA Agence Immobilière, ref 4415 (exclusive)",
+  "city": "Rabat",
+  "neighbourhood": "Bas Agdal",
+  "address_note": "Advert says only 'Bas Agdal'; exact building unknown",
+  "property_type": "apartment",
+  "bedrooms": 2,
+  "bathrooms": 2,
+  "floor": 2,
+  "lift": true,
+  "year_built": null,
+  "condition": "good",
+  "furnished": false,
+  "title_status": "unknown",
+  "off_plan": false,
+  "seller_type": "agent",
+  "asking_price_mad": 1900000,
+  "asking_note": "From the advert (Mubawab, read 20 Nov 2026).",
+  "surface_m2": 83,
+  "surface_note": "83 m² per the advert, plus an 8 m² storage box and one parking space not counted here. Confirm on the title certificate.",
+  "furniture_value_mad": 0,
+  "syndic_mad_month": null,
+  "agent_fee_pct": null,
+  "comps_sale": [
+   {
+    "desc": "2-bed 87 m², Agdal",
+    "price_mad": 2400000,
+    "surface_m2": 87,
+    "url": "https://www.mubawab.ma/fr/a/8450128/"
+   },
+   {
+    "desc": "2-bed 115 m², Haut Agdal, fully renovated",
+    "price_mad": 2850000,
+    "surface_m2": 115,
+    "url": "https://www.mubawab.ma/fr/a/8428544/",
+    "note": "pricier end of Agdal"
+   },
+   {
+    "desc": "2-bed 110 m², Agdal, high-standing, furnished",
+    "price_mad": 2900000,
+    "surface_m2": 110,
+    "url": "https://www.mubawab.ma/fr/a/8319851/",
+    "note": "price includes furniture"
+   },
+   {
+    "desc": "2-bed 120 m², Agdal, residential/office",
+    "price_mad": 2700000,
+    "surface_m2": 120,
+    "url": "https://www.mubawab.ma/fr/a/8322259/"
+   },
+   {
+    "desc": "2-bed 112 m², Agdal",
+    "price_mad": 2200000,
+    "surface_m2": 112,
+    "url": "https://www.mubawab.ma/fr/a/8433966/"
+   },
+   {
+    "desc": "2-bed 89 m², Agdal",
+    "price_mad": 2400000,
+    "surface_m2": 89,
+    "url": "https://www.mubawab.ma/fr/a/8424804/"
+   }
+  ],
+  "area_price_per_m2": {
+   "low": 15900,
+   "mid": 19450,
+   "high": 23000,
+   "basis": "Two sources disagree. Agenz's reference for Agdal apartments is 15,889 MAD/m² (blend of public data, adverts and partner transactions, updated 29 Jan 2026; Haut Agdal 21,235). Six comparable 2-bed adverts on Mubawab ask a median 25,573 (range 19,643–27,586); less the assumed 10% negotiation that is about 23,000. Mid = midpoint of the two, a placeholder until agents give sold prices."
+  },
+  "offer": {
+   "opening_mad": 1500000,
+   "target_mad": 1615000,
+   "walk_away_mad": 1750000,
+   "note": "Target = mid evidence (19,450/m²). Walk-away ≈ 21,100/m², Agenz's level for the pricier Haut Agdal; the parking space and storage box justify going above mid, not above that."
+  },
+  "furnishing_mad": 100000,
+  "furnishing_note": "ASSUMPTION: about 1,200 MAD/m² to furnish and equip for letting. The advert does not say furniture is included. Get quotes.",
+  "renovation_mad": 0,
+  "str": {
+   "comps": [
+    {
+     "desc": "2-bed 90 m², Agdal, near TGV station (Mubawab holiday ad)",
+     "nightly_mad": 649,
+     "bedrooms": 2,
+     "url": "https://www.mubawab.ma/fr/a/8161999/"
+    },
+    {
+     "desc": "2-bed 85 m², Agdal, near station and stadium (Mubawab)",
+     "nightly_mad": 799,
+     "bedrooms": 2,
+     "url": "https://www.mubawab.ma/fr/a/8160557/"
+    },
+    {
+     "desc": "2-bed 55 m², Agdal (Mubawab)",
+     "nightly_mad": 700,
+     "bedrooms": 2,
+     "url": "https://www.mubawab.ma/fr/a/8455705/"
+    },
+    {
+     "desc": "2-bed 120 m², Agdal, luxury (Mubawab)",
+     "nightly_mad": 1200,
+     "bedrooms": 2,
+     "url": "https://www.mubawab.ma/fr/a/8444279/"
+    },
+    {
+     "desc": "2-bed 140 m², Agdal, luxury, two terraces (Mubawab)",
+     "nightly_mad": 1200,
+     "bedrooms": 2,
+     "url": "https://www.mubawab.ma/fr/a/8455692/"
+    },
+    {
+     "desc": "2-bed opposite Agdal train station, 5.0★ (14 reviews) — Airbnb",
+     "nightly_mad": 747,
+     "bedrooms": 2,
+     "note": "Airbnb search 20 Nov 2026 for 9–12 Mar 2027: €227 for 3 nights incl. fees; ÷3, ×10.96 MAD/EUR, less ~10% for the cleaning fee"
+    },
+    {
+     "desc": "2-bed 'Stylish apartment opposite Agdal station', 4.82★ (57) — Airbnb",
+     "nightly_mad": 783,
+     "bedrooms": 2,
+     "note": "Airbnb search 20 Nov 2026 for 9–12 Mar 2027: €238 for 3 nights incl. fees; ÷3, ×10.96 MAD/EUR, less ~10% for the cleaning fee"
+    },
+    {
+     "desc": "2-bed 'Cozy Moroccan chic near Arribat Center', 4.95★ (19) — Airbnb",
+     "nightly_mad": 700,
+     "bedrooms": 2,
+     "note": "Airbnb search 20 Nov 2026 for 9–12 Mar 2027: €213 for 3 nights incl. fees; ÷3, ×10.96 MAD/EUR, less ~10% for the cleaning fee"
+    },
+    {
+     "desc": "2-bed 'Stunning 2 bedrooms apartment', 4.97★ (183) — Airbnb",
+     "nightly_mad": 878,
+     "bedrooms": 2,
+     "note": "Airbnb search 20 Nov 2026 for 9–12 Mar 2027: €267 for 3 nights incl. fees; ÷3, ×10.96 MAD/EUR, less ~10% for the cleaning fee"
+    },
+    {
+     "desc": "2-bed 'Elegant 2BR, prime Agdal', 4.97★ (29) — Airbnb",
+     "nightly_mad": 1023,
+     "bedrooms": 2,
+     "note": "Airbnb search 20 Nov 2026 for 9–12 Mar 2027: €311 for 3 nights incl. fees; ÷3, ×10.96 MAD/EUR, less ~10% for the cleaning fee"
+    }
+   ],
+   "adr_mad": {
+    "bear": 700,
+    "base": 850,
+    "bull": 1000
+   },
+   "adr_note": "Three sources. (1) Your dashboard's Airbnb data (collected 20 Nov 2026): 50 established 2-bed entire homes within 1 km of central Agdal show a median one-night price of £79 ≈ 1,039 MAD (lower quartile 897, upper 1,155). (2) Airbnb's first page for a 3-night low-season midweek stay (9–12 Mar 2027): median ≈ 885 MAD a night after ~10% for the cleaning fee (720–1,015). (3) Mubawab holiday adverts for 85–90 m² 2-beds in Agdal: 649–799. One-night prices overstate what a host averages (fees, and only unbooked nights are shown), so base = 850, a little under the established median because a new listing has no reviews; bear 700; bull 1,000. AirROI Rabat 2-bed average: 1,052.",
+   "occupancy": {
+    "bear": 0.38,
+    "base": 0.48,
+    "bull": 0.6
+   },
+   "occupancy_note": "AirROI Rabat, 12 months to Oct 2026: 2-bed average 38% (bear); top quarter of listings 62% (bull). Base = average + 10 points for an always-available, managed flat. Airbtics' Rabat median was 51%."
+  },
+  "ltr": {
+   "comps": [
+    {
+     "desc": "2-bed 93 m², Agdal",
+     "rent_mad_month": 11000,
+     "surface_m2": 93,
+     "url": "https://www.mubawab.ma/fr/a/8433388/"
+    },
+    {
+     "desc": "2-bed 100 m², Agdal, semi-furnished",
+     "rent_mad_month": 8000,
+     "surface_m2": 100,
+     "url": "https://www.mubawab.ma/fr/a/8416281/"
+    },
+    {
+     "desc": "2-bed 100 m², Agdal, furnished, central",
+     "rent_mad_month": 13000,
+     "surface_m2": 100,
+     "url": "https://www.mubawab.ma/fr/a/8204357/"
+    },
+    {
+     "desc": "2-bed 100 m², Agdal, furnished",
+     "rent_mad_month": 12000,
+     "surface_m2": 100,
+     "url": "https://www.mubawab.ma/fr/a/8132511/"
+    },
+    {
+     "desc": "2-bed 120 m², Bas Agdal",
+     "rent_mad_month": 7000,
+     "surface_m2": 120,
+     "url": "https://www.mubawab.ma/fr/a/8404187/"
+    },
+    {
+     "desc": "2-bed 100 m², Agdal",
+     "rent_mad_month": 7500,
+     "surface_m2": 100,
+     "url": "https://www.mubawab.ma/fr/a/8407748/"
+    },
+    {
+     "desc": "2-bed 114 m², Bas Agdal",
+     "rent_mad_month": 12000,
+     "surface_m2": 114,
+     "url": "https://www.mubawab.ma/fr/a/8455558/"
+    },
+    {
+     "desc": "2-bed 100 m², Agdal, modern, terrace",
+     "rent_mad_month": 10000,
+     "surface_m2": 100,
+     "url": "https://www.mubawab.ma/fr/a/8246903/"
+    }
+   ],
+   "rent_mad_month": {
+    "bear": 8000,
+    "base": 10000,
+    "bull": 12000
+   },
+   "rent_note": "14 two-bed asking rents in Agdal on Mubawab (20 Nov 2026): 7,000–16,000, median 12,000; furnished 12,000–15,000, unfurnished or semi-furnished 7,000–8,000. This flat is smaller (83 m²) than most. Base assumes furnished, a little under the median."
+  },
+  "flags": [
+   {
+    "severity": "red",
+    "text": "Title status not stated. Nothing else matters until the agent confirms a titre foncier and gives the title number."
+   },
+   {
+    "severity": "red",
+    "text": "With a 70% mortgage (25 years, 4.53% fixed plus VAT) the flat costs money every month in every scenario: base case −£345 as a short let, −£254 as a long let. With real costs it still loses £214 a month at the video's 70% occupancy."
+   },
+   {
+    "severity": "amber",
+    "text": "Asking 22,892 MAD/m² is 44% above Agenz's reference for Agdal (15,889) though 10% below the median of comparable adverts. Sold-price evidence from agents is needed before offering."
+   },
+   {
+    "severity": "amber",
+    "text": "Short-let licensing rules for private flats are unsettled nationally and likely to tighten; this building's rules are unknown. Treat the long let as the fallback."
+   },
+   {
+    "severity": "amber",
+    "text": "Rabat short-let listings grew 68% in a year (AirROI). More competition ahead."
+   },
+   {
+    "severity": "amber",
+    "text": "Service charge (syndic) not stated: estimated at 830 MAD a month. Building age not stated."
+   },
+   {
+    "severity": "amber",
+    "text": "Furnishing budget (100,000 MAD) is an assumption."
+   }
+  ],
+  "unknowns": [
+   "Is it titled (titre foncier)? Title number?",
+   "Exact address / map pin",
+   "Year the building was built",
+   "Monthly syndic charge and what it covers",
+   "Surface on the title; are the storage box and parking separately titled?",
+   "Does the building's règlement de copropriété allow short-term letting?",
+   "Agent's buyer-side commission",
+   "Is any furniture or equipment included?",
+   "How long on the market, and has the price moved? (listed 9 Oct 2026)"
+  ],
+  "due_diligence": {},
+  "verdict": "pass",
+  "verdict_reason": "Pass. The video's own calculation shows +£647 a month, but with realistic occupancy and the costs it leaves out the flat loses about £345 a month on a 70% mortgage; even at the video's 70% occupancy it loses £214. It would pay for its own mortgage only at about 564,000 MAD or 1,876 MAD a night.",
+  "notes": "2026-11-20: first analysis, from the Mubawab advert only. No contact made. Used as the first end-to-end run of the skill. | 2026-11-20: buyer confirmed foreign national, UK 40% band. Nightly-rate scenarios raised to 700/850/1,000 after checking the dashboard's 50 established 2-bed Airbnb listings within 1 km. | 2026-11-20: buyer confirmed they expect to use a Moroccan mortgage → verdict changed from conditional to pass. | 2026-11-20: buyer wants the video's playbook (Airbnb, fixed rate at today's level). Loan terms now 70% over 25 years at 4.53% before VAT."
+ },
+ "metrics": {
+  "asking": 1900000.0,
+  "surface": 83.0,
+  "furniture_value": 0.0,
+  "syndic_month": 830.0,
+  "ask_m2": 22892.0,
+  "ask_m2_exfurn": 22892.0,
+  "comp_count": 6,
+  "comp_median_m2": 25573.0,
+  "comp_min_m2": 19643.0,
+  "comp_max_m2": 27586.0,
+  "area_low": 15900.0,
+  "area_mid": 19450.0,
+  "area_high": 23000.0,
+  "fair_low": 1319700.0,
+  "fair_mid": 1614350.0,
+  "fair_high": 1909000.0,
+  "ask_vs_mid": 0.1769,
+  "asking_over_fair": 0.1769,
+  "offer_target": 1615000.0,
+  "offer_open": 1500000.0,
+  "offer_walk": 1750000.0,
+  "price": 1615000.0,
+  "reg": 64600.0,
+  "cf": 24325.0,
+  "notary": 19380.0,
+  "misc": 1900,
+  "agent_pct": 0.025,
+  "agent": 40375.0,
+  "closing_total": 150580.0,
+  "closing_pct": 0.0932,
+  "furnishing": 100000.0,
+  "renovation": 0.0,
+  "total_cost": 1865580.0,
+  "cash_needed_c": 1884236.0,
+  "cash_needed_c_home": 143244.0,
+  "loan": 1130500.0,
+  "deposit": 484500.0,
+  "mort_costs": 16188.0,
+  "cash_needed_m": 758781.0,
+  "cash_needed_m_home": 57684.0,
+  "pmt_month": 6598.0,
+  "ins_month": 377.0,
+  "debt_service": 83693.0,
+  "ds_pct": 0.0518,
+  "adr": {
+   "bear": 700.0,
+   "base": 850.0,
+   "bull": 1000.0
+  },
+  "occ": {
+   "bear": 0.38,
+   "base": 0.48,
+   "bull": 0.6
+  },
+  "syndic_y": 9960.0,
+  "utilities_y": 7800,
+  "internet_y": 7200,
+  "insurance_y": 1500,
+  "owner_tax_y": 0.0,
+  "fixed_y": 26460.0,
+  "var_ex_tax": 0.495,
+  "var_share": 0.575,
+  "nights": {
+   "bear": 139.0,
+   "base": 175.0,
+   "bull": 219.0
+  },
+  "gross": {
+   "bear": 97090.0,
+   "base": 148920.0,
+   "bull": 219000.0
+  },
+  "platform": {
+   "bear": 15049.0,
+   "base": 23083.0,
+   "bull": 33945.0
+  },
+  "mgmt": {
+   "bear": 21360.0,
+   "base": 32762.0,
+   "bull": 48180.0
+  },
+  "maint": {
+   "bear": 4854.0,
+   "base": 7446.0,
+   "bull": 10950.0
+  },
+  "local_tax": {
+   "bear": 6796.0,
+   "base": 10424.0,
+   "bull": 15330.0
+  },
+  "opex": {
+   "bear": 74520.0,
+   "base": 100175.0,
+   "bull": 134865.0
+  },
+  "noi": {
+   "bear": 22570.0,
+   "base": 48745.0,
+   "bull": 84135.0
+  },
+  "tax": {
+   "bear": 7767.0,
+   "base": 11914.0,
+   "bull": 17520.0
+  },
+  "home_tax": {
+   "bear": 1261.0,
+   "base": 7584.0,
+   "bull": 16134.0
+  },
+  "net": {
+   "bear": 13542.0,
+   "base": 29247.0,
+   "bull": 50481.0
+  },
+  "gross_yield": {
+   "bear": 0.0601,
+   "base": 0.0922,
+   "bull": 0.1356
+  },
+  "net_yield_c": {
+   "bear": 0.0073,
+   "base": 0.0157,
+   "bull": 0.0271
+  },
+  "net_month_c": {
+   "bear": 1129.0,
+   "base": 2437.0,
+   "bull": 4207.0
+  },
+  "cf_m": {
+   "bear": -70151.0,
+   "base": -54446.0,
+   "bull": -33212.0
+  },
+  "cf_m_month": {
+   "bear": -5846.0,
+   "base": -4537.0,
+   "bull": -2768.0
+  },
+  "coc_m": {
+   "bear": -0.0925,
+   "base": -0.0718,
+   "bull": -0.0438
+  },
+  "dscr": {
+   "bear": 0.2697,
+   "base": 0.5824,
+   "bull": 1.0053
+  },
+  "be_occ_c": {
+   "bear": 0.2437,
+   "base": 0.2007,
+   "bull": 0.1706
+  },
+  "be_occ_m": {
+   "bear": 1.0144,
+   "base": 0.8354,
+   "bull": 0.7101
+  },
+  "v_adr": 850.0,
+  "v_nights": 21.0,
+  "v_rev": 17850.0,
+  "v_mort": 6303.0,
+  "v_mgmt": 1785.0,
+  "v_profit": 8512.0,
+  "v_profit_home": 647.0,
+  "v_profit_cont": 6727.0,
+  "c_adr": 850.0,
+  "c_nights": 15.0,
+  "c_rev": 12410.0,
+  "c_mort": 6974.0,
+  "c_mgmt": 2730.0,
+  "c_platform": 1924.0,
+  "c_syndic": 830.0,
+  "c_upkeep": 746.0,
+  "c_ma_tax": 1862.0,
+  "c_home_tax": 632.0,
+  "c_profit": -4537.0,
+  "c_profit_home": -345.0,
+  "rent": {
+   "bear": 8000.0,
+   "base": 10000.0,
+   "bull": 12000.0
+  },
+  "ltr_gross": {
+   "bear": 88032.0,
+   "base": 110040.0,
+   "bull": 132048.0
+  },
+  "ltr_mgmt": {
+   "bear": 7043.0,
+   "base": 8803.0,
+   "bull": 10564.0
+  },
+  "ltr_maint": {
+   "bear": 4402.0,
+   "base": 5502.0,
+   "bull": 6602.0
+  },
+  "ltr_tsc": {
+   "bear": 9243.0,
+   "base": 11554.0,
+   "bull": 13865.0
+  },
+  "ltr_opex": {
+   "bear": 32148.0,
+   "base": 37319.0,
+   "bull": 42491.0
+  },
+  "ltr_noi": {
+   "bear": 55884.0,
+   "base": 72721.0,
+   "bull": 89557.0
+  },
+  "ltr_tax": {
+   "bear": 1282.0,
+   "base": 3205.0,
+   "bull": 5846.0
+  },
+  "ltr_home_tax": {
+   "bear": 21072.0,
+   "base": 25883.0,
+   "bull": 29977.0
+  },
+  "ltr_net": {
+   "bear": 33531.0,
+   "base": 43632.0,
+   "bull": 53734.0
+  },
+  "ltr_net_yield": {
+   "bear": 0.018,
+   "base": 0.0234,
+   "bull": 0.0288
+  },
+  "ltr_cf_m": {
+   "bear": -50162.0,
+   "base": -40061.0,
+   "bull": -29959.0
+  },
+  "ltr_syndic": 9960.0,
+  "ds_stress": 91787.0,
+  "st_base_gross": 148920.0,
+  "st_base_net": 29247.0,
+  "st_base_cf": -54446.0,
+  "st_occ_gross": 117895.0,
+  "st_occ_net": 19846.0,
+  "st_occ_cf": -63847.0,
+  "st_adr_gross": 126582.0,
+  "st_adr_net": 22478.0,
+  "st_adr_cf": -61215.0,
+  "st_both_gross": 100211.0,
+  "st_both_net": 14488.0,
+  "st_both_cf": -69205.0,
+  "st_rate_gross": 148920.0,
+  "st_rate_net": 29247.0,
+  "st_rate_cf": -62540.0,
+  "st_all_gross": 100211.0,
+  "st_all_net": 14488.0,
+  "st_all_cf": -77299.0,
+  "growth": {
+   "bear": 0.0,
+   "base": 0.015,
+   "bull": 0.035
+  },
+  "sale": {
+   "bear": 1615000.0,
+   "base": 1874273.0,
+   "bull": 2278117.0
+  },
+  "sale_costs": {
+   "bear": 40375.0,
+   "base": 46857.0,
+   "bull": 56953.0
+  },
+  "tpi": {
+   "bear": 48450.0,
+   "base": 56228.0,
+   "bull": 72783.0
+  },
+  "home_cgt": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 36557.0
+  },
+  "proceeds_c": {
+   "bear": 1526175.0,
+   "base": 1771188.0,
+   "bull": 2111824.0
+  },
+  "proceeds_m": {
+   "bear": 690939.0,
+   "base": 935952.0,
+   "bull": 1276588.0
+  },
+  "profit_c": {
+   "bear": -65593.0,
+   "base": 179420.0,
+   "bull": 520056.0
+  },
+  "profit_m": {
+   "bear": -612306.0,
+   "base": -367292.0,
+   "bull": -26657.0
+  },
+  "irr_c": {
+   "bear": -0.0038,
+   "base": 0.0098,
+   "bull": 0.0262
+  },
+  "irr_m": {
+   "bear": -0.0846,
+   "base": -0.0435,
+   "bull": -0.0027
+  },
+  "cost_base": 1857250.0,
+  "loan_bal_10": 835236.0
+ },
+ "extras": {
+  "real_costs_at_video_occ": -2813.7626406882887,
+  "be_adr_at_base_occ": 1875.6343846214313,
+  "be_price": 564365.2119447624,
+  "gap": [
+   [
+    "Fewer nights booked than the video assumes",
+    4896.0
+   ],
+   [
+    "Airbnb's fee",
+    1923.55
+   ],
+   [
+    "Moroccan taxes",
+    1861.5
+   ],
+   [
+    "Management at 22% instead of 10%",
+    1489.2000000000003
+   ],
+   [
+    "Building service charge",
+    830.0
+   ],
+   [
+    "Upkeep, linen, insurance",
+    745.5
+   ],
+   [
+    "VAT and insurance on the mortgage",
+    671.4794748658087
+   ],
+   [
+    "Home-country tax",
+    632.0200000000003
+   ]
+  ]
+ },
+ "evidence": {
+  "sale": {
+   "count": 4,
+   "stats_mad_per_m2": {
+    "n": 4,
+    "p25": 24683.44155844156,
+    "median": 26664.96424923391,
+    "p75": 27121.270825261527
+   },
+   "search": "https://www.mubawab.ma/fr/sd/rabat/agdal/appartements-a-vendre"
+  },
+  "agenz": {
+   "mad_per_m2": 15889,
+   "area": "Agdal",
+   "updated": "29/01/2026",
+   "url": "https://agenz.ma/fr/prix-immobilier-maroc/rabat"
+  },
+  "rent": {
+   "count": 8,
+   "stats_mad_per_m2_month": {
+    "n": 13,
+    "p25": 80.0,
+    "median": 118.27956989247312,
+    "p75": 130.0
+   },
+   "search": "https://www.mubawab.ma/fr/sd/rabat/agdal/appartements-a-louer"
+  },
+  "str": {
+   "method": "airbnb_file",
+   "matches": 45,
+   "radius_km": 1.0,
+   "spot_mad": {
+    "n": 45,
+    "min": 570,
+    "p25": 927,
+    "median": 1027,
+    "p75": 1138,
+    "max": 1418
+   },
+   "collected_on": "2026-11-20",
+   "centre": {
+    "lat": 33.9983119,
+    "lng": -6.8542908,
+    "name": "Agdal, Arrondissement Agdal-Riyad, Rabat, Pachalik de Rabat, Préfecture de Rabat, Rabat-Salé-Kénitra, 10090, Maroc"
+   }
+  },
+  "market": {
+   "occ": 0.38,
+   "adr_mad": 1052,
+   "city": "rabat",
+   "bedroom_specific": true
+  }
+ },
+ "check": {
+  "verified": true,
+  "cells_checked": 241,
+  "mismatches": [],
+  "formula_errors": [],
+  "note": null
+ },
+ "message_fr": "Bonjour, je suis intéressé par votre annonce « 2-bed, 83 m², 2nd floor with lift and parking — Bas Agdal, Rabat », réf. 4415, à 1 900 000 DH.\nAvant d'organiser une visite, pourriez-vous me confirmer :\n1. Le bien est-il titré (titre foncier) ? Si oui, quel est le numéro du titre ?\n2. S'agit-il d'un bien achevé avec permis d'habiter, ou d'une vente sur plan ?\n3. L'adresse ou la localisation exacte (point Google Maps) ?\n4. La superficie exacte inscrite sur le titre (hors terrasse) et l'année de construction ?\n5. Le montant mensuel des charges de syndic ?\n6. La location de courte durée (type Airbnb) est-elle autorisée par le règlement de copropriété ?\n7. Le prix comprend-il des meubles ou de l'équipement ?\n8. Votre commission d'agence côté acheteur, TVA comprise ?\nMerci d'avance.",
+ "message_en": "Hello, I'm interested in your listing “2-bed, 83 m², 2nd floor with lift and parking — Bas Agdal, Rabat”, ref. 4415, at 1 900 000 DH. Before arranging a viewing, could you confirm: 1. Is it titled, and what is the title number? 2. Is it finished with a certificate of occupancy, or an off-plan sale? 3. The exact address or a map pin? 4. The exact surface on the title (excluding terrace) and the year built? 5. The monthly service charge? 6. Do the building rules allow short-term letting? 7. Does the price include any furniture or equipment? 8. Your buyer-side commission including VAT? Thank you."
+}

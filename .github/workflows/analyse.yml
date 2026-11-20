@@ -1,0 +1,72 @@
+name: Analyse a property
+run-name: "Analyse: ${{ inputs.url || github.event.issue.title }}"
+
+# Two ways in:
+#  - the web page opens an issue titled "Analyse <link>" (only issues opened by the repository owner run)
+#  - Actions -> Run workflow, with the link typed in
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Mubawab listing link (https://www.mubawab.ma/fr/a/…)"
+        required: true
+        type: string
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: analyse
+  cancel-in-progress: false
+
+jobs:
+  analyse:
+    if: github.event_name == 'workflow_dispatch' || github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install the spreadsheet library
+        run: pip install --quiet openpyxl
+      - name: Install LibreOffice (used to re-check the sums; the analysis runs without it if this fails)
+        continue-on-error: true
+        timeout-minutes: 6
+        run: |
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 update -qq
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y -qq --no-install-recommends libreoffice-calc > /dev/null
+      - name: Analyse the listing
+        env:
+          LISTING_URL: ${{ inputs.url }}
+          ISSUE_TEXT: ${{ github.event.issue.title }} ${{ github.event.issue.body }}
+          TZ: Europe/London
+        run: python app/run_once.py
+      - name: Keep the spreadsheet
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: morocco-property-tracker
+          path: "Morocco Property Tracker.xlsx"
+          if-no-files-found: ignore
+      - name: Save the result to the repository
+        run: |
+          git config user.name "deal-desk"
+          git config user.email "deal-desk@users.noreply.github.com"
+          git add -A properties runs results
+          git diff --cached --quiet || git commit -m "Run: ${RUN_TITLE:-analysis}"
+          git pull --rebase -X theirs
+          git push
+      - name: Reply on the issue and close it
+        if: always() && github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          [ -f .run_note.md ] || echo "The analysis stopped before finishing. See the run log under Actions." > .run_note.md
+          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file .run_note.md
+          gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY"

@@ -1,0 +1,101 @@
+{
+ "as_of": "2026-11-05",
+ "period": "Nov 2025 – Oct 2026",
+ "source": "AirROI public market pages, via the user's morocco-str dashboard snapshot. Averages across all active listings.",
+ "national": {
+  "occ": 0.36,
+  "adr_mad": 1140
+ },
+ "cities": {
+  "marrakech": {
+   "occ": 0.4,
+   "adr_mad": 1535,
+   "aliases": [
+    "marrakesh"
+   ]
+  },
+  "rabat": {
+   "occ": 0.375,
+   "adr_mad": 940,
+   "by_bedrooms": {
+    "0": {
+     "occ": 0.39,
+     "adr_mad": 639
+    },
+    "1": {
+     "occ": 0.4,
+     "adr_mad": 791
+    },
+    "2": {
+     "occ": 0.38,
+     "adr_mad": 1052
+    },
+    "3": {
+     "occ": 0.36,
+     "adr_mad": 1373
+    },
+    "4": {
+     "occ": 0.35,
+     "adr_mad": 2460
+    }
+   }
+  },
+  "casablanca": {
+   "occ": 0.35,
+   "adr_mad": 754
+  },
+  "tanger": {
+   "occ": 0.36,
+   "adr_mad": 974,
+   "aliases": [
+    "tangier",
+    "tanger-assilah"
+   ]
+  },
+  "agadir": {
+   "occ": 0.39,
+   "adr_mad": 832
+  },
+  "essaouira": {
+   "occ": 0.39,
+   "adr_mad": 1098
+  },
+  "taghazout": {
+   "occ": 0.45,
+   "adr_mad": 1056
+  },
+  "fès": {
+   "occ": 0.31,
+   "adr_mad": 753,
+   "aliases": [
+    "fes",
+    "fez"
+   ]
+  },
+  "salé": {
+   "occ": 0.35,
+   "adr_mad": 751,
+   "aliases": [
+    "sale"
+   ]
+  },
+  "témara": {
+   "occ": 0.34,
+   "adr_mad": 893,
+   "aliases": [
+    "temara"
+   ]
+  },
+  "mohammedia": {
+   "occ": 0.35,
+   "adr_mad": 739
+  },
+  "kénitra": {
+   "occ": 0.33,
+   "adr_mad": 627,
+   "aliases": [
+    "kenitra"
+   ]
+  }
+ }
+}

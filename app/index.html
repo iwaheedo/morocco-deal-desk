@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morocco deal desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F5FA; --card:#FFFFFF; --ink:#14233B; --soft:#55637A; --line:#D5DCE8;
+  --blue:#1F5FBF; --blue-wash:#E3ECFA; --green:#1E7F6B; --red:#B4342C; --amber:#9A6A00; --sand:#D9C7A3;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --paper:#0F1826; --card:#172335; --ink:#E8EEF8; --soft:#9DACC4; --line:#2A3A52;
+         --blue:#7FB0FF; --blue-wash:#1B2D4A; --green:#5CCBB2; --red:#F08A80; --amber:#E3B341; --sand:#6E6248; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--display);font-size:16px;line-height:1.45}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+a{color:var(--blue)} :focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:4px}
+h1{font-weight:800;font-size:clamp(28px,5vw,44px);letter-spacing:-.02em;line-height:1.02;margin:0}
+h2{font-weight:800;font-size:22px;letter-spacing:-.01em;margin:44px 0 12px}
+h3{font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin:0 0 8px}
+.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;flex-wrap:wrap}
+.terms{font-family:var(--mono);font-size:12.5px;color:var(--soft);text-align:right;line-height:1.6}
+.terms b{color:var(--ink);font-weight:600}
+form{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+input[type=url]{flex:1 1 420px;min-width:0;font:inherit;font-family:var(--mono);font-size:14px;padding:14px 16px;border:2px solid var(--ink);border-radius:10px;background:var(--card);color:var(--ink)}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:10px;border:2px solid var(--ink);padding:12px 20px;background:var(--ink);color:var(--paper)}
+button.quiet{background:transparent;color:var(--ink);border-color:var(--line);padding:6px 12px;font-size:13px}
+button[disabled]{opacity:.55;cursor:progress}
+.status{min-height:26px;margin-top:10px;font-family:var(--mono);font-size:13px;color:var(--soft)}
+.status.err{color:var(--red);font-family:var(--display);font-size:15px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:8px;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.25}} @media (prefers-reduced-motion:reduce){.dot{animation:none}}
+.hint{color:var(--soft);font-size:14px;margin-top:6px}
+.flat{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:34px;padding-top:22px;border-top:2px solid var(--ink)}
+.flat h2{margin:0;font-size:26px} .flat .sub{color:var(--soft);font-size:14.5px;margin-top:4px}
+.stamp{font-family:var(--mono);font-weight:600;font-size:15px;letter-spacing:.14em;padding:8px 14px;border:3px solid currentColor;border-radius:6px;transform:rotate(-3deg);white-space:nowrap}
+.stamp.pass{color:var(--red)} .stamp.conditional{color:var(--amber)} .stamp.pursue{color:var(--green)}
+.why{margin:14px 0 0;max-width:70ch}
+/* signature: two till receipts for the same flat */
+.receipts{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:760px){.receipts{grid-template-columns:1fr}}
+.receipt{background:var(--card);padding:20px 20px 30px;font-family:var(--mono);font-size:13.5px;position:relative;border:1px solid var(--line);border-bottom:0;
+  --tooth:10px;-webkit-mask:linear-gradient(#000 0 0) top/100% calc(100% - var(--tooth)) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/calc(var(--tooth)*2) var(--tooth) repeat-x;
+  mask:linear-gradient(#000 0 0) top/100% calc(100% - var(--tooth)) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/calc(var(--tooth)*2) var(--tooth) repeat-x}
+.receipt header{font-family:var(--display);font-weight:800;font-size:19px;margin-bottom:2px}
+.receipt .tag{font-family:var(--display);font-size:13px;color:var(--soft);margin-bottom:12px;min-height:36px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.row .n{white-space:nowrap} .row.muted{color:var(--soft)} .row.rule{border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
+.row.rev{font-weight:600}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:10px;padding-top:10px;font-family:var(--display)}
+.total .lab{font-weight:600} .total .big{font-family:var(--mono);font-weight:600;font-size:30px;letter-spacing:-.02em}
+.pos{color:var(--green)} .neg{color:var(--red)}
+.small{font-size:12.5px;color:var(--soft);margin-top:6px}
+.gap{margin-top:8px} .bar{display:grid;grid-template-columns:minmax(150px,280px) 1fr 86px;gap:12px;align-items:center;padding:5px 0;font-size:14.5px}
+.bar i{display:block;height:12px;background:var(--blue);border-radius:2px;min-width:2px} .bar .n{font-family:var(--mono);font-size:13px;text-align:right}
+@media (max-width:560px){.bar{grid-template-columns:1fr 70px}.bar i{display:none}}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.fact{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
+.fact .v{font-family:var(--mono);font-weight:600;font-size:17px;margin-top:2px} .fact .d{font-size:13px;color:var(--soft);margin-top:3px}
+ul.flags{list-style:none;padding:0;margin:0} ul.flags li{padding:9px 0 9px 44px;border-bottom:1px solid var(--line);position:relative}
+ul.flags li b{position:absolute;left:0;top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+ul.flags li.red b{color:var(--red)} ul.flags li.amber b{color:var(--amber)}
+ol.ask{margin:0;padding-left:20px} ol.ask li{padding:3px 0}
+pre{white-space:pre-wrap;font-family:var(--mono);font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0}
+details{border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:10px} summary{cursor:pointer;padding:12px 16px;font-weight:600}
+details>div{padding:0 16px 14px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px} th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);font-weight:600;padding:8px 10px;border-bottom:2px solid var(--ink);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n,th.n{text-align:right;font-family:var(--mono);font-size:13px;white-space:nowrap}
+#history tbody tr{cursor:pointer} #history tbody tr:hover,#history tbody tr.on{background:var(--blue-wash)}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.foot{margin-top:40px;color:var(--soft);font-size:13px;max-width:80ch}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:28px} @media (max-width:760px){.cols{grid-template-columns:1fr}}
+.empty{border:2px dashed var(--line);border-radius:10px;padding:26px;color:var(--soft);margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h3>Morocco deal desk</h3>
+      <h1>Paste a flat. See the video's sum<br>next to the checked one.</h1>
+    </div>
+    <div class="terms" id="terms" aria-live="polite"></div>
+  </div>
+
+  <form id="f">
+    <input type="url" id="url" required placeholder="https://www.mubawab.ma/fr/a/…" aria-label="Link to a Mubawab listing" autocomplete="off">
+    <button id="go" type="submit">Analyse the deal</button>
+  </form>
+  <div class="status" id="status" role="status"></div>
+  <div class="hint">Reads Mubawab listings. Takes about half a minute: it reads the advert, finds comparable flats and Airbnb listings, and rebuilds the spreadsheet.</div>
+
+  <main id="result"></main>
+
+  <h2>Previous runs</h2>
+  <div style="overflow-x:auto">
+    <table id="history">
+      <thead><tr><th>When</th><th>Flat</th><th class="n">Asking</th><th class="n">Video's way / mo</th><th class="n">Checked / mo</th><th>Verdict</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="foot"><span id="sheetlink"><a href="/tracker.xlsx">Download the spreadsheet</a> — every flat side by side, with the full workings and the source of each assumption.</span>
+    This page is the automatic first pass. For a closer look at one flat — choosing comparables by eye, drafting an offer — ask Claude with <code>/morocco-property</code>. Analysis, not legal, tax or financial advice.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k === 'html') e.innerHTML = v; else e.setAttribute(k, v); }
+  for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k)); return e; };
+const SYM = {GBP: '£', EUR: '€', USD: '$'};
+const n0 = x => x == null || isNaN(x) ? '—' : Math.round(x).toLocaleString('en-GB');
+const mad = x => x == null ? '—' : n0(x) + ' MAD';
+const pct = (x, d = 0) => x == null ? '—' : (x * 100).toFixed(d) + '%';
+let HOME = 'GBP', FX = 1;
+const home = (x, signed = false) => { if (x == null || isNaN(x)) return '—'; const v = Math.round(x / FX), a = Math.abs(v).toLocaleString('en-GB');
+  return (v < 0 ? '−\u2060' : signed ? '+\u2060' : '') + (SYM[HOME] || HOME + ' ') + a; };
+const cls = x => x >= 0 ? 'pos' : 'neg';
+
+// Two homes for this page: served by the local app on the Mac (it has an API), or as a public web page
+// (no server: past runs are read from the public repository, and a new run is started by opening an issue there).
+const HOSTED = !['localhost', '127.0.0.1'].includes(location.hostname);
+const REPO = 'iwaheedo/morocco-deal-desk', RAW = `https://raw.githubusercontent.com/${REPO}/main/`;
+const runCache = {};
+async function ghRunIds() {
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/runs?ref=main&t=${Date.now()}`, {headers: {Accept: 'application/vnd.github+json'}});
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? 'GitHub is limiting requests from this network for a few minutes. Try again shortly.' : 'Could not reach GitHub (' + r.status + ').');
+  return (await r.json()).filter(f => /^[0-9]{8}-[0-9]{6}-\w+\.json$/.test(f.name)).map(f => f.name.slice(0, -5)).sort().reverse();
+}
+async function ghRun(id) {
+  if (!runCache[id]) { const r = await fetch(RAW + 'runs/' + encodeURIComponent(id) + '.json'); if (!r.ok) throw new Error('That run is not readable on GitHub yet. Try again in a minute.'); runCache[id] = await r.json(); }
+  return runCache[id];
+}
+const rowOf = r => { const m = r.metrics || {}, rec = r.record || {}, fx = r.fx_home || 1;
+  return {run_id: r.run_id, at: r.at, title: rec.title, asking_mad: rec.asking_price_mad, verdict: rec.verdict, home_currency: r.home_currency,
+          video_profit_home: (m.v_profit || 0) / fx, checked_profit_home: (m.c_profit || 0) / fx}; };
+async function hostedApi(path) {
+  if (path === '/api/history') { const ids = (await ghRunIds()).slice(0, 40); return (await Promise.all(ids.map(id => ghRun(id).catch(() => null)))).filter(Boolean).map(rowOf); }
+  if (path.startsWith('/api/run?id=')) return ghRun(decodeURIComponent(path.split('=')[1]));
+  if (path === '/api/profile') { const ids = await ghRunIds(); const prof = await fetch(RAW + 'profile.json').then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    const last = ids.length ? await ghRun(ids[0]) : null, t = last ? last.terms : {};
+    return {buyer_type: prof.buyer_type || 'foreign_non_resident', financing: prof.financing || '', home_currency: last ? last.home_currency : (prof.home_currency || 'GBP'),
+            fx_home: last ? last.fx_home : 1, ltv: t.ltv, term_years: t.term_years, rate: t.rate, rate_eff: t.rate_eff, home_tax_rate: t.home_tax_rate}; }
+  throw new Error('Not available on the web page.');
+}
+async function api(path, opts) { if (HOSTED) return hostedApi(path); const r = await fetch(path, opts); const j = await r.json().catch(() => ({error: 'The app returned something unreadable.'}));
+  if (!r.ok) throw new Error(j.error || ('Request failed (' + r.status + ')')); return j; }
+
+async function loadProfile() {
+  const p = await api('/api/profile'); HOME = p.home_currency; FX = p.fx_home;
+  const who = {foreign_non_resident: 'Foreign buyer', mre: 'Moroccan living abroad', moroccan_resident: 'Moroccan resident'}[p.buyer_type] || p.buyer_type;
+  if (p.ltv == null) { $('#terms').textContent = who; return; }
+  $('#terms').innerHTML = `<b>${who}</b> · ${p.financing}<br>Loan <b>${pct(p.ltv)}</b> over <b>${p.term_years} yrs</b> · fixed <b>${pct(p.rate, 2)}</b> (${pct(p.rate_eff, 2)} with VAT)<br>` +
+    `Home tax <b>${pct(p.home_tax_rate)}</b> · 1 ${SYM[HOME] || HOME} = <b>${p.fx_home.toFixed(2)} MAD</b>`;
+}
+
+function receipt(title, tag, lines, total, totalHome, extra) {
+  return el('section', {class: 'receipt'},
+    el('header', {}, title), el('div', {class: 'tag'}, tag),
+    lines.map(([label, value, kind]) => el('div', {class: 'row ' + (kind || '')}, el('span', {}, label), el('span', {class: 'n'}, value))),
+    el('div', {class: 'total'}, el('span', {class: 'lab'}, 'Profit per month'), el('span', {class: 'big ' + cls(total)}, home(total, true))),
+    el('div', {class: 'row muted'}, el('span', {}, 'in dirhams'), el('span', {class: 'n'}, (total < 0 ? '−' : '+') + n0(Math.abs(total)) + ' MAD')),
+    extra ? el('div', {class: 'small'}, extra) : null);
+}
+
+function render(run) {
+  const m = run.metrics, r = run.record, t = run.terms, x = run.extras || {}, ev = run.evidence || {};
+  HOME = run.home_currency; FX = run.fx_home;
+  const out = $('#result'); out.innerHTML = '';
+  const neg = v => v ? '−' + n0(v) : '0';
+  const verdict = (r.verdict || 'conditional').toLowerCase();
+  out.append(
+    el('div', {class: 'flat'},
+      el('div', {},
+        el('h2', {}, r.title || 'Flat'),
+        el('div', {class: 'sub'}, `Asking ${mad(m.asking)} (${home(m.asking)}) · ${m.ask_m2 ? n0(m.ask_m2) + ' MAD/m²' : 'no surface given'} · `,
+          el('a', {href: run.url, target: '_blank', rel: 'noopener'}, 'open the advert'),
+          ` · analysed ${new Date(run.at).toLocaleString('en-GB', {dateStyle: 'medium', timeStyle: 'short'})}` + (run.source === 'curated' ? ' · fuller analysis on file' : ''))),
+      el('div', {class: 'stamp ' + verdict}, verdict.toUpperCase())),
+    el('p', {class: 'why'}, r.verdict_reason || ''));
+
+  const bills = [['Electricity and water', neg(t.utilities_month)], ['Internet', neg(t.internet_month)], ['TV subscription', neg(t.subs_month)], ['Cleaning (charged to guest)', '0']];
+  out.append(el('div', {class: 'receipts'},
+    receipt("The video's way", `His sum from 1:18:27 — ${pct(t.video_occ)} occupancy, ${pct(t.video_mgmt_pct)} management, five costs.`, [
+      ['Nightly rate', n0(m.v_adr)], ['× nights booked', (m.v_nights).toFixed(0) + ' (' + pct(t.video_occ) + ')'],
+      ['Revenue', n0(m.v_rev), 'rev rule'], ['Mortgage', neg(m.v_mort)], ['Management ' + pct(t.video_mgmt_pct), neg(m.v_mgmt)], ...bills,
+      ['Airbnb fee', 'not counted', 'muted rule'], ['Service charge', 'not counted', 'muted'], ['Upkeep, insurance', 'not counted', 'muted'], ['Taxes', 'not counted', 'muted'],
+    ], m.v_profit, m.v_profit_home, `With his optional 10% contingency: ${home(m.v_profit_cont, true)}.`),
+    receipt('Checked', `Same flat, same nightly rate — market occupancy and the costs he leaves out.`, [
+      ['Nightly rate', n0(m.c_adr)], ['× nights booked', (365 * m.occ.base / 12).toFixed(1) + ' (' + pct(m.occ.base) + ')'],
+      ['Revenue', n0(m.c_rev), 'rev rule'], ['Mortgage, with VAT + insurance', neg(m.c_mort)], ['Management ' + pct(t.mgmt_pct), neg(m.c_mgmt)], ...bills,
+      ['Airbnb fee ' + pct(t.platform_pct, 1), neg(m.c_platform), 'rule'], ['Service charge', neg(m.c_syndic)], ['Upkeep, insurance', neg(m.c_upkeep)],
+      ['Moroccan taxes', neg(m.c_ma_tax)], ['Home-country tax', neg(m.c_home_tax)],
+    ], m.c_profit, m.c_profit_home, `Bear ${home(m.cf_m_month.bear, true)} · bull ${home(m.cf_m_month.bull, true)} a month.`)));
+  out.append(el('p', {class: 'small'}, `Cash you put in either way: ${home(m.cash_needed_m)} (deposit ${mad(m.deposit)}, buying costs ${mad(m.closing_total)}, mortgage set-up ${mad(m.mort_costs)}, furnishing ${mad(m.furnishing)}). Price used: ${mad(m.price)}.`));
+
+  if (x.gap) { const top = Math.max(...x.gap.map(g => g[1]), 1), sum = x.gap.reduce((a, g) => a + g[1], 0);
+    out.append(el('h2', {}, `Where the ${home(sum)} a month goes`),
+      el('div', {class: 'gap'}, x.gap.filter(g => g[1] > 0.5).map(([label, v]) => el('div', {class: 'bar'}, el('span', {}, label), el('span', {}, el('i', {style: `width:${Math.max(1, v / top * 100)}%`})), el('span', {class: 'n'}, n0(v) + ' MAD')))),
+      el('p', {class: 'small'}, x.real_costs_at_video_occ != null ? (x.real_costs_at_video_occ < 0 ? `With every real cost counted, the flat still loses ${home(-x.real_costs_at_video_occ)} a month at the video's ${pct(t.video_occ)} occupancy.` : `With every real cost counted, the flat would make ${home(x.real_costs_at_video_occ)} a month if it reached the video's ${pct(t.video_occ)} occupancy.`) : '')); }
+
+  const fact = (label, value, detail) => el('div', {class: 'fact'}, el('h3', {}, label), el('div', {class: 'v'}, value), detail ? el('div', {class: 'd'}, detail) : null);
+  out.append(el('h2', {}, 'The numbers behind it'), el('div', {class: 'facts'},
+    fact('Is the price right?', m.fair_mid ? `fair value ≈ ${mad(m.fair_mid)}` : 'no evidence', m.asking_over_fair != null ? `asking is ${pct(Math.abs(m.asking_over_fair))} ${m.asking_over_fair >= 0 ? 'above' : 'below'} it · ${(r.comps_sale || []).length} comparable adverts${ev.agenz ? ' · Agenz reference ' + n0(ev.agenz.mad_per_m2) + ' MAD/m²' : ''}` : 'not enough comparables'),
+    fact('Offer', `${n0(m.offer_open)} → ${n0(m.offer_target)}`, `open → target · walk away above ${mad(m.offer_walk)}`),
+    fact('Mortgage', `${mad(m.c_mort)} a month`, `${mad(m.loan)} over ${t.term_years} years · costs ${pct(m.ds_pct, 1)} of the price a year`),
+    fact('Break-even occupancy', pct(m.be_occ_m.base), `market average ${pct(ev.market ? ev.market.occ : null)}${ev.market && ev.market.city ? ' in ' + ev.market.city[0].toUpperCase() + ev.market.city.slice(1) : ''}`),
+    fact('Nightly rate to break even', x.be_adr_at_base_occ ? mad(x.be_adr_at_base_occ) : '—', `at ${pct(m.occ.base)} occupancy · modelled ${n0(m.adr.bear)} / ${n0(m.adr.base)} / ${n0(m.adr.bull)}`),
+    fact('Price that pays its own mortgage', x.be_price ? mad(x.be_price) : 'none', x.be_price ? pct(x.be_price / m.asking) + ' of asking' : 'no price works on these terms'),
+    fact('Ten years, then sell', `${home(m.profit_m.bear, true)} / ${home(m.profit_m.base, true)} / ${home(m.profit_m.bull, true)}`, `total, for prices growing ${pct(m.growth.bear, 1)} / ${pct(m.growth.base, 1)} / ${pct(m.growth.bull, 1)} a year`),
+    fact('If bought for cash', `${home(m.net.base / 12, true)} a month`, `${pct(m.net_yield_c.base, 1)} net yield · long let instead ${m.ltr_net && m.rent.base ? home(m.ltr_net.base / 12, true) : '—'}`)));
+
+  const flags = r.flags || [];
+  out.append(el('div', {class: 'cols'},
+    el('div', {}, el('h2', {}, 'Flags'), el('ul', {class: 'flags'}, flags.map(f => el('li', {class: f.severity}, el('b', {}, (f.severity || '').toUpperCase()), f.text)))),
+    el('div', {}, el('h2', {}, "What the advert doesn't say"), el('ol', {class: 'ask'}, (r.unknowns || []).map(u => el('li', {}, u))))));
+
+  const copy = el('button', {class: 'quiet', type: 'button'}, 'Copy the French');
+  copy.onclick = async () => { try { await navigator.clipboard.writeText(run.message_fr); copy.textContent = 'Copied'; } catch (e) { copy.textContent = 'Select and copy by hand'; } setTimeout(() => copy.textContent = 'Copy the French', 1800); };
+  out.append(el('h2', {}, 'First message to the agent'), el('pre', {}, run.message_fr), el('p', {class: 'small'}, run.message_en), copy);
+
+  const tbl = (heads, rows) => el('table', {}, el('thead', {}, el('tr', {}, heads.map(h => el('th', {class: h[1] || ''}, h[0])))), el('tbody', {}, rows.map(c => el('tr', {}, c.map((v, i) => el('td', {class: heads[i][1] || ''}, v))))));
+  const link = c => /^https?:\/\//.test(c.url || '') ? el('a', {href: c.url, target: '_blank', rel: 'noopener'}, c.desc || 'listing') : (c.desc || '');
+  const sale = r.comps_sale || [], st = (r.str || {}).comps || [], lt = (r.ltr || {}).comps || [];
+  out.append(el('h2', {}, 'Evidence'),
+    el('details', {}, el('summary', {}, `Airbnb comparables (${st.length})`), el('div', {}, el('p', {class: 'small'}, (r.str || {}).adr_note || ''), el('p', {class: 'small'}, (r.str || {}).occupancy_note || ''),
+      tbl([['Listing'], ['Per night', 'n'], ['Reviews', 'n']], st.map(c => [link(c), mad(c.nightly_mad), c.reviews ?? '—'])))),
+    el('details', {}, el('summary', {}, `Flats for sale nearby (${sale.length})`), el('div', {}, el('p', {class: 'small'}, (r.area_price_per_m2 || {}).basis || 'Asking prices from adverts, less the assumed 10% between asking and sold.'),
+      tbl([['Flat'], ['Asking', 'n'], ['m²', 'n'], ['MAD/m²', 'n']], sale.map(c => [link(c), n0(c.price_mad), n0(c.surface_m2), n0(c.price_mad / c.surface_m2)])))),
+    el('details', {}, el('summary', {}, `Flats to rent nearby (${lt.length})`), el('div', {}, el('p', {class: 'small'}, (r.ltr || {}).rent_note || 'No long-let comparables found.'),
+      tbl([['Flat'], ['Rent / month', 'n'], ['m²', 'n']], lt.map(c => [link(c), n0(c.rent_mad_month), n0(c.surface_m2)])))),
+    el('p', {class: 'small'}, run.check && run.check.verified ? `Sums checked: ${run.check.cells_checked} spreadsheet cells recalculated independently and matched. Spreadsheet tab: ${run.sheet}.` :
+      `Sums not independently re-checked on this run${run.check && run.check.note ? ' (' + run.check.note + ')' : ''}.`));
+  document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id));
+}
+
+async function loadHistory(openLatest) {
+  const rows = await api('/api/history'), tb = $('#history tbody'); tb.innerHTML = '';
+  if (!rows.length) { tb.append(el('tr', {}, el('td', {colspan: 6, style: 'color:var(--soft);cursor:default'}, 'Nothing yet. Paste a Mubawab link above to analyse your first flat.'))); return; }
+  for (const h of rows) { const fx = FX, s = SYM[h.home_currency] || '';
+    const money = v => (v < 0 ? '−' : '+') + s + Math.abs(Math.round(v)).toLocaleString('en-GB');
+    const tr = el('tr', {tabindex: 0, 'data-id': h.run_id},
+      el('td', {}, new Date(h.at).toLocaleString('en-GB', {dateStyle: 'medium', timeStyle: 'short'})), el('td', {}, h.title || '—'),
+      el('td', {class: 'n'}, n0(h.asking_mad)), el('td', {class: 'n ' + cls(h.video_profit_home)}, money(h.video_profit_home)),
+      el('td', {class: 'n ' + cls(h.checked_profit_home)}, money(h.checked_profit_home)), el('td', {}, el('span', {class: 'pill'}, h.verdict || '—')));
+    const open = async () => { try { render(await api('/api/run?id=' + encodeURIComponent(h.run_id))); window.scrollTo({top: $('#result').offsetTop - 10, behavior: 'smooth'}); } catch (e) { fail(e.message); } };
+    tr.onclick = open; tr.onkeydown = e => { if (e.key === 'Enter') open(); };
+    tb.append(tr); }
+  if (openLatest) render(await api('/api/run?id=' + encodeURIComponent(rows[0].run_id)));
+}
+
+const fail = msg => { const s = $('#status'); s.className = 'status err'; s.textContent = msg; };
+async function startHosted(url) {
+  const s = $('#status'), btn = $('#go');
+  if (!/^https?:\/\/([a-z0-9-]+\.)*mubawab\.ma\/.*\/(a|pa)\/\d+/i.test(url)) { fail('Paste the address of one Mubawab listing (it contains /a/ or /pa/ and a number). Other sites are not read automatically.'); return; }
+  let before; try { before = new Set(await ghRunIds()); } catch (err) { fail(err.message); return; }
+  window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent('Analyse ' + url)}&body=${encodeURIComponent('Sent from the deal desk. Press the green button to start; the result appears on the page in about two minutes.')}`, '_blank', 'noopener');
+  btn.disabled = true; s.className = 'status';
+  const started = Date.now();
+  const say = () => { const sec = Math.round((Date.now() - started) / 1000);
+    s.innerHTML = '<span class="dot"></span>' + (sec < 25 ? 'On the GitHub page that opened, press the green “Create” button. That starts the analysis.' : `Waiting for GitHub to finish — usually about two minutes (${sec}s so far)…`); };
+  say(); const ticker = setInterval(say, 5000);
+  try {
+    for (let i = 0; i < 24; i++) { await new Promise(r => setTimeout(r, 20000));
+      let ids; try { ids = await ghRunIds(); } catch (_) { continue; }
+      const fresh = ids.find(id => !before.has(id));
+      if (fresh) { let run = null; for (let k = 0; k < 6 && !run; k++) { try { run = await ghRun(fresh); } catch (_) { await new Promise(r => setTimeout(r, 5000)); } }
+        if (run) { s.className = 'status'; s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; return; } } }
+    fail('No result after eight minutes. Either the issue was not created (you need to be signed in to GitHub as the owner), or the link could not be read — the closed issue on GitHub says which.');
+  } finally { clearInterval(ticker); btn.disabled = false; }
+}
+$('#f').addEventListener('submit', async e => {
+  e.preventDefault(); if (HOSTED) return startHosted($('#url').value.trim());
+  const btn = $('#go'), s = $('#status'); btn.disabled = true; s.className = 'status';
+  const tick = setInterval(async () => { try { const p = await api('/api/progress'); if (p.msg) s.innerHTML = '<span class="dot"></span>' + p.msg + '…'; } catch (_) {} }, 700);
+  s.innerHTML = '<span class="dot"></span>Starting…';
+  try { const run = await api('/api/analyse', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: $('#url').value})});
+    s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; }
+  catch (err) { fail(err.message); }
+  finally { clearInterval(tick); btn.disabled = false; }
+});
+(async () => { if (HOSTED) { $('#sheetlink').innerHTML = ''; $('#sheetlink').append(el('a', {href: `https://github.com/${REPO}/tree/main/results`}, 'Every result as a page on GitHub'), '.');
+    $('.hint').textContent = 'Reads Mubawab listings. Starting an analysis opens GitHub (you need to be signed in there); the result appears here in about two minutes. Reading past results needs nothing.'; }
+  try { await loadProfile(); await loadHistory(true); } catch (e) { fail(e.message); }
+  if (!$('#result').children.length) $('#result').append(el('div', {class: 'empty'}, 'Your first result will appear here: two receipts for the same flat — the video’s sum, and the checked one.')); })();
+</script>
+</body>
+</html>
