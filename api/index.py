@@ -202,3 +202,11 @@ class handler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):                              # no cross-site access is offered
         self._send(403, {"error": "Not allowed"})
+
+    def _no(self):
+        self._send(405, {"error": "Not allowed"})
+
+    do_PUT = do_DELETE = do_PATCH = do_HEAD = _no
+
+    def log_message(self, fmt, *args):                 # request lines only; never bodies or headers
+        sys.stderr.write("%s\n" % (fmt % args))

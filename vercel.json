@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "outputDirectory": "app",
+  "outputDirectory": "web",
   "cleanUrls": true,
   "functions": {
     "api/index.py": {
@@ -68,5 +68,6 @@
         }
       ]
     }
-  ]
+  ],
+  "buildCommand": "mkdir -p web && cp app/index.html app/app.js web/"
 }
