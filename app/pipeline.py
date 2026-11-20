@@ -387,6 +387,9 @@ def analyse_url(url, say=lambda msg: None):
         if med and m0.get("ask_m2") and (m0["ask_m2"] > 2 * med or m0["ask_m2"] < 0.4 * med):
             flags.insert(1, {"severity": "red", "text": "The asking price works out at %s MAD per m² against about %s for similar flats nearby. That is so far out that the advert probably has a typing error in the price or the size. Confirm both with the agent before reading anything into these numbers."
                              % (format(round(m0["ask_m2"]), ","), format(round(med), ","))})
+        if m0.get("asking_over_fair") and m0["asking_over_fair"] > 0.15 and not (med and m0["ask_m2"] > 2 * med):
+            flags.append({"severity": "amber", "text": "The sums assume you negotiate the price down to the fair value, %d%% below asking. If the seller will not move that far, every number here gets worse."
+                          % round((1 - m0["price"] / m0["asking"]) * 100)})
         if len(comps_sale) < 5:
             flags.append({"severity": "amber", "text": "Only %d comparable flats for sale found: the price check is weak." % len(comps_sale)})
         flags.append({"severity": "amber", "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."})
