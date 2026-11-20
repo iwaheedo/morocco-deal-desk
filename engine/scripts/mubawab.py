@@ -38,13 +38,35 @@ import urllib.request
 UA = "property-research-script/1.0 (personal, low-volume; one page per request)"
 
 
+MAX_BYTES = 4_000_000
+
+
+def _allowed(url):
+    parts = urllib.parse.urlsplit(url)
+    host = (parts.hostname or "").lower()
+    return parts.scheme == "https" and (host == "mubawab.ma" or host.endswith(".mubawab.ma"))
+
+
+class _SameSiteRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not _allowed(newurl):
+            raise urllib.error.URLError("redirect to another site refused: %s" % urllib.parse.urlsplit(newurl).hostname)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_opener = urllib.request.build_opener(_SameSiteRedirects)
+
+
 def fetch(url):
+    """Fetch one Mubawab page. Refuses any other site, plain http, and redirects that leave Mubawab."""
     parts = urllib.parse.urlsplit(url)
     path = urllib.parse.quote(urllib.parse.unquote(parts.path), safe="/:")
     url = urllib.parse.urlunsplit((parts.scheme, parts.netloc, path, parts.query, ""))
+    if not _allowed(url):
+        raise urllib.error.URLError("only https://www.mubawab.ma pages are read")
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return r.read().decode("utf-8", errors="ignore"), r.geturl()
+    with _opener.open(req, timeout=30) as r:
+        return r.read(MAX_BYTES).decode("utf-8", errors="ignore"), r.geturl()
 
 
 def clean(fragment):

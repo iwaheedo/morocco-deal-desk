@@ -1,9 +1,7 @@
 name: Analyse a property
-run-name: "Analyse: ${{ inputs.url || github.event.issue.title }}"
+run-name: "Analyse: ${{ inputs.url }}"
 
-# Two ways in:
-#  - the web page opens an issue titled "Analyse <link>" (only issues opened by the repository owner run)
-#  - Actions -> Run workflow, with the link typed in
+# Started by hand only (Actions -> Run workflow), which GitHub allows only for people with write access.
 on:
   workflow_dispatch:
     inputs:
@@ -11,12 +9,9 @@ on:
         description: "Mubawab listing link (https://www.mubawab.ma/fr/a/…)"
         required: true
         type: string
-  issues:
-    types: [opened]
 
 permissions:
   contents: write
-  issues: write
 
 concurrency:
   group: analyse
@@ -24,12 +19,11 @@ concurrency:
 
 jobs:
   analyse:
-    if: github.event_name == 'workflow_dispatch' || github.event.issue.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.12"
       - name: Install the spreadsheet library
@@ -43,12 +37,11 @@ jobs:
       - name: Analyse the listing
         env:
           LISTING_URL: ${{ inputs.url }}
-          ISSUE_TEXT: ${{ github.event.issue.title }} ${{ github.event.issue.body }}
           TZ: Europe/London
         run: python app/run_once.py
       - name: Keep the spreadsheet
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: morocco-property-tracker
           path: "Morocco Property Tracker.xlsx"
@@ -62,12 +55,3 @@ jobs:
           git diff --cached --quiet || git commit -m "Run: ${RUN_TITLE:-analysis}"
           git pull --rebase -X theirs
           git push
-      - name: Reply on the issue and close it
-        if: always() && github.event_name == 'issues'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE: ${{ github.event.issue.number }}
-        run: |
-          [ -f .run_note.md ] || echo "The analysis stopped before finishing. See the run log under Actions." > .run_note.md
-          gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file .run_note.md
-          gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY"

@@ -1,7 +1,72 @@
 {
   "framework": null,
+  "outputDirectory": "app",
   "cleanUrls": true,
-  "functions": { "api/index.py": { "maxDuration": 60, "excludeFiles": "{research,reports,results,.github,engine/references}/**" } },
-  "rewrites": [ { "source": "/api/(.*)", "destination": "/api/index" } ],
-  "redirects": [ { "source": "/", "destination": "/app/", "permanent": false } ]
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{research,reports,results,.github,engine/references}/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/app",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/app/(.*)",
+      "destination": "/",
+      "permanent": false
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://morocco-deal-desk.vercel.app"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
 }

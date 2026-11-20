@@ -32,6 +32,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
         for k, v in (extra or {}).items():
             self.send_header(k, v)
         self.end_headers()
@@ -43,6 +46,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if parts.path in ("/", "/index.html"):
                 self._send(200, (HERE / "index.html").read_bytes(), "text/html; charset=utf-8")
+            elif parts.path == "/app.js":
+                self._send(200, (HERE / "app.js").read_bytes(), "text/javascript; charset=utf-8")
             elif parts.path == "/api/profile":
                 self._send(200, pipeline.profile_summary())
             elif parts.path == "/api/history":
@@ -69,8 +74,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if urllib.parse.urlsplit(self.path).path != "/api/analyse":
             return self._send(404, {"error": "Not found"})
+        host = (self.headers.get("Host") or "").split(":")[0].lower()
+        origin = (urllib.parse.urlsplit(self.headers.get("Origin") or "").hostname or host).lower()
+        if (host not in ("localhost", "127.0.0.1") or origin not in ("localhost", "127.0.0.1")
+                or (self.headers.get("Content-Type") or "").split(";")[0].strip().lower() != "application/json"):
+            return self._send(403, {"error": "Analyses can only be started from the deal desk page on this Mac."})
         try:
-            body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
+            body = json.loads(self.rfile.read(min(int(self.headers.get("Content-Length") or 0), 2000)) or b"{}")
         except ValueError:
             return self._send(400, {"error": "The request was not valid JSON."})
         if not LOCK.acquire(blocking=False):

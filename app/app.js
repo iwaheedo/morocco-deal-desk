@@ -1,0 +1,272 @@
+// Morocco deal desk — page logic. Kept in its own file so the page can forbid inline scripts.
+if (location.hostname.endsWith('github.io')) location.replace('https://morocco-deal-desk.vercel.app/');   // the old copy forwards to the live site
+
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k === 'html') e.innerHTML = v; else e.setAttribute(k, v); }
+  for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k)); return e; };
+const SYM = {GBP: '£', EUR: '€', USD: '$'};
+const n0 = x => x == null || isNaN(x) ? '—' : Math.round(x).toLocaleString('en-GB');
+const mad = x => x == null ? '—' : n0(x) + ' MAD';
+const pct = (x, d = 0) => x == null ? '—' : (x * 100).toFixed(d) + '%';
+let HOME = 'GBP', FX = 1;
+const home = (x, signed = false) => { if (x == null || isNaN(x)) return '—'; const v = Math.round(x / FX), a = Math.abs(v).toLocaleString('en-GB');
+  return (v < 0 ? '−\u2060' : signed ? '+\u2060' : '') + (SYM[HOME] || HOME + ' ') + a; };
+const cls = x => x >= 0 ? 'pos' : 'neg';
+
+// Two homes for this page: served by the local app on the Mac (it has an API), or as a public web page
+// (no server: past runs are read from the public repository, and a new run is started by opening an issue there).
+const HOSTED = false;   // GitHub's static copy; everywhere else there is a server with the same API
+let LIVE = true;
+const REPO = 'iwaheedo/morocco-deal-desk', RAW = `https://raw.githubusercontent.com/${REPO}/main/`;
+const runCache = {};
+async function ghRunIds() {
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/runs?ref=main&t=${Date.now()}`, {headers: {Accept: 'application/vnd.github+json'}});
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error(r.status === 403 || r.status === 429 ? 'GitHub is limiting requests from this network for a few minutes. Try again shortly.' : 'Could not reach GitHub (' + r.status + ').');
+  return (await r.json()).filter(f => /^[0-9]{8}-[0-9]{6}-\w+\.json$/.test(f.name)).map(f => f.name.slice(0, -5)).sort().reverse();
+}
+async function ghRun(id) {
+  if (!runCache[id]) { const r = await fetch(RAW + 'runs/' + encodeURIComponent(id) + '.json'); if (!r.ok) throw new Error('That run is not readable on GitHub yet. Try again in a minute.'); runCache[id] = await r.json(); }
+  return runCache[id];
+}
+const rowOf = r => { const m = r.metrics || {}, rec = r.record || {}, fx = r.fx_home || 1;
+  return {run_id: r.run_id, at: r.at, title: rec.title, city: rec.city, area: rec.neighbourhood, asking_mad: rec.asking_price_mad, ask_m2: m.ask_m2, verdict: rec.verdict,
+          home_currency: r.home_currency, video_profit_home: (m.v_profit || 0) / fx, checked_profit_home: (m.c_profit || 0) / fx, be_occ: (m.be_occ_m || {}).base,
+          url: r.url, failed: !!r.failed, error: r.error}; };
+async function hostedApi(path) {
+  if (path === '/api/history') { const ids = (await ghRunIds()).slice(0, 40); return (await Promise.all(ids.map(id => ghRun(id).catch(() => null)))).filter(Boolean).map(rowOf); }
+  if (path.startsWith('/api/run?id=')) return ghRun(decodeURIComponent(path.split('=')[1]));
+  if (path === '/api/profile') { const ids = await ghRunIds(); const prof = await fetch(RAW + 'profile.json').then(r => r.ok ? r.json() : {}).catch(() => ({}));
+    const last = ids.length ? await ghRun(ids[0]) : null, t = last ? last.terms : {};
+    return {buyer_type: prof.buyer_type || 'foreign_non_resident', financing: prof.financing || '', home_currency: last ? last.home_currency : (prof.home_currency || 'GBP'),
+            fx_home: last ? last.fx_home : 1, ltv: t.ltv, term_years: t.term_years, rate: t.rate, rate_eff: t.rate_eff, home_tax_rate: t.home_tax_rate}; }
+  throw new Error('Not available on the web page.');
+}
+async function api(path, opts) { if (HOSTED) return hostedApi(path); const r = await fetch(path, opts); const j = await r.json().catch(() => ({error: 'The app returned something unreadable.'}));
+  if (!r.ok) throw new Error(j.error || ('Request failed (' + r.status + ')')); return j; }
+
+async function loadProfile() {
+  const p = await api('/api/profile'); HOME = p.home_currency; FX = p.fx_home; LIVE = p.live_progress !== false;
+  if (p.spreadsheet === false) { $('#sheetlink').textContent = ''; $('.hint').textContent = 'Reads Mubawab listings. Takes about 20 seconds: it reads the advert, then finds comparable flats and Airbnb listings.'; }
+  const who = {foreign_non_resident: 'Foreign buyer', mre: 'Moroccan living abroad', moroccan_resident: 'Moroccan resident'}[p.buyer_type] || p.buyer_type;
+  if (p.ltv == null) { $('#terms').textContent = who; return; }
+  $('#terms').innerHTML = `<b>${who}</b> · ${p.financing}<br>Loan <b>${pct(p.ltv)}</b> over <b>${p.term_years} yrs</b> · fixed <b>${pct(p.rate, 2)}</b> (${pct(p.rate_eff, 2)} with VAT)<br>` +
+    `Home tax <b>${pct(p.home_tax_rate)}</b> · 1 ${SYM[HOME] || HOME} = <b>${p.fx_home.toFixed(2)} MAD</b>`;
+}
+
+function receipt(title, tag, lines, total, totalHome, extra) {
+  return el('section', {class: 'receipt'},
+    el('header', {}, title), el('div', {class: 'tag'}, tag),
+    lines.map(([label, value, kind]) => el('div', {class: 'row ' + (kind || '')}, el('span', {}, label), el('span', {class: 'n'}, value))),
+    el('div', {class: 'total'}, el('span', {class: 'lab'}, 'Profit per month'), el('span', {class: 'big ' + cls(total)}, home(total, true))),
+    el('div', {class: 'row muted'}, el('span', {}, 'in dirhams'), el('span', {class: 'n'}, (total < 0 ? '−' : '+') + n0(Math.abs(total)) + ' MAD')),
+    extra ? el('div', {class: 'small'}, extra) : null);
+}
+
+function render(run) {
+  const out = $('#result'); out.innerHTML = '';
+  HOME = run.home_currency || HOME; FX = run.fx_home || FX;
+  if (run.failed) { out.append(el('div', {class: 'flat'}, el('div', {}, el('h2', {}, 'This link was not analysed'), el('div', {class: 'sub'}, run.url || '')), el('div', {class: 'stamp pass'}, 'NOT READ')), el('p', {class: 'why'}, run.error || '')); mark(run); return; }
+  const m = run.metrics, r = run.record, t = run.terms, x = run.extras || {}, ev = run.evidence || {};
+  const neg = v => v ? '−' + n0(v) : '0';
+  const verdict = (r.verdict || 'conditional').toLowerCase();
+  const row = (label, value, kind) => el('div', {class: 'row ' + (kind || '')}, el('span', {}, label), el('span', {class: 'n'}, value));
+  const sum = (...rows) => el('div', {class: 'sum'}, rows.filter(Boolean));
+  const say = html => el('p', {class: 'say', html});
+  const plain = html => el('p', {class: 'plain', html});
+  const step = (n, title, ...kids) => el('section', {class: 'step'}, el('div', {class: 'num'}, n), el('div', {}, el('h2', {}, title), kids));
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+
+  out.append(
+    el('div', {class: 'flat'},
+      el('div', {}, el('h2', {}, r.title || 'Flat'),
+        el('div', {class: 'sub'}, `Asking ${mad(m.asking)} (${home(m.asking)}) · `, /^https?:/.test(run.url || '') ? el('a', {href: run.url, target: '_blank', rel: 'noopener'}, 'open the advert') : '',
+          ` · checked ${new Date(run.at).toLocaleString('en-GB', {dateStyle: 'medium', timeStyle: 'short'})}`)),
+      el('div', {class: 'stamp ' + verdict}, verdict.toUpperCase())),
+    el('p', {class: 'why'}, (r.verdict_reason || '').replace(/^Automatic first pass\. /, '')));
+
+  // 1 — the flat
+  out.append(step(1, 'The flat you found',
+    say('The video starts with the search: find a flat on Mubawab, Avito or a Facebook group and write down what the advert says.'),
+    sum(row('Where', [r.neighbourhood, r.city].filter(Boolean).join(', ') || '—'), row('Asking price', mad(m.asking) + '  (' + home(m.asking) + ')'),
+        row('Size', m.surface ? n0(m.surface) + ' m²' : 'not in the advert'), row('Bedrooms / bathrooms', (r.bedrooms ?? '?') + ' / ' + (r.bathrooms ?? '?')),
+        row('Furnished', r.furnished ? 'yes, says the advert' : 'not mentioned'), r.contact ? row('Selling', r.contact) : null)));
+
+  // 2 — three questions
+  const offPlan = !!r.off_plan;
+  out.append(step(2, 'Three questions before you view',
+    say('He asks the agent these before travelling. A wrong answer ends it there.'),
+    el('ul', {class: 'qa'},
+      el('li', {}, el('span', {html: '<b>Is it titled?</b> A registered title (titre foncier) proves who owns it. Untitled property (“melkia”) can be claimed by someone else later.'}), el('span', {class: 'a ask'}, r.title_status && r.title_status !== 'unknown' ? r.title_status : 'not in the advert — ask')),
+      el('li', {}, el('span', {html: '<b>Is it off-plan?</b> Not built yet means paying in stages, no rent until it is finished, and usually no mortgage.'}), el('span', {class: 'a ' + (offPlan ? 'bad' : 'ok')}, offPlan ? 'looks off-plan' : 'no — finished flat')),
+      el('li', {}, el('span', {html: '<b>Exactly where is it?</b> You need the building, not just the area, to compare it with nearby Airbnbs.'}), el('span', {class: 'a ask'}, 'area only — ask for a map pin')))));
+
+  // ---- the sum, in the order you would work it out: buying, mortgage, costs, occupancy, nightly price, revenue, profit
+  const row3 = (label, a, b, kind) => el('div', {class: 'row3 ' + (kind || '')}, el('span', {}, label), el('span', {class: 'n' + (a === 'not counted' ? ' no' : '')}, a), el('span', {class: 'n'}, b));
+  const head3 = () => row3('', "Video's way", 'Real numbers', 'head');
+  const nComps = (r.comps_sale || []).length, agz = ev.agenz, mk = ev.market || {};
+  const insM = (m.insurance_y || 0) / 12, repairsM = ((m.maint || {}).base || 0) / 12;
+  const fixedV = m.v_mort + t.utilities_month + t.internet_month + t.subs_month;
+  const fixedC = m.c_mort + t.utilities_month + t.internet_month + t.subs_month + m.c_syndic + insM;
+  const cityName = mk.city ? mk.city[0].toUpperCase() + mk.city.slice(1) : 'Morocco';
+
+  // 3 — buying
+  out.append(step(3, 'Buying: what it is worth and what it costs to buy',
+    say('Morocco prices flats by the square metre. Divide the asking price by the size and compare with what the area goes for. “Just because the owner wants that doesn’t mean it’s worth that.”'),
+    m.surface ? sum(
+      row('Asking price ÷ size', `${n0(m.asking)} ÷ ${n0(m.surface)} m²`), row('= asking price per m²', mad(m.ask_m2), 'eq'),
+      m.comp_median_m2 ? row(`Similar flats nearby ask (${nComps} adverts, middle one)`, mad(m.comp_median_m2) + ' per m²') : null,
+      agz ? row('Published reference for the area (Agenz)', mad(agz.mad_per_m2) + ' per m²') : null,
+      m.area_mid ? row('What the area supports', mad(m.area_mid) + ' per m²') : null,
+      m.fair_mid ? row(`× ${n0(m.surface)} m² = a fair price`, mad(m.fair_mid), 'eq') : null) : plain('The advert gives no size, so the price cannot be checked per square metre. Ask for the surface on the title.'),
+    m.fair_mid ? plain(`The asking price is <b>${pct(Math.abs(m.asking_over_fair))} ${m.asking_over_fair >= 0 ? 'above' : 'below'}</b> that. Open at <b>${esc(mad(m.offer_open))}</b>, aim for <b>${esc(mad(m.offer_target))}</b>, walk away above <b>${esc(mad(m.offer_walk))}</b>. These are <b>asking</b> prices: he messages 7–8 local agents to learn what flats actually sold for.`) : null,
+    el('div', {style: 'height:12px'}),
+    sum(row('Price you expect to pay', mad(m.price)),
+        row('Registration tax (4%)', mad(m.reg)), row('Land registry (1.5%)', mad(m.cf)), row('Notary', mad(m.notary + m.misc)), row('Estate agent', mad(m.agent)),
+        m.furnishing ? row('Furniture to make it ready for guests (estimate)', mad(m.furnishing)) : null,
+        row('= total cost of buying it', mad(m.total_cost) + '  (' + home(m.total_cost) + ')', 'eq'))));
+
+  // 4 — mortgage
+  out.append(step(4, 'Mortgage: what the bank lends and what you bring',
+    say('The bank lends part of the price. The fees are never lent, so they come out of your pocket on top of the deposit. He says always take the fixed rate, never the variable one.'),
+    sum(row(`Bank lends (${pct(t.ltv)} of the price)`, mad(m.loan)), row(`Your deposit (${pct(1 - t.ltv)})`, mad(m.deposit)),
+        row('+ buying fees, mortgage paperwork, furniture', mad(m.closing_total + m.mort_costs + m.furnishing + m.renovation)),
+        row('= cash you need in total', mad(m.cash_needed_m) + '  (' + home(m.cash_needed_m) + ')', 'eq')),
+    el('div', {style: 'height:12px'}),
+    sum(row('Interest rate, fixed for the whole loan', pct(t.rate, 2) + '  (today’s average in Morocco)'), row('Length of the loan', t.term_years + ' years'),
+        row('= repayment every month', mad(m.v_mort), 'eq'),
+        row('Real cost with tax on the interest + the bank’s insurance', mad(m.c_mort)))));
+
+  // 5 — all the costs
+  out.append(step(5, 'All the costs, every month',
+    say('The bills that arrive whether or not anyone is staying. The video counts four of them.'),
+    sum(head3(),
+        row3('Mortgage', n0(m.v_mort), n0(m.c_mort)), row3('Electricity and water', n0(t.utilities_month), n0(t.utilities_month)),
+        row3('Internet', n0(t.internet_month), n0(t.internet_month)), row3('TV subscription', n0(t.subs_month), n0(t.subs_month)),
+        row3('Building service charge', 'not counted', n0(m.c_syndic)), row3('Home insurance', 'not counted', n0(insM)),
+        row3('= fixed costs every month', mad(fixedV), mad(fixedC), 'eq')),
+    plain(`On top of these, some costs are a <b>slice of whatever guests pay</b>, so they are worked out in step 9 once the revenue is known: a manager (the video says ${pct(t.video_mgmt_pct)}; real quotes are about ${pct(t.mgmt_pct)}), Airbnb’s fee (${pct(t.platform_pct, 1)}), repairs and linen, and tax. Cleaning is charged to the guest.`)));
+
+  // 6 — occupancy
+  out.append(step(6, 'Occupancy: how many nights get booked',
+    say('Occupancy is the share of nights someone is paying to stay. It is the number that decides everything.'),
+    sum(head3(),
+        row3('Share of nights booked', pct(t.video_occ), pct(m.occ.base)),
+        row3('= nights booked a month', (m.v_nights).toFixed(0), (365 * m.occ.base / 12).toFixed(1), 'eq')),
+    plain(`The video uses <b>${pct(t.video_occ)}</b>. Airbnb flats in ${esc(cityName)} are booked about <b>${pct(mk.occ)}</b> of the time on average; a well-run flat that is always available should manage about <b>${pct(m.occ.base)}</b>, and the best quarter reach about ${pct(m.occ.bull)}.`)));
+
+  // 7 — nightly price
+  out.append(step(7, 'How much you can charge per night',
+    say('He looks at Airbnbs near the flat, compares them with it, and picks a price in the middle of the range.'),
+    sum(row('Cheaper end of similar places', mad(m.adr.bear)), row('Middle — the price used', mad(m.adr.base), 'eq'), row('Top end', mad(m.adr.bull))),
+    plain(esc((r.str || {}).adr_note || ''))));
+
+  // 8 — revenue
+  out.append(step(8, 'Total revenue per month',
+    say('Nightly price × nights booked.'),
+    sum(head3(),
+        row3('Nightly price', n0(m.v_adr), n0(m.c_adr)), row3('× nights booked a month', (m.v_nights).toFixed(0), (365 * m.occ.base / 12).toFixed(1)),
+        row3('= money coming in each month', mad(m.v_rev), mad(m.c_rev), 'eq'))));
+
+  // 9 — profit or loss
+  const gapBars = x.gap ? (() => { const top = Math.max(...x.gap.map(g => g[1]), 1), tot = x.gap.reduce((a, g) => a + g[1], 0);
+    return [el('h3', {style: 'margin-top:22px'}, `Why the two answers are ${home(tot)} a month apart`),
+      el('div', {class: 'gap'}, x.gap.filter(g => g[1] > 0.5).map(([label, v]) => el('div', {class: 'bar'}, el('span', {}, label), el('span', {}, el('i', {style: `width:${Math.max(1, v / top * 100)}%`})), el('span', {class: 'n'}, n0(v) + ' MAD')))),
+      plain(x.real_costs_at_video_occ == null ? '' : x.real_costs_at_video_occ < 0 ? `Even if the flat did fill ${pct(t.video_occ)} of nights, the real costs would leave you <b>${home(-x.real_costs_at_video_occ)} a month short</b>.` : `If the flat did fill ${pct(t.video_occ)} of nights, it would still make <b>${home(x.real_costs_at_video_occ)} a month</b> after real costs.`)]; })() : [];
+  out.append(step(9, 'Profit or loss per month',
+    say('Money coming in, minus the fixed costs, minus the slices of each booking. What is left is yours — or what you have to top up.'),
+    el('div', {class: 'receipts'},
+      receipt("The video's way", `${pct(t.video_occ)} of nights booked, a ${pct(t.video_mgmt_pct)} manager, four bills.`, [
+        ['Money coming in', n0(m.v_rev), 'rev'], ['Fixed costs (step 5)', neg(fixedV)], ['Manager ' + pct(t.video_mgmt_pct), neg(m.v_mgmt)],
+        ['Airbnb fee, repairs, tax', 'not counted', 'muted']], m.v_profit, null, `If he holds back his optional 10% for surprises: ${home(m.v_profit_cont, true)}.`),
+      receipt('With real numbers', 'Real booking levels and every cost.', [
+        ['Money coming in', n0(m.c_rev), 'rev'], ['Fixed costs (step 5)', neg(fixedC)], ['Manager ' + pct(t.mgmt_pct), neg(m.c_mgmt)],
+        ['Airbnb takes ' + pct(t.platform_pct, 1), neg(m.c_platform)], ['Repairs and linen', neg(repairsM)], ['Tax in Morocco', neg(m.c_ma_tax)], ['Tax at home', neg(m.c_home_tax)]],
+        m.c_profit, null, `On a bad year ${home(m.cf_m_month.bear, true)}, on a good year ${home(m.cf_m_month.bull, true)} a month.`)),
+    gapBars));
+
+  // 10 — verdict
+  const flags = r.flags || [];
+  const copy = el('button', {class: 'quiet', type: 'button'}, 'Copy the French');
+  copy.onclick = async () => { try { await navigator.clipboard.writeText(run.message_fr); copy.textContent = 'Copied'; } catch (e) { copy.textContent = 'Select and copy by hand'; } setTimeout(() => copy.textContent = 'Copy the French', 1800); };
+  out.append(step(10, 'Verdict: ' + ({pass: 'pass on this one', conditional: 'maybe — if the conditions are met', pursue: 'worth pursuing'}[verdict] || verdict),
+    say('His test: at the fixed mortgage payment, does the deal work, yes or no? Here is what “yes” would need.'),
+    sum(row('Nights booked needed to break even', pct(m.be_occ_m.base) + ' of the year'), row('Typical for the city', pct(mk.occ)),
+        row('Or a nightly price of', x.be_adr_at_base_occ ? mad(x.be_adr_at_base_occ) + '  (now ' + n0(m.adr.base) + ')' : '—'),
+        row('Or a purchase price of', x.be_price ? mad(x.be_price) + '  (' + pct(x.be_price / m.asking) + ' of asking)' : 'no price works on this loan'),
+        row('If you bought with cash instead', home(m.net.base / 12, true) + ' a month  (' + pct(m.net_yield_c.base, 1) + ' a year on your money)'),
+        row('After ten years, then selling', home(m.profit_m.base, true) + '  (between ' + home(m.profit_m.bear, true) + ' and ' + home(m.profit_m.bull, true) + ')')),
+    el('h3', {style: 'margin-top:18px'}, 'Watch out for'), el('ul', {class: 'flags'}, flags.map(f => el('li', {class: f.severity}, el('b', {}, (f.severity || '').toUpperCase()), f.text))),
+    el('h3', {style: 'margin-top:18px'}, 'If you still want to look: send the agent this'), el('pre', {}, run.message_fr || ''), el('p', {class: 'small'}, run.message_en || ''), copy));
+
+  const tbl = (heads, rows) => el('table', {}, el('thead', {}, el('tr', {}, heads.map(h => el('th', {class: h[1] || ''}, h[0])))), el('tbody', {}, rows.map(c => el('tr', {}, c.map((v, i) => el('td', {class: heads[i][1] || ''}, v))))));
+  const link = c => /^https?:\/\//.test(c.url || '') ? el('a', {href: c.url, target: '_blank', rel: 'noopener'}, c.desc || 'listing') : (c.desc || '');
+  const sale = r.comps_sale || [], st = (r.str || {}).comps || [], lt = (r.ltr || {}).comps || [];
+  out.append(el('h2', {}, 'The evidence used'),
+    el('details', {}, el('summary', {}, `Airbnbs and holiday lets compared (${st.length})`), el('div', {}, el('p', {class: 'small'}, (r.str || {}).occupancy_note || ''),
+      tbl([['Listing'], ['Per night', 'n'], ['Reviews', 'n']], st.map(c => [link(c), mad(c.nightly_mad), c.reviews ?? '—'])))),
+    el('details', {}, el('summary', {}, `Flats for sale nearby (${sale.length})`), el('div', {}, el('p', {class: 'small'}, (r.area_price_per_m2 || {}).basis || 'Asking prices from adverts, less the assumed 10% between asking and sold.'),
+      tbl([['Flat'], ['Asking', 'n'], ['m²', 'n'], ['MAD/m²', 'n']], sale.map(c => [link(c), n0(c.price_mad), n0(c.surface_m2), n0(c.price_mad / c.surface_m2)])))),
+    el('details', {}, el('summary', {}, `Flats to rent nearby (${lt.length})`), el('div', {}, el('p', {class: 'small'}, (r.ltr || {}).rent_note || 'No long-let comparables found.'),
+      tbl([['Flat'], ['Rent / month', 'n'], ['m²', 'n']], lt.map(c => [link(c), n0(c.rent_mad_month), n0(c.surface_m2)])))),
+    el('p', {class: 'small'}, run.check && run.check.verified ? `Sums checked: ${run.check.cells_checked} spreadsheet cells recalculated independently and matched.` : 'Sums come from the reference model; the spreadsheet re-check did not run this time.'));
+  mark(run);
+}
+const mark = run => document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id));
+
+async function loadHistory(openLatest) {
+  const rows = await api('/api/history'), tb = $('#history tbody'); tb.innerHTML = '';
+  if (!rows.length) { tb.append(el('tr', {}, el('td', {colspan: 9, style: 'color:var(--soft);cursor:default'}, 'Nothing yet. Paste a Mubawab link above to check your first flat.'))); return; }
+  for (const h of rows) { const s = SYM[h.home_currency] || '';
+    const money = v => (v < 0 ? '−' : '+') + s + Math.abs(Math.round(v)).toLocaleString('en-GB');
+    const when = new Date(h.at).toLocaleString('en-GB', {dateStyle: 'medium', timeStyle: 'short'});
+    const advert = /^https?:\/\//.test(h.url || '') ? el('a', {href: h.url, target: '_blank', rel: 'noopener'}, 'open') : '';
+    if (advert) advert.onclick = e => e.stopPropagation();
+    const tr = h.failed
+      ? el('tr', {tabindex: 0, 'data-id': h.run_id}, el('td', {}, when), el('td', {colspan: 6, style: 'color:var(--soft)'}, 'Not analysed — ' + (h.error || 'the link could not be read')), el('td', {}, el('span', {class: 'pill'}, 'not read')), el('td', {}, advert))
+      : el('tr', {tabindex: 0, 'data-id': h.run_id}, el('td', {}, when), el('td', {}, h.title || '—'),
+          el('td', {class: 'n'}, n0(h.asking_mad)), el('td', {class: 'n'}, h.ask_m2 ? n0(h.ask_m2) : '—'), el('td', {class: 'n ' + cls(h.video_profit_home)}, money(h.video_profit_home)),
+          el('td', {class: 'n ' + cls(h.checked_profit_home)}, money(h.checked_profit_home)), el('td', {class: 'n'}, h.be_occ == null ? '—' : pct(h.be_occ)), el('td', {}, el('span', {class: 'pill'}, h.verdict || '—')), el('td', {}, advert));
+    const open = async () => { try { render(await api('/api/run?id=' + encodeURIComponent(h.run_id))); window.scrollTo({top: $('#result').offsetTop - 10, behavior: 'smooth'}); } catch (e) { fail(e.message); } };
+    tr.onclick = open; tr.onkeydown = e => { if (e.key === 'Enter') open(); };
+    tb.append(tr); }
+  if (openLatest) { const first = rows.find(h => !h.failed) || rows[0]; render(await api('/api/run?id=' + encodeURIComponent(first.run_id))); }
+}
+
+const fail = msg => { const s = $('#status'); s.className = 'status err'; s.textContent = msg; };
+async function startHosted(url) {
+  const s = $('#status'), btn = $('#go');
+  if (!/^https?:\/\/([a-z0-9-]+\.)*mubawab\.ma\/.*\/(a|pa)\/\d+/i.test(url)) { fail('Paste the address of one Mubawab listing (it contains /a/ or /pa/ and a number). Other sites are not read automatically.'); return; }
+  let before; try { before = new Set(await ghRunIds()); } catch (err) { fail(err.message); return; }
+  window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent('Analyse ' + url)}&body=${encodeURIComponent('Sent from the deal desk. Press the green button to start; the result appears on the page in about two minutes.')}`, '_blank', 'noopener');
+  btn.disabled = true; s.className = 'status';
+  const started = Date.now();
+  const say = () => { const sec = Math.round((Date.now() - started) / 1000);
+    s.innerHTML = '<span class="dot"></span>' + (sec < 25 ? 'On the GitHub page that opened, press the green “Create” button. That starts the analysis.' : `Waiting for GitHub to finish — usually about two minutes (${sec}s so far)…`); };
+  say(); const ticker = setInterval(say, 5000);
+  try {
+    for (let i = 0; i < 24; i++) { await new Promise(r => setTimeout(r, 20000));
+      let ids; try { ids = await ghRunIds(); } catch (_) { continue; }
+      const fresh = ids.find(id => !before.has(id));
+      if (fresh) { let run = null; for (let k = 0; k < 6 && !run; k++) { try { run = await ghRun(fresh); } catch (_) { await new Promise(r => setTimeout(r, 5000)); } }
+        if (run) { s.className = 'status'; s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; return; } } }
+    fail('No result after eight minutes. Either the issue was not created (you need to be signed in to GitHub as the owner), or the link could not be read — the closed issue on GitHub says which.');
+  } finally { clearInterval(ticker); btn.disabled = false; }
+}
+$('#f').addEventListener('submit', async e => {
+  e.preventDefault(); if (HOSTED) return startHosted($('#url').value.trim());
+  const btn = $('#go'), s = $('#status'); btn.disabled = true; s.className = 'status';
+  const t0 = Date.now();
+  const tick = setInterval(async () => { if (!LIVE) { s.innerHTML = '<span class="dot"></span>Reading the advert and finding comparable flats… ' + Math.round((Date.now() - t0) / 1000) + 's'; return; }
+    try { const p = await api('/api/progress'); if (p.msg) s.innerHTML = '<span class="dot"></span>' + p.msg + '…'; } catch (_) {} }, 700);
+  s.innerHTML = '<span class="dot"></span>Starting…';
+  try { const run = await api('/api/analyse', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: $('#url').value})});
+    clearInterval(tick); s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; }
+  catch (err) { fail(err.message); try { await loadHistory(false); } catch (_) {} }
+  finally { clearInterval(tick); btn.disabled = false; }
+});
+(async () => { if (HOSTED) { $('#sheetlink').innerHTML = ''; $('#sheetlink').append(el('a', {href: `https://github.com/${REPO}/tree/main/results`}, 'Every result as a page on GitHub'), '.');
+    $('.hint').textContent = 'Reads Mubawab listings. Starting an analysis opens GitHub (you need to be signed in there); the result appears here in about two minutes. Reading past results needs nothing.'; }
+  try { await loadProfile(); await loadHistory(true); } catch (e) { fail(e.message); }
+  if (!$('#result').children.length) $('#result').append(el('div', {class: 'empty'}, 'Your first result will appear here: two receipts for the same flat — the video’s sum, and the checked one.')); })();

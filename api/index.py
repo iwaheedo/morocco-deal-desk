@@ -10,9 +10,11 @@ server restarts, and /api/profile says so.
 """
 import json
 import os
+import re
 import shutil
 import sys
 import time
+import traceback
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -79,6 +81,48 @@ def all_runs():
     return runs
 
 
+# ---------------------------------------------------------------- limits
+DAILY_CAP = 120        # entries a day, everyone together: stops storage and the upstream sites being flooded
+PER_IP_HOUR = 20       # analyses an hour from one address
+PER_IP_GAP = 6         # seconds between two analyses from one address
+REUSE_SECONDS = 600    # the same listing asked again within ten minutes gets the stored answer
+_seen = {}             # ip -> recent request times (per server instance; the daily cap is the hard limit)
+SITE_HOSTS = {"morocco-deal-desk.vercel.app", "localhost", "127.0.0.1"}
+
+
+def _same_site(h):
+    """Only this site's own page may ask for an analysis: blocks other websites driving a visitor's browser."""
+    if (h.get("Content-Type") or "").split(";")[0].strip().lower() != "application/json":
+        return False
+    if (h.get("Sec-Fetch-Site") or "same-origin") not in ("same-origin", "none"):
+        return False
+    origin = h.get("Origin")
+    if origin:
+        host = (urllib.parse.urlsplit(origin).hostname or "").lower()
+        if not (host in SITE_HOSTS or host.endswith("-wns-projects-93a711de.vercel.app")):
+            return False
+    return True
+
+
+def _throttle(ip):
+    now = time.time()
+    hits = [t for t in _seen.get(ip, []) if now - t < 3600]
+    if hits and now - hits[-1] < PER_IP_GAP:
+        return "One at a time: wait a few seconds and try again."
+    if len(hits) >= PER_IP_HOUR:
+        return "That is %d analyses in an hour from this connection. Try again later." % PER_IP_HOUR
+    hits.append(now)
+    _seen[ip] = hits
+    if len(_seen) > 5000:
+        _seen.clear()
+    return None
+
+
+def _today_count(runs):
+    today = time.strftime("%Y-%m-%d")
+    return sum(1 for r in runs.values() if str(r.get("at", "")).startswith(today))
+
+
 class handler(BaseHTTPRequestHandler):
     def _send(self, code, body):
         data = json.dumps(body, ensure_ascii=False).encode("utf-8")
@@ -86,6 +130,7 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
         self.wfile.write(data)
 
@@ -105,18 +150,39 @@ class handler(BaseHTTPRequestHandler):
                 self._send(200, {"msg": "", "busy": False})
             else:
                 self._send(404, {"error": "Not found"})
-        except Exception as e:
-            self._send(500, {"error": "The site hit a problem: %s" % e})
+        except Exception:
+            traceback.print_exc()                      # details stay in the server log
+            self._send(500, {"error": "The site hit a problem. Try again in a minute."})
 
     def do_POST(self):
         if not urllib.parse.urlsplit(self.path).path.endswith("/analyse"):
             return self._send(404, {"error": "Not found"})
+        if not _same_site(self.headers):
+            return self._send(403, {"error": "Analyses can only be started from the deal desk page itself."})
         try:
-            body = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = -1
+        if length < 2 or length > 2000:
+            return self._send(413, {"error": "That request is not a listing link."})
+        try:
+            body = json.loads(self.rfile.read(length))
+            url = str(body.get("url") or "")[:600] if isinstance(body, dict) else ""
         except ValueError:
             return self._send(400, {"error": "The request was not valid JSON."})
-        url = str(body.get("url") or "")[:600]
+        ip = (self.headers.get("x-forwarded-for") or self.client_address[0] or "?").split(",")[0].strip()
+        wait = _throttle(ip)
+        if wait:
+            return self._send(429, {"error": wait})
         try:
+            runs = all_runs()
+            m = re.search(r"/(?:pa|a)/(\d+)", url)
+            if m:                                      # asked again within ten minutes: hand back the stored answer
+                for r in sorted(runs.values(), key=lambda r: r.get("at", ""), reverse=True):
+                    if not r.get("failed") and r["run_id"].endswith("-" + m.group(1)) and time.time() - time.mktime(time.strptime(r["at"][:19], "%Y-%m-%dT%H:%M:%S")) < REUSE_SECONDS:
+                        return self._send(200, r)
+            if _today_count(runs) >= DAILY_CAP:
+                return self._send(429, {"error": "The deal desk has reached its limit of %d entries for today. It opens again tomorrow." % DAILY_CAP})
             run = pipeline.analyse_url(url)
             keep(run)
             self._send(200, run)
@@ -124,11 +190,15 @@ class handler(BaseHTTPRequestHandler):
             try:
                 keep(pipeline.log_failure(url, str(e)))
             except Exception:
-                pass
+                traceback.print_exc()
             self._send(422, {"error": str(e)})
-        except Exception as e:
+        except Exception:
+            traceback.print_exc()
             try:
-                keep(pipeline.log_failure(url, "The analysis stopped: %s" % e))
+                keep(pipeline.log_failure(url, "The analysis stopped before finishing."))
             except Exception:
-                pass
-            self._send(500, {"error": "The analysis stopped: %s" % e})
+                traceback.print_exc()
+            self._send(500, {"error": "The analysis stopped before finishing. Try again in a minute."})
+
+    def do_OPTIONS(self):                              # no cross-site access is offered
+        self._send(403, {"error": "Not allowed"})

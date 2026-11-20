@@ -21,6 +21,7 @@ import threading
 import sys
 import time
 import unicodedata
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -60,10 +61,26 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 
+_OUTBOUND = {"agenz.ma", "nominatim.openstreetmap.org"}   # besides Mubawab, the only sites this ever contacts
+
+
+class _NoRedirectElsewhere(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if (urllib.parse.urlsplit(newurl).hostname or "").lower() not in _OUTBOUND or not newurl.startswith("https://"):
+            raise urllib.error.URLError("redirect to another site refused")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_opener = urllib.request.build_opener(_NoRedirectElsewhere)
+
+
 def _get(url, timeout=30):
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme != "https" or (parts.hostname or "").lower() not in _OUTBOUND:
+        raise urllib.error.URLError("outbound request refused: %s" % parts.hostname)
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "fr,en;q=0.8"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", errors="ignore")
+    with _opener.open(req, timeout=timeout) as r:
+        return r.read(4_000_000).decode("utf-8", errors="ignore")
 
 
 def _json_file(path, default):
@@ -166,7 +183,8 @@ def analyse_url(url, say=lambda msg: None):
     host = urllib.parse.urlsplit(url).netloc.lower()
     if not url.startswith("http"):
         raise Refusal("That is not a link. Paste the full address of a listing, starting with https://")
-    if "mubawab.ma" not in host:
+    host = (urllib.parse.urlsplit(url).hostname or "").lower()
+    if not (url.startswith("https://") or url.startswith("http://")) or not (host == "mubawab.ma" or host.endswith(".mubawab.ma")):
         raise Refusal("Only Mubawab links are read automatically. For %s, open the listing and ask Claude: “/morocco-property” "
                       "with the advert text or a screenshot." % (host or "this site"))
     if not re.search(r"/(a|pa)/\d+", url):
