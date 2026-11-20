@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 .venv/
 .run_note.md
+.vercel
+.env*

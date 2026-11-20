@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import sys
+import time
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -28,6 +29,8 @@ if not (WORK / "profile.json").exists():          # fresh server: lay out a writ
         if json.loads(f.read_text(encoding="utf-8")).get("origin") != "auto":
             shutil.copy2(f, WORK / "properties" / f.name)   # hand-refined analyses travel with the code
 os.environ["DEAL_DESK_DATA"] = str(WORK)
+os.environ.setdefault("TZ", "Europe/London")   # entries are stamped in UK time, as on the Mac
+time.tzset()
 os.environ["DEAL_DESK_DIRECT"] = "1"
 sys.path.insert(0, str(ROOT / "app"))
 import pipeline  # noqa: E402

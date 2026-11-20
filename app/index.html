@@ -387,7 +387,7 @@ $('#f').addEventListener('submit', async e => {
     try { const p = await api('/api/progress'); if (p.msg) s.innerHTML = '<span class="dot"></span>' + p.msg + '…'; } catch (_) {} }, 700);
   s.innerHTML = '<span class="dot"></span>Starting…';
   try { const run = await api('/api/analyse', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: $('#url').value})});
-    s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; }
+    clearInterval(tick); s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; }
   catch (err) { fail(err.message); try { await loadHistory(false); } catch (_) {} }
   finally { clearInterval(tick); btn.disabled = false; }
 });
