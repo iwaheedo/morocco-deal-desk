@@ -1,0 +1,7 @@
+{
+  "framework": null,
+  "cleanUrls": true,
+  "functions": { "api/index.py": { "maxDuration": 60, "excludeFiles": "{research,reports,results,.github,engine/references}/**" } },
+  "rewrites": [ { "source": "/api/(.*)", "destination": "/api/index" } ],
+  "redirects": [ { "source": "/", "destination": "/app/", "permanent": false } ]
+}

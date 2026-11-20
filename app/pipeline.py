@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import statistics
@@ -24,14 +25,18 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-DATA = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent
+# Where records and runs are written. On a hosted server the code folder is read-only, so it points elsewhere.
+DATA = Path(os.environ.get("DEAL_DESK_DATA") or ROOT)
+# Hosted servers have no spreadsheet program: the numbers then come straight from the reference model.
+DIRECT = bool(os.environ.get("DEAL_DESK_DIRECT"))
 # The engine (model, spreadsheet builder, Mubawab reader, defaults). On this Mac it is the installed
 # skill; anywhere else (GitHub's servers) it is the copy kept in engine/, refreshed on every sync.
 _LOCAL_SKILL = Path.home() / ".claude" / "skills" / "morocco-property"
-SKILL = _LOCAL_SKILL if (_LOCAL_SKILL / "scripts").exists() else DATA / "engine"
+SKILL = _LOCAL_SKILL if (_LOCAL_SKILL / "scripts").exists() else ROOT / "engine"
 # Airbnb listings collected for the Rabat dashboard: the live file on this Mac, else the synced copy.
 _LIVE_LISTINGS = Path.home() / "Desktop" / "Other random coding" / "morocco-str" / "listings.js"
-LISTINGS = _LIVE_LISTINGS if _LIVE_LISTINGS.exists() else DATA / "data" / "listings.js"
+LISTINGS = _LIVE_LISTINGS if _LIVE_LISTINGS.exists() else ROOT / "data" / "listings.js"
 sys.path.insert(0, str(SKILL / "scripts"))
 
 import deal_model  # noqa: E402
@@ -83,7 +88,8 @@ def profile_summary():
     return {"buyer_type": c["buyer_type"], "home_currency": c["home"], "financing": p.get("financing") or "undecided",
             "strategy": p.get("strategy") or [], "ltv": A["ltv"], "rate": A["rate"], "rate_eff": A["rate_eff"],
             "term_years": A["term_years"], "home_tax_rate": A["home_tax_rate"], "fx_home": A["fx_home"],
-            "defaults_as_of": c["defaults_as_of"], "video_occ": A["video_occ"], "video_mgmt_pct": A["video_mgmt_pct"]}
+            "defaults_as_of": c["defaults_as_of"], "video_occ": A["video_occ"], "video_mgmt_pct": A["video_mgmt_pct"],
+            "live_progress": not DIRECT, "spreadsheet": not DIRECT}
 
 
 # ---------------------------------------------------------------- evidence
@@ -376,19 +382,25 @@ def analyse_url(url, say=lambda msg: None):
         (DATA / "properties").mkdir(exist_ok=True)
         path.write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # -- build the tracker (spreadsheet + independent recalculation), take the numbers from it
-    say("Building the spreadsheet and checking the sums")
-    proc = subprocess.run([sys.executable, str(SKILL / "scripts" / "build_tracker.py"), "--data-dir", str(DATA)], capture_output=True, text=True, timeout=300)
-    try:
-        built = json.loads(proc.stdout)
-    except ValueError:
-        raise Refusal("The spreadsheet builder failed: %s" % (proc.stderr or proc.stdout)[-400:])
-    if "error" in built:
-        raise Refusal("The spreadsheet builder refused the record: %s" % built["error"])
-    mine = next((p for p in built["properties"] if p["id"] == rec["id"]), None)
-    if mine is None:
-        raise Refusal("The property was saved but is missing from the tracker output.")
-    m = mine["metrics"]
+    # -- the numbers: from the spreadsheet build (which re-checks them) or, on a hosted server, straight from the model
+    if DIRECT:
+        say("Working out the sums")
+        m = _rounded(deal_model.compute(rec, A))
+        mine = {"sheet": None}
+        built = {"check": {"verified": False, "note": "worked out by the reference model; the spreadsheet re-check only runs on the Mac"}}
+    else:
+        say("Building the spreadsheet and checking the sums")
+        proc = subprocess.run([sys.executable, str(SKILL / "scripts" / "build_tracker.py"), "--data-dir", str(DATA)], capture_output=True, text=True, timeout=300)
+        try:
+            built = json.loads(proc.stdout)
+        except ValueError:
+            raise Refusal("The spreadsheet builder failed: %s" % (proc.stderr or proc.stdout)[-400:])
+        if "error" in built:
+            raise Refusal("The spreadsheet builder refused the record: %s" % built["error"])
+        mine = next((p for p in built["properties"] if p["id"] == rec["id"]), None)
+        if mine is None:
+            raise Refusal("The property was saved but is missing from the tracker output.")
+        m = mine["metrics"]
 
     extras = _extras(rec, A)
     msg_fr, msg_en = _screening_message(rec, li)
@@ -409,6 +421,15 @@ def analyse_url(url, say=lambda msg: None):
     import report_md
     run["result_file"] = report_md.save(run, DATA / "results")
     return run
+
+
+def _rounded(v):
+    """Same rounding the spreadsheet builder applies to what it reports."""
+    if isinstance(v, dict):
+        return {k: _rounded(x) for k, x in v.items()}
+    if isinstance(v, float):
+        return round(v, 4) if abs(v) < 10 else round(v, 0)
+    return v
 
 
 def _sym(home):

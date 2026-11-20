@@ -83,6 +83,10 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n
 .sum{font-family:var(--mono);font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 16px;max-width:680px}
 .sum .row{padding:7px 0;border-bottom:1px dashed var(--line)} .sum .row:last-child{border-bottom:0} .sum .row.eq{font-weight:600}
 .sum .row span:first-child{font-family:var(--display);font-size:15px}
+.sum .row3{display:grid;grid-template-columns:1fr 104px 104px;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--line)}
+.sum .row3:last-child{border-bottom:0} .sum .row3 span:first-child{font-family:var(--display);font-size:15px} .sum .row3 .n{text-align:right;white-space:nowrap}
+.sum .row3.head{font-family:var(--display);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)} .sum .row3.eq{font-weight:600} .sum .row3 .no{color:var(--soft)}
+@media (max-width:560px){.sum .row3{grid-template-columns:1fr 78px 78px}}
 .plain{max-width:68ch;margin:12px 0 0} .plain b{font-weight:600}
 .qa{list-style:none;padding:0;margin:0;max-width:680px} .qa li{display:grid;grid-template-columns:1fr auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .qa .a{font-family:var(--mono);font-size:13px;white-space:nowrap} .qa .a.bad{color:var(--red)} .qa .a.ok{color:var(--green)} .qa .a.ask{color:var(--amber)}
@@ -137,7 +141,8 @@ const cls = x => x >= 0 ? 'pos' : 'neg';
 
 // Two homes for this page: served by the local app on the Mac (it has an API), or as a public web page
 // (no server: past runs are read from the public repository, and a new run is started by opening an issue there).
-const HOSTED = !['localhost', '127.0.0.1'].includes(location.hostname);
+const HOSTED = location.hostname.endsWith('github.io');   // GitHub's static copy; everywhere else there is a server with the same API
+let LIVE = true;
 const REPO = 'iwaheedo/morocco-deal-desk', RAW = `https://raw.githubusercontent.com/${REPO}/main/`;
 const runCache = {};
 async function ghRunIds() {
@@ -167,7 +172,8 @@ async function api(path, opts) { if (HOSTED) return hostedApi(path); const r = a
   if (!r.ok) throw new Error(j.error || ('Request failed (' + r.status + ')')); return j; }
 
 async function loadProfile() {
-  const p = await api('/api/profile'); HOME = p.home_currency; FX = p.fx_home;
+  const p = await api('/api/profile'); HOME = p.home_currency; FX = p.fx_home; LIVE = p.live_progress !== false;
+  if (p.spreadsheet === false) { $('#sheetlink').textContent = ''; $('.hint').textContent = 'Reads Mubawab listings. Takes about 20 seconds: it reads the advert, then finds comparable flats and Airbnb listings.'; }
   const who = {foreign_non_resident: 'Foreign buyer', mre: 'Moroccan living abroad', moroccan_resident: 'Moroccan resident'}[p.buyer_type] || p.buyer_type;
   if (p.ltv == null) { $('#terms').textContent = who; return; }
   $('#terms').innerHTML = `<b>${who}</b> · ${p.financing}<br>Loan <b>${pct(p.ltv)}</b> over <b>${p.term_years} yrs</b> · fixed <b>${pct(p.rate, 2)}</b> (${pct(p.rate_eff, 2)} with VAT)<br>` +
@@ -221,65 +227,101 @@ function render(run) {
       el('li', {}, el('span', {html: '<b>Is it off-plan?</b> Not built yet means paying in stages, no rent until it is finished, and usually no mortgage.'}), el('span', {class: 'a ' + (offPlan ? 'bad' : 'ok')}, offPlan ? 'looks off-plan' : 'no — finished flat')),
       el('li', {}, el('span', {html: '<b>Exactly where is it?</b> You need the building, not just the area, to compare it with nearby Airbnbs.'}), el('span', {class: 'a ask'}, 'area only — ask for a map pin')))));
 
-  // 3 — price per m²
-  const nComps = (r.comps_sale || []).length, agz = ev.agenz;
-  out.append(step(3, 'What to offer',
-    say('Morocco prices flats by the square metre. Divide the asking price by the size, then compare with what the area goes for. “Just because the owner wants that doesn’t mean it’s worth that.”'),
+  // ---- the sum, in the order you would work it out: buying, mortgage, costs, occupancy, nightly price, revenue, profit
+  const row3 = (label, a, b, kind) => el('div', {class: 'row3 ' + (kind || '')}, el('span', {}, label), el('span', {class: 'n' + (a === 'not counted' ? ' no' : '')}, a), el('span', {class: 'n'}, b));
+  const head3 = () => row3('', "Video's way", 'Real numbers', 'head');
+  const nComps = (r.comps_sale || []).length, agz = ev.agenz, mk = ev.market || {};
+  const insM = (m.insurance_y || 0) / 12, repairsM = ((m.maint || {}).base || 0) / 12;
+  const fixedV = m.v_mort + t.utilities_month + t.internet_month + t.subs_month;
+  const fixedC = m.c_mort + t.utilities_month + t.internet_month + t.subs_month + m.c_syndic + insM;
+  const cityName = mk.city ? mk.city[0].toUpperCase() + mk.city.slice(1) : 'Morocco';
+
+  // 3 — buying
+  out.append(step(3, 'Buying: what it is worth and what it costs to buy',
+    say('Morocco prices flats by the square metre. Divide the asking price by the size and compare with what the area goes for. “Just because the owner wants that doesn’t mean it’s worth that.”'),
     m.surface ? sum(
-      row(`Asking price ÷ size`, `${n0(m.asking)} ÷ ${n0(m.surface)} m²`), row('= asking price per m²', mad(m.ask_m2), 'eq'),
+      row('Asking price ÷ size', `${n0(m.asking)} ÷ ${n0(m.surface)} m²`), row('= asking price per m²', mad(m.ask_m2), 'eq'),
       m.comp_median_m2 ? row(`Similar flats nearby ask (${nComps} adverts, middle one)`, mad(m.comp_median_m2) + ' per m²') : null,
       agz ? row('Published reference for the area (Agenz)', mad(agz.mad_per_m2) + ' per m²') : null,
       m.area_mid ? row('What the area supports', mad(m.area_mid) + ' per m²') : null,
       m.fair_mid ? row(`× ${n0(m.surface)} m² = a fair price`, mad(m.fair_mid), 'eq') : null) : plain('The advert gives no size, so the price cannot be checked per square metre. Ask for the surface on the title.'),
-    m.fair_mid ? plain(`The asking price is <b>${pct(Math.abs(m.asking_over_fair))} ${m.asking_over_fair >= 0 ? 'above' : 'below'}</b> that. Open at <b>${esc(mad(m.offer_open))}</b>, aim for <b>${esc(mad(m.offer_target))}</b>, and walk away above <b>${esc(mad(m.offer_walk))}</b>.`) : null,
-    plain('These are prices people are <b>asking</b>. In the video he messages 7–8 local agents to learn what flats actually <b>sold</b> for. Do that before offering.')));
-
-  // 4 — how you pay
-  out.append(step(4, 'How you pay',
-    say(`Decide this before offering. With a mortgage the bank lends part of the price and you bring the rest. The fees are never lent, so they come out of your pocket too.`),
-    sum(row('Price you expect to pay', mad(m.price)), row(`Your deposit (${pct(1 - t.ltv)})`, mad(m.deposit)), row(`Bank lends (${pct(t.ltv)})`, mad(m.loan)),
-        row('Buying fees: registration 4%, land registry 1.5%, notary, agent', mad(m.closing_total)), row('Mortgage paperwork', mad(m.mort_costs)),
+    m.fair_mid ? plain(`The asking price is <b>${pct(Math.abs(m.asking_over_fair))} ${m.asking_over_fair >= 0 ? 'above' : 'below'}</b> that. Open at <b>${esc(mad(m.offer_open))}</b>, aim for <b>${esc(mad(m.offer_target))}</b>, walk away above <b>${esc(mad(m.offer_walk))}</b>. These are <b>asking</b> prices: he messages 7–8 local agents to learn what flats actually sold for.`) : null,
+    el('div', {style: 'height:12px'}),
+    sum(row('Price you expect to pay', mad(m.price)),
+        row('Registration tax (4%)', mad(m.reg)), row('Land registry (1.5%)', mad(m.cf)), row('Notary', mad(m.notary + m.misc)), row('Estate agent', mad(m.agent)),
         m.furnishing ? row('Furniture to make it ready for guests (estimate)', mad(m.furnishing)) : null,
+        row('= total cost of buying it', mad(m.total_cost) + '  (' + home(m.total_cost) + ')', 'eq'))));
+
+  // 4 — mortgage
+  out.append(step(4, 'Mortgage: what the bank lends and what you bring',
+    say('The bank lends part of the price. The fees are never lent, so they come out of your pocket on top of the deposit. He says always take the fixed rate, never the variable one.'),
+    sum(row(`Bank lends (${pct(t.ltv)} of the price)`, mad(m.loan)), row(`Your deposit (${pct(1 - t.ltv)})`, mad(m.deposit)),
+        row('+ buying fees, mortgage paperwork, furniture', mad(m.closing_total + m.mort_costs + m.furnishing + m.renovation)),
         row('= cash you need in total', mad(m.cash_needed_m) + '  (' + home(m.cash_needed_m) + ')', 'eq')),
-    plain(`The loan is fixed at <b>${pct(t.rate, 2)}</b> for <b>${t.term_years} years</b>, which is today's average for a home loan in Morocco. He says always take the fixed rate, never the variable one. That makes the repayment <b>${esc(mad(m.v_mort))} a month</b>.`)));
+    el('div', {style: 'height:12px'}),
+    sum(row('Interest rate, fixed for the whole loan', pct(t.rate, 2) + '  (today’s average in Morocco)'), row('Length of the loan', t.term_years + ' years'),
+        row('= repayment every month', mad(m.v_mort), 'eq'),
+        row('Real cost with tax on the interest + the bank’s insurance', mad(m.c_mort)))));
 
-  // 5 — analyse the deal
-  const bills = [['Electricity and water', neg(t.utilities_month)], ['Internet', neg(t.internet_month)], ['TV subscription', neg(t.subs_month)], ['Cleaning (the guest pays)', '0']];
-  out.append(step(5, 'Analyse the deal',
-    say('The heart of the video. Look at Airbnbs near the flat, pick a nightly price in the middle, multiply by the nights you expect to fill, then take off the monthly costs. What is left is your profit.'),
-    el('div', {class: 'receipts'},
-      receipt("The video's sum", `Exactly as he does it: ${pct(t.video_occ)} of nights booked, ${pct(t.video_mgmt_pct)} to a manager.`, [
-        ['Nightly price', n0(m.v_adr)], ['× nights booked a month', (m.v_nights).toFixed(0)], ['= money coming in', n0(m.v_rev), 'rev rule'],
-        ['Mortgage', neg(m.v_mort)], ['Manager ' + pct(t.video_mgmt_pct), neg(m.v_mgmt)], ...bills], m.v_profit, null, `If he holds back his optional 10% for surprises: ${home(m.v_profit_cont, true)}.`),
-      receipt('The same sum with real numbers', 'Same flat and nightly price. Real booking levels, plus the costs he leaves out.', [
-        ['Nightly price', n0(m.c_adr)], ['× nights booked a month', (365 * m.occ.base / 12).toFixed(1)], ['= money coming in', n0(m.c_rev), 'rev rule'],
-        ['Mortgage, with tax on interest + insurance', neg(m.c_mort)], ['Manager ' + pct(t.mgmt_pct), neg(m.c_mgmt)], ...bills,
-        ['Airbnb takes ' + pct(t.platform_pct, 1), neg(m.c_platform), 'rule'], ['Building service charge', neg(m.c_syndic)], ['Repairs, linen, insurance', neg(m.c_upkeep)],
-        ['Tax in Morocco', neg(m.c_ma_tax)], ['Tax at home', neg(m.c_home_tax)]], m.c_profit, null, `On a bad year ${home(m.cf_m_month.bear, true)}, on a good year ${home(m.cf_m_month.bull, true)} a month.`)),
-    plain(`<b>Where the nightly price comes from:</b> ${esc((r.str || {}).adr_note || '')}`)));
+  // 5 — all the costs
+  out.append(step(5, 'All the costs, every month',
+    say('The bills that arrive whether or not anyone is staying. The video counts four of them.'),
+    sum(head3(),
+        row3('Mortgage', n0(m.v_mort), n0(m.c_mort)), row3('Electricity and water', n0(t.utilities_month), n0(t.utilities_month)),
+        row3('Internet', n0(t.internet_month), n0(t.internet_month)), row3('TV subscription', n0(t.subs_month), n0(t.subs_month)),
+        row3('Building service charge', 'not counted', n0(m.c_syndic)), row3('Home insurance', 'not counted', n0(insM)),
+        row3('= fixed costs every month', mad(fixedV), mad(fixedC), 'eq')),
+    plain(`On top of these, some costs are a <b>slice of whatever guests pay</b>, so they are worked out in step 9 once the revenue is known: a manager (the video says ${pct(t.video_mgmt_pct)}; real quotes are about ${pct(t.mgmt_pct)}), Airbnb’s fee (${pct(t.platform_pct, 1)}), repairs and linen, and tax. Cleaning is charged to the guest.`)));
 
-  // 6 — why they differ
-  if (x.gap) { const top = Math.max(...x.gap.map(g => g[1]), 1), tot = x.gap.reduce((a, g) => a + g[1], 0), mk = ev.market || {};
-    out.append(step(6, `Why the two sums are ${home(tot)} apart`,
-      say(`He assumes the flat is booked ${pct(t.video_occ)} of the time and counts five costs. Airbnb flats in ${mk.city ? mk.city[0].toUpperCase() + mk.city.slice(1) : 'Morocco'} are booked about ${pct(mk.occ)} of the time on average, and there are more bills than he lists.`),
+  // 6 — occupancy
+  out.append(step(6, 'Occupancy: how many nights get booked',
+    say('Occupancy is the share of nights someone is paying to stay. It is the number that decides everything.'),
+    sum(head3(),
+        row3('Share of nights booked', pct(t.video_occ), pct(m.occ.base)),
+        row3('= nights booked a month', (m.v_nights).toFixed(0), (365 * m.occ.base / 12).toFixed(1), 'eq')),
+    plain(`The video uses <b>${pct(t.video_occ)}</b>. Airbnb flats in ${esc(cityName)} are booked about <b>${pct(mk.occ)}</b> of the time on average; a well-run flat that is always available should manage about <b>${pct(m.occ.base)}</b>, and the best quarter reach about ${pct(m.occ.bull)}.`)));
+
+  // 7 — nightly price
+  out.append(step(7, 'How much you can charge per night',
+    say('He looks at Airbnbs near the flat, compares them with it, and picks a price in the middle of the range.'),
+    sum(row('Cheaper end of similar places', mad(m.adr.bear)), row('Middle — the price used', mad(m.adr.base), 'eq'), row('Top end', mad(m.adr.bull))),
+    plain(esc((r.str || {}).adr_note || ''))));
+
+  // 8 — revenue
+  out.append(step(8, 'Total revenue per month',
+    say('Nightly price × nights booked.'),
+    sum(head3(),
+        row3('Nightly price', n0(m.v_adr), n0(m.c_adr)), row3('× nights booked a month', (m.v_nights).toFixed(0), (365 * m.occ.base / 12).toFixed(1)),
+        row3('= money coming in each month', mad(m.v_rev), mad(m.c_rev), 'eq'))));
+
+  // 9 — profit or loss
+  const gapBars = x.gap ? (() => { const top = Math.max(...x.gap.map(g => g[1]), 1), tot = x.gap.reduce((a, g) => a + g[1], 0);
+    return [el('h3', {style: 'margin-top:22px'}, `Why the two answers are ${home(tot)} a month apart`),
       el('div', {class: 'gap'}, x.gap.filter(g => g[1] > 0.5).map(([label, v]) => el('div', {class: 'bar'}, el('span', {}, label), el('span', {}, el('i', {style: `width:${Math.max(1, v / top * 100)}%`})), el('span', {class: 'n'}, n0(v) + ' MAD')))),
-      plain(x.real_costs_at_video_occ == null ? '' : x.real_costs_at_video_occ < 0 ? `Even if the flat did fill ${pct(t.video_occ)} of nights, the real costs would leave you <b>${home(-x.real_costs_at_video_occ)} a month short</b>.` : `If the flat did fill ${pct(t.video_occ)} of nights, it would still make <b>${home(x.real_costs_at_video_occ)} a month</b> after real costs.`))); }
+      plain(x.real_costs_at_video_occ == null ? '' : x.real_costs_at_video_occ < 0 ? `Even if the flat did fill ${pct(t.video_occ)} of nights, the real costs would leave you <b>${home(-x.real_costs_at_video_occ)} a month short</b>.` : `If the flat did fill ${pct(t.video_occ)} of nights, it would still make <b>${home(x.real_costs_at_video_occ)} a month</b> after real costs.`)]; })() : [];
+  out.append(step(9, 'Profit or loss per month',
+    say('Money coming in, minus the fixed costs, minus the slices of each booking. What is left is yours — or what you have to top up.'),
+    el('div', {class: 'receipts'},
+      receipt("The video's way", `${pct(t.video_occ)} of nights booked, a ${pct(t.video_mgmt_pct)} manager, four bills.`, [
+        ['Money coming in', n0(m.v_rev), 'rev'], ['Fixed costs (step 5)', neg(fixedV)], ['Manager ' + pct(t.video_mgmt_pct), neg(m.v_mgmt)],
+        ['Airbnb fee, repairs, tax', 'not counted', 'muted']], m.v_profit, null, `If he holds back his optional 10% for surprises: ${home(m.v_profit_cont, true)}.`),
+      receipt('With real numbers', 'Real booking levels and every cost.', [
+        ['Money coming in', n0(m.c_rev), 'rev'], ['Fixed costs (step 5)', neg(fixedC)], ['Manager ' + pct(t.mgmt_pct), neg(m.c_mgmt)],
+        ['Airbnb takes ' + pct(t.platform_pct, 1), neg(m.c_platform)], ['Repairs and linen', neg(repairsM)], ['Tax in Morocco', neg(m.c_ma_tax)], ['Tax at home', neg(m.c_home_tax)]],
+        m.c_profit, null, `On a bad year ${home(m.cf_m_month.bear, true)}, on a good year ${home(m.cf_m_month.bull, true)} a month.`)),
+    gapBars));
 
-  // 7 — what it would take
-  out.append(step(7, 'What would make it work',
-    say('His test is simple: at the fixed mortgage payment, does the deal work, yes or no? Here is what “yes” would need.'),
-    sum(row('Nights booked needed to break even', pct(m.be_occ_m.base) + ' of the year'), row('Typical for the city', pct((ev.market || {}).occ)),
-        row('Or a nightly price of', x.be_adr_at_base_occ ? mad(x.be_adr_at_base_occ) + '  (now ' + n0(m.adr.base) + ')' : '—'),
-        row('Or a purchase price of', x.be_price ? mad(x.be_price) + '  (' + pct(x.be_price / m.asking) + ' of asking)' : 'no price works on this loan'),
-        row('If you bought with cash instead', home(m.net.base / 12, true) + ' a month  (' + pct(m.net_yield_c.base, 1) + ' a year on your money)'),
-        row('After ten years, then selling', home(m.profit_m.base, true) + '  (between ' + home(m.profit_m.bear, true) + ' and ' + home(m.profit_m.bull, true) + ')'))));
-
-  // 8 — verdict and next move
+  // 10 — verdict
   const flags = r.flags || [];
   const copy = el('button', {class: 'quiet', type: 'button'}, 'Copy the French');
   copy.onclick = async () => { try { await navigator.clipboard.writeText(run.message_fr); copy.textContent = 'Copied'; } catch (e) { copy.textContent = 'Select and copy by hand'; } setTimeout(() => copy.textContent = 'Copy the French', 1800); };
-  out.append(step(8, 'Verdict: ' + ({pass: 'pass on this one', conditional: 'maybe — if the conditions are met', pursue: 'worth pursuing'}[verdict] || verdict),
-    plain(esc((r.verdict_reason || '').replace(/^Automatic first pass\. /, ''))),
+  out.append(step(10, 'Verdict: ' + ({pass: 'pass on this one', conditional: 'maybe — if the conditions are met', pursue: 'worth pursuing'}[verdict] || verdict),
+    say('His test: at the fixed mortgage payment, does the deal work, yes or no? Here is what “yes” would need.'),
+    sum(row('Nights booked needed to break even', pct(m.be_occ_m.base) + ' of the year'), row('Typical for the city', pct(mk.occ)),
+        row('Or a nightly price of', x.be_adr_at_base_occ ? mad(x.be_adr_at_base_occ) + '  (now ' + n0(m.adr.base) + ')' : '—'),
+        row('Or a purchase price of', x.be_price ? mad(x.be_price) + '  (' + pct(x.be_price / m.asking) + ' of asking)' : 'no price works on this loan'),
+        row('If you bought with cash instead', home(m.net.base / 12, true) + ' a month  (' + pct(m.net_yield_c.base, 1) + ' a year on your money)'),
+        row('After ten years, then selling', home(m.profit_m.base, true) + '  (between ' + home(m.profit_m.bear, true) + ' and ' + home(m.profit_m.bull, true) + ')')),
     el('h3', {style: 'margin-top:18px'}, 'Watch out for'), el('ul', {class: 'flags'}, flags.map(f => el('li', {class: f.severity}, el('b', {}, (f.severity || '').toUpperCase()), f.text))),
     el('h3', {style: 'margin-top:18px'}, 'If you still want to look: send the agent this'), el('pre', {}, run.message_fr || ''), el('p', {class: 'small'}, run.message_en || ''), copy));
 
@@ -340,11 +382,13 @@ async function startHosted(url) {
 $('#f').addEventListener('submit', async e => {
   e.preventDefault(); if (HOSTED) return startHosted($('#url').value.trim());
   const btn = $('#go'), s = $('#status'); btn.disabled = true; s.className = 'status';
-  const tick = setInterval(async () => { try { const p = await api('/api/progress'); if (p.msg) s.innerHTML = '<span class="dot"></span>' + p.msg + '…'; } catch (_) {} }, 700);
+  const t0 = Date.now();
+  const tick = setInterval(async () => { if (!LIVE) { s.innerHTML = '<span class="dot"></span>Reading the advert and finding comparable flats… ' + Math.round((Date.now() - t0) / 1000) + 's'; return; }
+    try { const p = await api('/api/progress'); if (p.msg) s.innerHTML = '<span class="dot"></span>' + p.msg + '…'; } catch (_) {} }, 700);
   s.innerHTML = '<span class="dot"></span>Starting…';
   try { const run = await api('/api/analyse', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: $('#url').value})});
     s.textContent = 'Done.'; render(run); await loadHistory(false); document.querySelectorAll('#history tbody tr').forEach(tr => tr.classList.toggle('on', tr.dataset.id === run.run_id)); $('#url').value = ''; }
-  catch (err) { fail(err.message); }
+  catch (err) { fail(err.message); try { await loadHistory(false); } catch (_) {} }
   finally { clearInterval(tick); btn.disabled = false; }
 });
 (async () => { if (HOSTED) { $('#sheetlink').innerHTML = ''; $('#sheetlink').append(el('a', {href: `https://github.com/${REPO}/tree/main/results`}, 'Every result as a page on GitHub'), '.');
