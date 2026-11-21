@@ -1,0 +1,806 @@
+{
+ "run_id": "20261121-115720-8435561",
+ "at": "2026-11-21T11:57:20",
+ "url": "https://www.mubawab.ma/fr/a/8435561/appartement-à-vendre-72-m²-2-chambres-fadesa-nahda-rabat",
+ "source": "auto",
+ "sheet": "P03 Rabat Fadesa Nahda",
+ "home_currency": "GBP",
+ "fx_home": 13.154,
+ "terms": {
+  "ltv": 0.7,
+  "rate": 0.0453,
+  "rate_eff": 0.049830000000000006,
+  "term_years": 25,
+  "video_occ": 0.7,
+  "video_mgmt_pct": 0.1,
+  "mgmt_pct": 0.22,
+  "platform_pct": 0.155,
+  "utilities_month": 650,
+  "internet_month": 400,
+  "subs_month": 200,
+  "home_tax_rate": 0.4,
+  "defaults_as_of": "2026-11-20"
+ },
+ "record": {
+  "id": "mubawab-8435561",
+  "origin": "auto",
+  "short_name": "Rabat Fadesa Nahda",
+  "added": "2026-11-21",
+  "added_at": "2026-11-21T11:57:16",
+  "title": "2-bed, 72 m² — Fadesa Nahda, Rabat",
+  "advert_title": "Appartement à vendre 72 m², 2 chambres Fadesa nahda Rabat",
+  "source_url": "https://www.mubawab.ma/fr/a/8435561/appartement-à-vendre-72-m²-2-chambres-fadesa-nahda-rabat",
+  "listing_date": "2026-10-15",
+  "contact": "AGENZ ref RBA-YO-1094",
+  "city": "Rabat",
+  "neighbourhood": "Fadesa Nahda",
+  "address_note": "Mubawab files this advert under the city only; the neighbourhood is read from the advert's own wording and Airbnb comparables use its centre.",
+  "property_type": "appartement",
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "floor": "4ème",
+  "lift": null,
+  "year_built": null,
+  "condition": "Bon état / habitable",
+  "furnished": false,
+  "title_status": "unknown",
+  "off_plan": false,
+  "seller_type": "agent",
+  "asking_price_mad": 700000,
+  "asking_note": "From the advert (read 2026-11-21).",
+  "surface_m2": 72.0,
+  "surface_note": "From the advert. Confirm on the title certificate.",
+  "furniture_value_mad": 0,
+  "syndic_mad_month": null,
+  "agent_fee_pct": null,
+  "comps_sale": [],
+  "furnishing_mad": 86000,
+  "furnishing_note": "ASSUMPTION: 1,200 MAD per m² (£91) to furnish and equip for letting; the advert does not mention furniture.",
+  "renovation_mad": 0,
+  "str": {
+   "comps": [
+    {
+     "desc": "Quiet Villa • Parking private • 100Mb Wi-Fi family (4.91★, 1.17 km away)",
+     "nightly_mad": 625,
+     "bedrooms": 2,
+     "reviews": 97,
+     "url": "https://www.airbnb.co.uk/rooms/1306630184182210076",
+     "occ": 0.73,
+     "note": "one-night price on 2026-11-23"
+    },
+    {
+     "desc": "Modern (4.79★, 2.07 km away)",
+     "nightly_mad": 898,
+     "bedrooms": 2,
+     "reviews": 29,
+     "url": "https://www.airbnb.co.uk/rooms/1353698896014593629",
+     "occ": 0.47,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "New luxury apartment in Rabat (4.96★, 2.07 km away)",
+     "nightly_mad": 1434,
+     "bedrooms": 2,
+     "reviews": 25,
+     "url": "https://www.airbnb.co.uk/rooms/1271110016726211264",
+     "occ": 0.4,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Modern and bright apartment with balcony (4.73★, 2.05 km away)",
+     "nightly_mad": 1039,
+     "bedrooms": 2,
+     "reviews": 15,
+     "url": "https://www.airbnb.co.uk/rooms/1711678001524806195",
+     "occ": 0.63,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "BEAUTIFUL APARTMENT IN THE HEART OF RABAT (4.67★, 2.07 km away)",
+     "nightly_mad": 1554,
+     "bedrooms": 2,
+     "reviews": 12,
+     "url": "https://www.airbnb.co.uk/rooms/9213569",
+     "occ": 0.26,
+     "note": "one-night price on 2027-01-01"
+    },
+    {
+     "desc": "Very functional and inexpensive apartment. (4.63★, 2.05 km away)",
+     "nightly_mad": 404,
+     "bedrooms": 2,
+     "reviews": 8,
+     "url": "https://www.airbnb.co.uk/rooms/1739978780807241530",
+     "occ": 0.55,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Beautiful New Apartment – Rabat (5★, 2.05 km away)",
+     "nightly_mad": 1793,
+     "bedrooms": 2,
+     "reviews": 5,
+     "url": "https://www.airbnb.co.uk/rooms/1550164320590926517",
+     "occ": 0.33,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Cozy apartment with large and small living room – Rabat (4.5★, 1.74 km away)",
+     "nightly_mad": 805,
+     "bedrooms": 2,
+     "reviews": 4,
+     "url": "https://www.airbnb.co.uk/rooms/1564588403106001281",
+     "occ": 0.31,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Beautiful apartment with all the amenities (5★, 1.69 km away)",
+     "nightly_mad": 1362,
+     "bedrooms": 2,
+     "reviews": 3,
+     "url": "https://www.airbnb.co.uk/rooms/1510954222849344227",
+     "occ": 0.29,
+     "note": "one-night price on 2026-11-20"
+    },
+    {
+     "desc": "Elegant & Cozy Apartment in Rabat (4.67★, 1.88 km away)",
+     "nightly_mad": 504,
+     "bedrooms": 2,
+     "reviews": 3,
+     "url": "https://www.airbnb.co.uk/rooms/1805244137721957619",
+     "occ": 0.41,
+     "note": "one-night price on 2026-11-21"
+    },
+    {
+     "desc": "Cozy 4-person apartment, not overlooked3 (4.67★, 2.04 km away)",
+     "nightly_mad": 1554,
+     "bedrooms": 2,
+     "reviews": 3,
+     "url": "https://www.airbnb.co.uk/rooms/4210075",
+     "occ": 0.1,
+     "note": "one-night price on 2027-01-01"
+    }
+   ],
+   "adr_mad": {
+    "bear": 1040,
+    "base": 1040,
+    "bull": 1040
+   },
+   "adr_note": "From your atlas: 11 2-bed Airbnb homes within 2.5 km of central Fadesa Nahda, each with a review history (collected 2026-11-20). They list at 715 MAD (£54) / 1,039 MAD (£79) / 1,494 MAD (£114) a night (cheaper quarter / middle / dearer quarter). The sum uses the middle price. These are prices shown for one night, so a real average over the year may be a little lower.",
+   "occupancy": {
+    "bear": 0.1515,
+    "base": 0.2553,
+    "bull": 0.3329
+   },
+   "occupancy_note": "From your atlas: the same 11 listings are booked 30% / 40% / 51% of the nights their calendar is open (weakest quarter / middle / best quarter). The atlas estimates each listing's figure from how fast it collects reviews, ranked against the city's measured spread, so it is an estimate, not a meter reading. Hosts in Rabat keep the calendar open about 243 nights a year, which is how the atlas gets each listing's revenue: 4,792 MAD (£364) / 8,077 MAD (£614) / 10,530 MAD (£801) a month. A second check from review counts points LOWER than that: the middle listing collects about 12 reviews a year, which points to roughly 50 to 70 nights sold. Across Rabat, 2-bed Airbnbs average 38% (AirROI).",
+   "nearby_revenue_month_mad": [
+    3296,
+    4165,
+    4496,
+    5088,
+    7938,
+    8077,
+    8493,
+    9310,
+    11750,
+    11903,
+    13333
+   ],
+   "potential_month_mad": 19596.938816666665
+  },
+  "notes": "2026-11-21: automatic first pass from the web app.",
+  "flags": [
+   {
+    "severity": "red",
+    "text": "Title status is not in the advert. Ask for the title number (titre foncier) before anything else."
+   },
+   {
+    "severity": "amber",
+    "text": "Mubawab files this advert under Rabat as a whole, so the flats for sale it shows alongside are from all over the city (middle one 33,333 MAD per m² (£2,534)) and say nothing about this one. There is no published reference for the neighbourhood either, so the price is unchecked: ask local agents what flats there sell for."
+   },
+   {
+    "severity": "amber",
+    "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."
+   },
+   {
+    "severity": "amber",
+    "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."
+   },
+   {
+    "severity": "amber",
+    "text": "Furnishing budget is an assumption: 86,000 MAD (£6,538)."
+   }
+  ],
+  "unknowns": [
+   "Is it titled (titre foncier)? Title number?",
+   "Exact address / map pin",
+   "Year the building was built",
+   "Monthly syndic charge and what it covers",
+   "Surface on the title",
+   "Do the building rules allow short-term letting?",
+   "Agent's buyer-side commission",
+   "Is any furniture or equipment included?"
+  ],
+  "verdict": "conditional",
+  "verdict_label": "WITHIN BUDGET, PRICE UNCHECKED",
+  "verdict_reason": "Automatic first pass. The video's sum shows +£1,192 a month. You would put in about £128 a month (your limit is £400); a weak year would need £234. 11 of the 11 nearby Airbnbs take enough to keep you inside it. After 25 years the flat is yours and should then pay you about £90 a month. The price itself could not be checked: there is no reliable evidence of what flats sell for in this neighbourhood, so find that out from local agents before offering."
+ },
+ "metrics": {
+  "asking": 700000.0,
+  "surface": 72.0,
+  "furniture_value": 0.0,
+  "syndic_month": 720.0,
+  "ask_m2": 9722.0,
+  "ask_m2_exfurn": 9722.0,
+  "comp_count": 0,
+  "comp_median_m2": null,
+  "comp_min_m2": null,
+  "comp_max_m2": null,
+  "area_low": null,
+  "area_mid": null,
+  "area_high": null,
+  "fair_low": null,
+  "fair_mid": null,
+  "fair_high": null,
+  "ask_vs_mid": null,
+  "asking_over_fair": null,
+  "offer_target": 700000.0,
+  "offer_open": 651000.0,
+  "offer_walk": 700000.0,
+  "price": 700000.0,
+  "reg": 28000.0,
+  "cf": 10600.0,
+  "notary": 8400.0,
+  "misc": 1900,
+  "agent_pct": 0.025,
+  "agent": 17500.0,
+  "closing_total": 66400.0,
+  "closing_pct": 0.0949,
+  "furnishing": 86000.0,
+  "renovation": 0.0,
+  "total_cost": 852400.0,
+  "cash_needed_c": 860924.0,
+  "cash_needed_c_home": 65450.0,
+  "loan": 490000.0,
+  "deposit": 210000.0,
+  "mort_costs": 5940.0,
+  "cash_needed_m": 372023.0,
+  "cash_needed_m_home": 28282.0,
+  "pmt_month": 2860.0,
+  "ins_month": 163.0,
+  "debt_service": 36276.0,
+  "interest_y": 14716.0,
+  "ds_pct": 0.0518,
+  "adr": {
+   "bear": 1040.0,
+   "base": 1040.0,
+   "bull": 1040.0
+  },
+  "occ": {
+   "bear": 0.1515,
+   "base": 0.2553,
+   "bull": 0.3329
+  },
+  "syndic_y": 8640.0,
+  "utilities_y": 7800,
+  "internet_y": 7200,
+  "insurance_y": 1500,
+  "owner_tax_y": 0.0,
+  "fixed_y": 25140.0,
+  "var_ex_tax": 0.495,
+  "var_share": 0.575,
+  "nights": {
+   "bear": 55.0,
+   "base": 93.0,
+   "bull": 122.0
+  },
+  "gross": {
+   "bear": 57509.0,
+   "base": 96912.0,
+   "bull": 126369.0
+  },
+  "platform": {
+   "bear": 8914.0,
+   "base": 15021.0,
+   "bull": 19587.0
+  },
+  "mgmt": {
+   "bear": 12652.0,
+   "base": 21321.0,
+   "bull": 27801.0
+  },
+  "maint": {
+   "bear": 2875.0,
+   "base": 4846.0,
+   "bull": 6318.0
+  },
+  "local_tax": {
+   "bear": 4026.0,
+   "base": 6784.0,
+   "bull": 8846.0
+  },
+  "opex": {
+   "bear": 53607.0,
+   "base": 73111.0,
+   "bull": 87693.0
+  },
+  "noi": {
+   "bear": 3902.0,
+   "base": 23800.0,
+   "bull": 38676.0
+  },
+  "tax": {
+   "bear": 4601.0,
+   "base": 7753.0,
+   "bull": 10110.0
+  },
+  "home_tax": {
+   "bear": 0.0,
+   "base": 1767.0,
+   "bull": 5361.0
+  },
+  "relief": {
+   "bear": 0.0,
+   "base": 1767.0,
+   "bull": 2943.0
+  },
+  "net": {
+   "bear": -699.0,
+   "base": 14280.0,
+   "bull": 23206.0
+  },
+  "gross_yield": {
+   "bear": 0.0822,
+   "base": 0.1384,
+   "bull": 0.1805
+  },
+  "net_yield_c": {
+   "bear": -0.0008,
+   "base": 0.0168,
+   "bull": 0.0272
+  },
+  "net_month_c": {
+   "bear": -58.0,
+   "base": 1190.0,
+   "bull": 1934.0
+  },
+  "cf_m": {
+   "bear": -36974.0,
+   "base": -20228.0,
+   "bull": -10127.0
+  },
+  "cf_m_month": {
+   "bear": -3081.0,
+   "base": -1686.0,
+   "bull": -844.0
+  },
+  "coc_m": {
+   "bear": -0.0994,
+   "base": -0.0544,
+   "bull": -0.0272
+  },
+  "dscr": {
+   "bear": 0.1076,
+   "base": 0.6561,
+   "bull": 1.0662
+  },
+  "be_occ_c": {
+   "bear": 0.1558,
+   "base": 0.1558,
+   "bull": 0.1558
+  },
+  "be_occ_m": {
+   "bear": 0.3807,
+   "base": 0.3807,
+   "bull": 0.3807
+  },
+  "v_adr": 1040.0,
+  "v_nights": 21.0,
+  "v_rev": 21840.0,
+  "v_mort": 2732.0,
+  "v_mgmt": 2184.0,
+  "v_profit": 15674.0,
+  "v_profit_home": 1192.0,
+  "v_profit_cont": 13490.0,
+  "c_adr": 1040.0,
+  "c_nights": 7.7654,
+  "c_rev": 8076.0,
+  "c_mort": 3023.0,
+  "c_mgmt": 1777.0,
+  "c_platform": 1252.0,
+  "c_syndic": 720.0,
+  "c_upkeep": 529.0,
+  "c_ma_tax": 1211.0,
+  "c_home_tax": 0.0,
+  "c_profit": -1686.0,
+  "c_profit_home": -128.0,
+  "rent": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_gross": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_mgmt": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_maint": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_tsc": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_opex": {
+   "bear": 10140.0,
+   "base": 10140.0,
+   "bull": 10140.0
+  },
+  "ltr_noi": {
+   "bear": -10140.0,
+   "base": -10140.0,
+   "bull": -10140.0
+  },
+  "ltr_tax": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_home_tax": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_net": {
+   "bear": -10140.0,
+   "base": -10140.0,
+   "bull": -10140.0
+  },
+  "ltr_net_yield": {
+   "bear": null,
+   "base": null,
+   "bull": null
+  },
+  "ltr_relief": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 0.0
+  },
+  "ltr_cf_m": {
+   "bear": -46416.0,
+   "base": -46416.0,
+   "bull": -46416.0
+  },
+  "ltr_syndic": 8640.0,
+  "ds_stress": 39784.0,
+  "st_base_gross": 96912.0,
+  "st_base_net": 14280.0,
+  "st_base_cf": -20228.0,
+  "st_occ_gross": 58952.0,
+  "st_occ_net": -85.0,
+  "st_occ_cf": -36361.0,
+  "st_adr_gross": 82375.0,
+  "st_adr_net": 9869.0,
+  "st_adr_cf": -26406.0,
+  "st_both_gross": 50109.0,
+  "st_both_net": -3844.0,
+  "st_both_cf": -40119.0,
+  "st_rate_gross": 96912.0,
+  "st_rate_net": 14280.0,
+  "st_rate_cf": -23736.0,
+  "st_all_gross": 50109.0,
+  "st_all_net": -3844.0,
+  "st_all_cf": -43627.0,
+  "growth": {
+   "bear": 0.0,
+   "base": 0.015,
+   "bull": 0.035
+  },
+  "sale": {
+   "bear": 700000.0,
+   "base": 812379.0,
+   "bull": 987419.0
+  },
+  "sale_costs": {
+   "bear": 17500.0,
+   "base": 20309.0,
+   "bull": 24685.0
+  },
+  "tpi": {
+   "bear": 21000.0,
+   "base": 24371.0,
+   "bull": 31547.0
+  },
+  "home_cgt": {
+   "bear": 0.0,
+   "base": 0.0,
+   "bull": 15573.0
+  },
+  "proceeds_c": {
+   "bear": 661500.0,
+   "base": 767698.0,
+   "bull": 915614.0
+  },
+  "proceeds_m": {
+   "bear": 299478.0,
+   "base": 405676.0,
+   "bull": 553592.0
+  },
+  "profit_c": {
+   "bear": -56621.0,
+   "base": 49577.0,
+   "bull": 197493.0
+  },
+  "profit_m": {
+   "bear": -274826.0,
+   "base": -168629.0,
+   "bull": -20713.0
+  },
+  "irr_c": {
+   "bear": -0.0074,
+   "base": 0.0061,
+   "bull": 0.0223
+  },
+  "irr_m": {
+   "bear": -0.0822,
+   "base": -0.0434,
+   "bull": -0.0046
+  },
+  "cost_base": 805000.0,
+  "loan_bal_10": 362022.0
+ },
+ "extras": {
+  "real_costs_at_video_occ": 2674.7179801122143,
+  "be_adr_at_base_occ": 1714.7763313111172,
+  "be_price": 299893.3917683994,
+  "gap": [
+   [
+    "Fewer nights booked than the video assumes",
+    12387.608999999999
+   ],
+   [
+    "Airbnb's fee",
+    1251.77845
+   ],
+   [
+    "Moroccan taxes",
+    1211.3985000000002
+   ],
+   [
+    "Management at 22% instead of 10%",
+    969.1188
+   ],
+   [
+    "Building service charge",
+    720.0
+   ],
+   [
+    "Upkeep, linen, insurance",
+    528.7995
+   ],
+   [
+    "VAT and insurance on the mortgage",
+    291.0437352359545
+   ],
+   [
+    "Home-country tax",
+    0.0
+   ]
+  ],
+  "budget_mad": 5261.6,
+  "topup": {
+   "bear": 3081.182108193066,
+   "base": 1685.6776081930664,
+   "bull": 843.8988098877866
+  },
+  "occ_for_budget": 6.938893903907229e-19,
+  "rev_for_budget": 2.19500343826932e-14,
+  "nearby_n": 11,
+  "nearby_ok": 11,
+  "topup_at_asking": 1685.6776081930664,
+  "potential": {
+   "rev": 19596.938816666665,
+   "topup": 0.0,
+   "left": 1903.1604415622126
+  },
+  "stress": {
+   "occ_down": 3030.094274859733,
+   "price_down": 2200.521970693066,
+   "both": 3343.2761373597327,
+   "occ_pts": 0.1,
+   "price_pct": 0.15
+  },
+  "empty_month": 5117.973358193067,
+  "notary": {
+   "price": 700000.0,
+   "lines": [
+    [
+     "Registration duty (4% of the price), passed to the tax office",
+     28000.0
+    ],
+    [
+     "Land registry (1.5% of the price) to put the flat in your name",
+     10500.0
+    ],
+    [
+     "Ownership certificate",
+     100
+    ],
+    [
+     "Notary's own fee (1% of the price, at least 2,500 MAD (£190))",
+     7000.0
+    ],
+    [
+     "VAT on the notary's fee (20%)",
+     1400.0
+    ],
+    [
+     "Stamps, copies and file costs",
+     1900
+    ]
+   ],
+   "total": 48900.0,
+   "mortgage_lines": [
+    [
+     "Registering the bank's mortgage at the land registry (0.5% on the first 250,000 MAD (£19,006), 1.5% above)",
+     4849.999999999999
+    ],
+    [
+     "Bank's file fee (0.1% of the loan)",
+     489.99999999999994
+    ],
+    [
+     "Mortgage deed and certificates",
+     600
+    ]
+   ],
+   "mortgage_total": 5939.999999999999,
+   "share": 0.06985714285714285,
+   "example": {
+    "price": 1500000.0,
+    "guide_share": 0.068,
+    "share": 0.06833333333333333
+   }
+  },
+  "term_years": 25,
+  "topup_total": 505703.2824579199,
+  "cash_in_total": 877726.6824579199,
+  "income_after_payoff_month": 1190.0249699999997,
+  "timeline": [
+   {
+    "year": 5,
+    "loan_left": 433925.0871847664,
+    "paid_in": 473164.05649158405,
+    "owned_share": 0.3801070183074765
+   },
+   {
+    "year": 10,
+    "loan_left": 362021.75160820934,
+    "paid_in": 574304.712983168,
+    "owned_share": 0.4828260691311296
+   },
+   {
+    "year": 15,
+    "loan_left": 269822.0600265139,
+    "paid_in": 675445.369474752,
+    "owned_share": 0.6145399142478374
+   },
+   {
+    "year": 20,
+    "loan_left": 151596.90316005982,
+    "paid_in": 776586.025966336,
+    "owned_share": 0.7834329954856288
+   },
+   {
+    "year": 25,
+    "loan_left": 0.0,
+    "paid_in": 877726.6824579199,
+    "owned_share": 1.0
+   }
+  ],
+  "terms": [
+   {
+    "years": 15,
+    "topup": 2696.588471385261,
+    "repayment": 4033.884221385261
+   },
+   {
+    "years": 20,
+    "topup": 2055.2208077285254,
+    "repayment": 3392.5165577285256
+   },
+   {
+    "years": 25,
+    "topup": 1685.6776081930664,
+    "repayment": 3022.9733581930664
+   }
+  ]
+ },
+ "evidence": {
+  "sale": {
+   "count": 3,
+   "stats_mad_per_m2": {
+    "n": 3,
+    "p25": 27586.206896551725,
+    "median": 33333.333333333336,
+    "p75": 34166.666666666664
+   },
+   "search": "https://www.mubawab.ma/fr/st/rabat/appartements-a-vendre"
+  },
+  "agenz": null,
+  "rent": {
+   "count": 0,
+   "stats_mad_per_m2_month": null,
+   "search": "https://www.mubawab.ma/fr/st/rabat/appartements-a-louer"
+  },
+  "str": {
+   "method": "nearby_listings",
+   "matches": 11,
+   "radius_km": 2.5,
+   "whole_city": false,
+   "where": "within 2.5 km of central Fadesa Nahda",
+   "price_mad": {
+    "n": 11,
+    "p25": 715.0,
+    "median": 1039.0,
+    "p75": 1494.0
+   },
+   "occupancy_open_nights": {
+    "n": 11,
+    "p25": 0.3,
+    "median": 0.4,
+    "p75": 0.51
+   },
+   "open_nights": 243,
+   "revenue_month_mad": {
+    "n": 11,
+    "p25": 4792.0,
+    "median": 8077.0,
+    "p75": 10530.0
+   },
+   "potential_month_mad": 19596.938816666665,
+   "top_quarter_occupancy": 0.62,
+   "review_check": {
+    "per_year": 11.994286089583484,
+    "nights_low": 51.40408324107207,
+    "nights_high": 71.96571653750091,
+    "verdict": "lower"
+   },
+   "nights_year": {
+    "bear": 55.292307692307695,
+    "base": 93.19615384615385,
+    "bull": 121.5
+   },
+   "calendar": null,
+   "collected_on": "2026-11-20",
+   "centre": {
+    "lat": 33.9855624,
+    "lng": -6.8063648,
+    "name": "Fadesa, Arrondissement El Youssoufia, Rabat, Pachalik de Rabat, Préfecture de Rabat, Rabat-Salé-Kénitra, Maroc"
+   },
+   "source": "your atlas",
+   "atlas_url": "https://iwaheedo.github.io/morocco-str-atlas/"
+  },
+  "market": {
+   "occ": 0.38,
+   "adr_mad": 1052,
+   "city": "rabat",
+   "bedroom_specific": true
+  }
+ },
+ "check": {
+  "verified": true,
+  "cells_checked": 744,
+  "mismatches": [],
+  "formula_errors": [],
+  "note": null
+ },
+ "message_fr": "Bonjour, je suis intéressé par votre annonce « Appartement à vendre 72 m², 2 chambres Fadesa nahda Rabat », réf. RBA-YO-1094, à 700 000 DH.\nAvant d'organiser une visite, pourriez-vous me confirmer :\n1. Le bien est-il titré (titre foncier) ? Si oui, quel est le numéro du titre ?\n2. S'agit-il d'un bien achevé avec permis d'habiter, ou d'une vente sur plan ?\n3. L'adresse ou la localisation exacte (point Google Maps) ?\n4. La superficie exacte inscrite sur le titre (hors terrasse) et l'année de construction ?\n5. Le montant mensuel des charges de syndic ?\n6. La location de courte durée (type Airbnb) est-elle autorisée par le règlement de copropriété ?\n7. Le prix comprend-il des meubles ou de l'équipement ?\n8. Votre commission d'agence côté acheteur, TVA comprise ?\nMerci d'avance.",
+ "message_en": "Hello, I'm interested in your listing “Appartement à vendre 72 m², 2 chambres Fadesa nahda Rabat”, ref. RBA-YO-1094, at 700 000 DH. Before arranging a viewing, could you confirm: 1. Is it titled, and what is the title number? 2. Is it finished with a certificate of occupancy, or an off-plan sale? 3. The exact address or a map pin? 4. The exact surface on the title (excluding terrace) and the year built? 5. The monthly service charge? 6. Do the building rules allow short-term letting? 7. Does the price include any furniture or equipment? 8. Your buyer-side commission including VAT? Thank you."
+}

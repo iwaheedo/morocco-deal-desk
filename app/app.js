@@ -47,7 +47,7 @@ function receipt(title, tag, lines, total, extra) {
 
 const STAMP = {pass: 'PASS', conditional: 'MAYBE', pursue: 'PURSUE'};
 const VERDICT_LINE = {'WITHIN YOUR BUDGET': 'inside your monthly limit', 'WITHIN BUDGET IF YOU NEGOTIATE': 'inside your limit, but only at a lower price', 'TIGHT': 'inside your limit, but a weak year breaks it',
-  'OVER YOUR BUDGET': 'over your monthly limit as it stands', 'OFF-PLAN': 'off-plan, so a mortgage will not work yet', 'CHECK THE TITLE': 'the numbers work for cash; check the title'};
+  'OVER YOUR BUDGET': 'over your monthly limit as it stands', 'OFF-PLAN': 'off-plan, so a mortgage will not work yet', 'NO NEARBY AIRBNB DATA': 'income unproven — no Airbnbs near it in your atlas', 'WITHIN BUDGET, PRICE UNCHECKED': 'inside your monthly limit, but the price is unchecked', 'CHECK THE TITLE': 'the numbers work for cash; check the title'};
 
 function render(run) {
   const box = $('#result'); box.innerHTML = '';
@@ -113,6 +113,7 @@ function render(run) {
       agz ? row('Published reference for the area, per m² (Agenz)', dual(agz.mad_per_m2)) : null,
       m.area_mid ? row('What the area supports, per m²', dual(m.area_mid)) : null,
       m.fair_mid ? row(`× ${n0(m.surface)} m² = a fair price`, dual(m.fair_mid), 'eq') : null) : plain('The advert gives no size, so the price cannot be checked per square metre. Ask for the surface on the title.'),
+    m.surface && !m.fair_mid ? plain('There is <b>no reliable price evidence for this neighbourhood</b> yet, so the sums use the asking price as it stands. Ask 7–8 local agents what similar flats actually sold for before you offer.') : null,
     m.fair_mid ? plain(`The asking price is <b>${pct(Math.abs(m.asking_over_fair))} ${m.asking_over_fair >= 0 ? 'above' : 'below'}</b> that. Open at <b>${both(m.offer_open)}</b>, aim for <b>${both(m.offer_target)}</b>, walk away above <b>${both(m.offer_walk)}</b>. These are <b>asking</b> prices: he messages 7–8 local agents to learn what flats actually sold for.`) : null,
     sub('Notary simulator: the bill on completion day'),
     say('In the video he types the price into an online notary simulator to get the fees. This is the same sum at the official 2026 rates, one line at a time, so you can see where each dirham goes.'),

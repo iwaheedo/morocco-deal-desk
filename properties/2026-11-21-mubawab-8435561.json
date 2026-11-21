@@ -1,0 +1,202 @@
+{
+  "id": "mubawab-8435561",
+  "origin": "auto",
+  "short_name": "Rabat Fadesa Nahda",
+  "added": "2026-11-21",
+  "added_at": "2026-11-21T11:57:16",
+  "title": "2-bed, 72 m² — Fadesa Nahda, Rabat",
+  "advert_title": "Appartement à vendre 72 m², 2 chambres Fadesa nahda Rabat",
+  "source_url": "https://www.mubawab.ma/fr/a/8435561/appartement-à-vendre-72-m²-2-chambres-fadesa-nahda-rabat",
+  "listing_date": "2026-10-15",
+  "contact": "AGENZ ref RBA-YO-1094",
+  "city": "Rabat",
+  "neighbourhood": "Fadesa Nahda",
+  "address_note": "Mubawab files this advert under the city only; the neighbourhood is read from the advert's own wording and Airbnb comparables use its centre.",
+  "property_type": "appartement",
+  "bedrooms": 2,
+  "bathrooms": 1,
+  "floor": "4ème",
+  "lift": null,
+  "year_built": null,
+  "condition": "Bon état / habitable",
+  "furnished": false,
+  "title_status": "unknown",
+  "off_plan": false,
+  "seller_type": "agent",
+  "asking_price_mad": 700000,
+  "asking_note": "From the advert (read 2026-11-21).",
+  "surface_m2": 72.0,
+  "surface_note": "From the advert. Confirm on the title certificate.",
+  "furniture_value_mad": 0,
+  "syndic_mad_month": null,
+  "agent_fee_pct": null,
+  "comps_sale": [],
+  "furnishing_mad": 86000,
+  "furnishing_note": "ASSUMPTION: 1,200 MAD per m² (£91) to furnish and equip for letting; the advert does not mention furniture.",
+  "renovation_mad": 0,
+  "str": {
+    "comps": [
+      {
+        "desc": "Quiet Villa • Parking private • 100Mb Wi-Fi family (4.91★, 1.17 km away)",
+        "nightly_mad": 625,
+        "bedrooms": 2,
+        "reviews": 97,
+        "url": "https://www.airbnb.co.uk/rooms/1306630184182210076",
+        "occ": 0.73,
+        "note": "one-night price on 2026-11-23"
+      },
+      {
+        "desc": "Modern (4.79★, 2.07 km away)",
+        "nightly_mad": 898,
+        "bedrooms": 2,
+        "reviews": 29,
+        "url": "https://www.airbnb.co.uk/rooms/1353698896014593629",
+        "occ": 0.47,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "New luxury apartment in Rabat (4.96★, 2.07 km away)",
+        "nightly_mad": 1434,
+        "bedrooms": 2,
+        "reviews": 25,
+        "url": "https://www.airbnb.co.uk/rooms/1271110016726211264",
+        "occ": 0.4,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Modern and bright apartment with balcony (4.73★, 2.05 km away)",
+        "nightly_mad": 1039,
+        "bedrooms": 2,
+        "reviews": 15,
+        "url": "https://www.airbnb.co.uk/rooms/1711678001524806195",
+        "occ": 0.63,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "BEAUTIFUL APARTMENT IN THE HEART OF RABAT (4.67★, 2.07 km away)",
+        "nightly_mad": 1554,
+        "bedrooms": 2,
+        "reviews": 12,
+        "url": "https://www.airbnb.co.uk/rooms/9213569",
+        "occ": 0.26,
+        "note": "one-night price on 2027-01-01"
+      },
+      {
+        "desc": "Very functional and inexpensive apartment. (4.63★, 2.05 km away)",
+        "nightly_mad": 404,
+        "bedrooms": 2,
+        "reviews": 8,
+        "url": "https://www.airbnb.co.uk/rooms/1739978780807241530",
+        "occ": 0.55,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Beautiful New Apartment – Rabat (5★, 2.05 km away)",
+        "nightly_mad": 1793,
+        "bedrooms": 2,
+        "reviews": 5,
+        "url": "https://www.airbnb.co.uk/rooms/1550164320590926517",
+        "occ": 0.33,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Cozy apartment with large and small living room – Rabat (4.5★, 1.74 km away)",
+        "nightly_mad": 805,
+        "bedrooms": 2,
+        "reviews": 4,
+        "url": "https://www.airbnb.co.uk/rooms/1564588403106001281",
+        "occ": 0.31,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Beautiful apartment with all the amenities (5★, 1.69 km away)",
+        "nightly_mad": 1362,
+        "bedrooms": 2,
+        "reviews": 3,
+        "url": "https://www.airbnb.co.uk/rooms/1510954222849344227",
+        "occ": 0.29,
+        "note": "one-night price on 2026-11-20"
+      },
+      {
+        "desc": "Elegant & Cozy Apartment in Rabat (4.67★, 1.88 km away)",
+        "nightly_mad": 504,
+        "bedrooms": 2,
+        "reviews": 3,
+        "url": "https://www.airbnb.co.uk/rooms/1805244137721957619",
+        "occ": 0.41,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Cozy 4-person apartment, not overlooked3 (4.67★, 2.04 km away)",
+        "nightly_mad": 1554,
+        "bedrooms": 2,
+        "reviews": 3,
+        "url": "https://www.airbnb.co.uk/rooms/4210075",
+        "occ": 0.1,
+        "note": "one-night price on 2027-01-01"
+      }
+    ],
+    "adr_mad": {
+      "bear": 1040,
+      "base": 1040,
+      "bull": 1040
+    },
+    "adr_note": "From your atlas: 11 2-bed Airbnb homes within 2.5 km of central Fadesa Nahda, each with a review history (collected 2026-11-20). They list at 715 MAD (£54) / 1,039 MAD (£79) / 1,494 MAD (£114) a night (cheaper quarter / middle / dearer quarter). The sum uses the middle price. These are prices shown for one night, so a real average over the year may be a little lower.",
+    "occupancy": {
+      "bear": 0.1515,
+      "base": 0.2553,
+      "bull": 0.3329
+    },
+    "occupancy_note": "From your atlas: the same 11 listings are booked 30% / 40% / 51% of the nights their calendar is open (weakest quarter / middle / best quarter). The atlas estimates each listing's figure from how fast it collects reviews, ranked against the city's measured spread, so it is an estimate, not a meter reading. Hosts in Rabat keep the calendar open about 243 nights a year, which is how the atlas gets each listing's revenue: 4,792 MAD (£364) / 8,077 MAD (£614) / 10,530 MAD (£801) a month. A second check from review counts points LOWER than that: the middle listing collects about 12 reviews a year, which points to roughly 50 to 70 nights sold. Across Rabat, 2-bed Airbnbs average 38% (AirROI).",
+    "nearby_revenue_month_mad": [
+      3296,
+      4165,
+      4496,
+      5088,
+      7938,
+      8077,
+      8493,
+      9310,
+      11750,
+      11903,
+      13333
+    ],
+    "potential_month_mad": 19596.938816666665
+  },
+  "notes": "2026-11-21: automatic first pass from the web app.",
+  "flags": [
+    {
+      "severity": "red",
+      "text": "Title status is not in the advert. Ask for the title number (titre foncier) before anything else."
+    },
+    {
+      "severity": "amber",
+      "text": "Mubawab files this advert under Rabat as a whole, so the flats for sale it shows alongside are from all over the city (middle one 33,333 MAD per m² (£2,534)) and say nothing about this one. There is no published reference for the neighbourhood either, so the price is unchecked: ask local agents what flats there sell for."
+    },
+    {
+      "severity": "amber",
+      "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."
+    },
+    {
+      "severity": "amber",
+      "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."
+    },
+    {
+      "severity": "amber",
+      "text": "Furnishing budget is an assumption: 86,000 MAD (£6,538)."
+    }
+  ],
+  "unknowns": [
+    "Is it titled (titre foncier)? Title number?",
+    "Exact address / map pin",
+    "Year the building was built",
+    "Monthly syndic charge and what it covers",
+    "Surface on the title",
+    "Do the building rules allow short-term letting?",
+    "Agent's buyer-side commission",
+    "Is any furniture or equipment included?"
+  ],
+  "verdict": "conditional",
+  "verdict_label": "WITHIN BUDGET, PRICE UNCHECKED",
+  "verdict_reason": "Automatic first pass. The video's sum shows +£1,192 a month. You would put in about £128 a month (your limit is £400); a weak year would need £234. 11 of the 11 nearby Airbnbs take enough to keep you inside it. After 25 years the flat is yours and should then pay you about £90 a month. The price itself could not be checked: there is no reliable evidence of what flats sell for in this neighbourhood, so find that out from local agents before offering."
+}

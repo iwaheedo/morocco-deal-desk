@@ -148,7 +148,7 @@ def geocode(area, city):
     key = "%s|%s" % (_norm(area), _norm(city))
     if key in cache:
         return cache[key]
-    q = urllib.parse.urlencode({"q": "%s, %s, Morocco" % (area, city), "format": "json", "limit": 1})
+    q = urllib.parse.urlencode({"q": ("%s, Morocco" % area) if _norm(city) == "morocco" else ("%s, %s, Morocco" % (area, city)), "format": "json", "limit": 1})
     try:
         hits = json.loads(_get("https://nominatim.openstreetmap.org/search?" + q, timeout=20))
         res = {"lat": float(hits[0]["lat"]), "lng": float(hits[0]["lon"]), "name": hits[0].get("display_name")} if hits else None
@@ -181,6 +181,21 @@ def agenz_reference(city, area):
             return {"mad_per_m2": int(re.sub(r"\D", "", m.group(2))), "area": area,
                     "updated": updated.group(1) if updated else None,
                     "url": "https://agenz.ma/fr/prix-immobilier-maroc/" + slug}
+    return None
+
+
+def area_from_wording(li, city):
+    """Some adverts sit under the city only and name the neighbourhood in the title or text ("… 2 chambres Fadesa Nahda Rabat")."""
+    if not city:
+        return None
+    c = re.escape(city)
+    for text, pattern in ((li.get("title") or "", r"(?:chambres?|pi[eè]ces?|m²|studio)\s+(?:à\s+|a\s+|au\s+|en\s+|sur\s+|,\s*)?([A-Za-zÀ-ÿ'’\- ]{3,40}?)[\s,]+(?:à\s+)?%s\s*$" % c),
+                          (li.get("description") or "", r"quartier(?:\s+(?:r[ée]sidentiel|calme|pris[ée]|recherch[ée]|populaire|hupp[ée]))?\s+(?:de\s+la\s+|de\s+|du\s+|d['’]\s*)?([A-ZÀ-Ý][A-Za-zÀ-ÿ'’\- ]{2,40}?)\s*(?:,|\.|\s+à\s+%s|\s+%s)" % (c, c))):
+        m = re.search(pattern, text, flags=re.I)
+        if m:
+            name = re.sub(r"\s+", " ", m.group(1)).strip(" -,")
+            if name and _norm(name) != _norm(city) and not re.fullmatch(r"(?:vendre|louer|vente|location|appartement|centre)", _norm(name)):
+                return name.title()
     return None
 
 
@@ -245,6 +260,8 @@ def analyse_url(url, say=lambda msg: None):
     m = re.search(r"/fr/s[dt]/([^/]+)/", li.get("comparable_searches", {}).get("for_sale", ""))
     if m:
         city = urllib.parse.unquote(m.group(1)).replace("-", " ").title()
+    # Mubawab files some adverts under the city only; the neighbourhood is then read from the advert's own wording
+    area_said = None if area else area_from_wording(li, city)
     surface, beds = li.get("surface_m2"), li.get("bedrooms")
     text = " ".join([li.get("title") or "", li.get("description") or "", " ".join("%s %s" % kv for kv in (li.get("main_features") or {}).items())])
     feats = li.get("main_features") or {}
@@ -273,9 +290,19 @@ def analyse_url(url, say=lambda msg: None):
 
     say("Checking the area's reference price")
     ref = agenz_reference(city, area) if (city and area) else None
+    said_parts = ([area_said] + sorted([w for w in area_said.split() if len(w) >= 4], key=len, reverse=True)) if area_said else []
+    for name in ([] if ref or not city else said_parts):
+        ref = agenz_reference(city, name)
+        if ref:
+            break
     evidence["agenz"] = ref
     area_override = None
-    if ref and sale_stats:
+    if ref and not area:
+        # adverts found are from all over the city, so they say nothing about this flat: the published reference stands alone
+        area_override = {"low": ref["mad_per_m2"] * 0.9, "mid": ref["mad_per_m2"], "high": ref["mad_per_m2"] * 1.1,
+                         "basis": "Agenz's reference for %s (%s, updated %s), ± 10%%. Mubawab files this advert under the city only, so the flats for sale it shows are from all over %s and are not used to value this one."
+                                  % (ref["area"], both(ref["mad_per_m2"], " per m²"), ref.get("updated") or "?", city)}
+    elif ref and sale_stats:
         asked = sale_stats["median"] * (1 - A["asking_discount"])
         area_override = {"low": min(ref["mad_per_m2"], asked), "mid": (ref["mad_per_m2"] + asked) / 2, "high": max(ref["mad_per_m2"], asked),
                          "basis": "Automatic: midpoint of Agenz's reference for %s (%s, updated %s) and the median of %d comparable adverts less %d%% (%s). "
@@ -309,19 +336,25 @@ def analyse_url(url, say=lambda msg: None):
     occ_note = ("Automatic: %s average occupancy %s (AirROI, 12 months to Oct 2026) as the bear case; +10 points for an always-available managed flat (base); +22 points, about the top quarter of listings (bull)."
                 % ((mk["city"] or "national").title() + (" %s-bed" % beds if mk["bedroom_specific"] else ""), "%d%%" % round(mk["occ"] * 100)))
     adr, adr_note, comps_str, str_ev = None, "", [], {"method": None}
-    geo = None
+    geo, geo_is_city = None, False
     if area and city:   # "Hassan - Centre Ville" is not a place name a map knows; try its parts, then the city itself
         for name in [area] + [part.strip() for part in re.split(r"\s+-\s+|/", area) if part.strip() and part.strip() != area]:
             geo = geocode(name, city)
             if geo:
                 break
     if not geo and city:
-        geo = geocode(city, "Morocco")
+        for name in said_parts:
+            geo = geocode(name, city)
+            if geo:
+                break
+    if not geo and city:
+        geo, geo_is_city = geocode(city, "Morocco"), True
+    place = area or area_said or city
     nearby_rev, r = [], None
     ltext, lsource = listings_text()
     if geo and ltext:
         # widen until there are enough; the last pass is every listing the atlas holds for this city
-        for radius, only_city in ((1.0, None), (1.5, None), (2.5, None), (6.0, None), (60.0, city)):
+        for radius, only_city in (((60.0, city),) if geo_is_city else ((1.0, None), (1.5, None), (2.5, None), (6.0, None), (60.0, city))):
             r = str_comps.comps(geo["lat"], geo["lng"], beds=beds, radius_km=radius, min_reviews=3, text=ltext, city=only_city)
             if "error" in r or sum(1 for x in r["each_listing"] if x.get("atlas_rev_month_mad")) >= 8:
                 break
@@ -341,7 +374,8 @@ def analyse_url(url, say=lambda msg: None):
             sold = rq["median"] * 12 / price0
             review_check["verdict"] = "lower" if review_check["nights_high"] < sold * 0.85 else "higher" if review_check["nights_low"] > sold * 1.15 else "agrees"
         whole_city = r["filters"]["radius_km"] > 6
-        where = ("across %s (too few this size near %s)" % (city, area)) if whole_city else ("within %s km of central %s" % (("%.1f" % r["filters"]["radius_km"]).rstrip("0").rstrip("."), area))
+        where = (("across %s (the advert does not say which part of the city)" % city) if geo_is_city else ("across %s (too few this size near %s)" % (city, place))) if whole_city \
+            else ("within %s km of central %s" % (("%.1f" % r["filters"]["radius_km"]).rstrip("0").rstrip("."), place))
         size = ("%s-bed " % beds) if beds is not None else ""
         price = _round10(sp["median"])
         adr = {k: price for k in deal_model.SCEN}
@@ -414,14 +448,17 @@ def analyse_url(url, say=lambda msg: None):
         furnishing = 0 if furnished else int(round(FURNISH_PER_M2 * (surface or 0), -3))
         rec = {
             "id": "mubawab-%s" % lid, "origin": "auto",
-            "short_name": ("%s %s" % (city or "", area or "")).strip()[:20] or "Mubawab %s" % lid,
+            "short_name": ("%s %s" % (city or "", area or area_said or "")).strip()[:20] or "Mubawab %s" % lid,
             "added": (existing[1].get("added") if existing else today),
             "added_at": (existing[1].get("added_at") if existing else dt.datetime.now().isoformat(timespec="seconds")),
             "title": "%s%s — %s" % (("%s-bed, " % beds) if beds is not None else "", ("%d m²" % surface) if surface else "surface unknown",
-                                    ", ".join(x for x in (area, city) if x) or (li.get("title") or "")[:60]),
+                                    ", ".join(x for x in (area or area_said, city) if x) or (li.get("title") or "")[:60]),
             "advert_title": li.get("title"), "source_url": li["url"], "listing_date": li.get("date_posted"),
             "contact": " ".join(x for x in (li.get("agency"), ("ref " + li["agency_ref"]) if li.get("agency_ref") else None) if x) or None,
-            "city": city, "neighbourhood": area, "address_note": "Advert gives the neighbourhood only; Airbnb comparables use its centre.",
+            "city": city, "neighbourhood": area or area_said,
+            "address_note": ("Advert gives the neighbourhood only; Airbnb comparables use its centre." if area else
+                             "Mubawab files this advert under the city only; the neighbourhood is read from the advert's own wording and Airbnb comparables use its centre." if (area_said and not geo_is_city) else
+                             "The advert does not say which part of the city the flat is in."),
             "property_type": (li.get("main_features") or {}).get("Type de bien", "apartment").lower(),
             "bedrooms": beds, "bathrooms": li.get("bathrooms"),
             "floor": (li.get("main_features") or {}).get("Étage du bien"), "lift": ("Ascenseur" in (li.get("amenities") or [])) or None,
@@ -431,7 +468,8 @@ def analyse_url(url, say=lambda msg: None):
             "asking_price_mad": round(li["price_mad"]), "asking_note": li.get("_price_note") or "From the advert (read %s)." % today,
             "surface_m2": surface, "surface_note": "From the advert. Confirm on the title certificate.",
             "furniture_value_mad": 0, "syndic_mad_month": None, "agent_fee_pct": None,
-            "comps_sale": comps_sale, "furnishing_mad": furnishing,
+            # adverts from all over the city say nothing about this flat's value: they stay in the evidence, not in the sum
+            "comps_sale": comps_sale if (area or ref) else [], "furnishing_mad": furnishing,
             "furnishing_note": "" if furnished else "ASSUMPTION: %s to furnish and equip for letting; the advert does not mention furniture." % both(FURNISH_PER_M2, " per m²"),
             "renovation_mad": 0,
             "str": {"comps": comps_str, "adr_mad": adr, "adr_note": adr_note, "occupancy": occ, "occupancy_note": occ_note, "nearby_revenue_month_mad": nearby_rev,
@@ -462,13 +500,18 @@ def analyse_url(url, say=lambda msg: None):
             flags.append({"severity": "amber", "text": "Asking %s is %d%% above Agenz's reference for %s, %s."
                           % (both(m0["ask_m2"], " per m²"), round((m0["ask_m2"] / ref["mad_per_m2"] - 1) * 100), ref["area"], both(ref["mad_per_m2"], " per m²"))})
         med = m0.get("comp_median_m2")
-        if med and m0.get("ask_m2") and (m0["ask_m2"] > 2 * med or m0["ask_m2"] < 0.4 * med):
+        if not area:
+            med_city = (sale_stats or {}).get("median")
+            flags.append({"severity": "amber", "text": "Mubawab files this advert under %s as a whole, so the flats for sale it shows alongside are from all over the city (middle one %s) and say nothing about this one. %s"
+                          % (city or "the city", both(med_city, " per m²") if med_city else "none found",
+                             ("The price check rests on the published reference for %s instead." % ref["area"]) if ref else "There is no published reference for the neighbourhood either, so the price is unchecked: ask local agents what flats there sell for.")})
+        if area and med and m0.get("ask_m2") and (m0["ask_m2"] > 2 * med or m0["ask_m2"] < 0.4 * med):
             flags.insert(1, {"severity": "red", "text": "The asking price works out at %s against about %s for similar flats nearby. That is so far out that the advert probably has a typing error in the price or the size. Confirm both with the agent before reading anything into these numbers."
                              % (both(m0["ask_m2"], " per m²"), both(med, " per m²"))})
-        if m0.get("asking_over_fair") and m0["asking_over_fair"] > 0.15 and not (med and m0["ask_m2"] > 2 * med):
+        if m0.get("asking_over_fair") and m0["asking_over_fair"] > 0.15 and not (area and med and m0["ask_m2"] > 2 * med):
             flags.append({"severity": "amber", "text": "The sums assume you negotiate the price down to the fair value, %d%% below asking. If the seller will not move that far, every number here gets worse."
                           % round((1 - m0["price"] / m0["asking"]) * 100)})
-        if len(comps_sale) < 5:
+        if area and len(comps_sale) < 5:
             flags.append({"severity": "amber", "text": "Only %d comparable flats for sale found: the price check is weak." % len(comps_sale)})
         flags.append({"severity": "amber", "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."})
         flags.append({"severity": "amber", "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."})
@@ -489,6 +532,11 @@ def analyse_url(url, say=lambda msg: None):
         elif financing == "cash":
             rec["verdict"], rec["verdict_label"] = "conditional", "CHECK THE TITLE"
             why = "Bought for cash it would earn about %s a month after all costs and tax." % money(m0["net"]["base"] / 12)
+        elif str_ev.get("method") != "nearby_listings":
+            rec["verdict"], rec["verdict_label"] = "conditional", "NO NEARBY AIRBNB DATA"
+            why = ("On city-wide averages it would need about %s a month from you (your limit is %s), but your atlas has no Airbnbs near this flat, so the income is unproven. Add the area to the atlas, or get a local manager's real figures, before relying on it."
+                   % (money(top["base"]), money(budget))) if top["base"] > 0 else \
+                  ("On city-wide averages it would cover itself, but your atlas has no Airbnbs near this flat, so the income is unproven. Add the area to the atlas, or get a local manager's real figures, before relying on it.")
         elif top["base"] <= budget and top["bear"] <= budget * 1.25 and (share is None or share >= 0.5) and (x0.get("topup_at_asking") or 0) > budget:
             rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET IF YOU NEGOTIATE"
             why = ("At a price of %s, %d%% under the asking price, you would put in about %s a month, inside your %s limit; a weak year would need %s.%s At the full asking price it would be %s a month, over the limit. After %d years the flat is yours and should then pay you about %s a month."
@@ -512,6 +560,9 @@ def analyse_url(url, say=lambda msg: None):
                 fix.append("a price of about %s" % both(x0["price_for_budget"]))
             why = ("A typical year needs about %s a month from you, %s over your %s limit.%s%s"
                    % (money(top["base"]), money(top["base"] - budget), money(budget), nearby_txt, (" It would fit with " + " or ".join(fix) + ".") if fix else ""))
+        if rec["verdict"] == "pursue" and not m0.get("fair_mid"):      # a green light needs a checked price
+            rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET, PRICE UNCHECKED"
+            why += " The price itself could not be checked: there is no reliable evidence of what flats sell for in this neighbourhood, so find that out from local agents before offering."
         why = "The video's sum shows %s a month. " % _money(m0["v_profit"] / fx, c["home"], sign=True) + why
         rec["verdict_reason"] = "Automatic first pass. " + why
         (DATA / "properties").mkdir(exist_ok=True)
