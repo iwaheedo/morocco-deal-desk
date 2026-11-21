@@ -79,6 +79,8 @@ Follow `references/rental-analysis.md` §5.
 - These are asking prices. Until the user has sold prices from agents, the model assumes sales close 10% below asking — an assumption; say so.
 - Value anything that explains a premium (furniture, terrace, pool) and name it.
 
+Mubawab files some adverts under the city only. Then read the neighbourhood from the advert's own title or text (`area_from_wording` in `app/pipeline.py`), compare Airbnbs around that, and do not value the flat from the city-wide adverts the site shows beside it: use Agenz's neighbourhood reference if there is one, otherwise say the price is unchecked.
+
 ### 4. What would it earn?
 The video's steps, in order: (a) pin the exact location; (b) pull comparable Airbnb listings around it and open the established ones — reviews, nightly price, how the interior compares with this flat; (c) settle a nightly range and take the middle; (d) multiply by nights booked; (e) subtract the costs. Do (a)–(c) the way he does, then follow `references/rental-analysis.md` §§1–4 for the checked inputs. Set bear / base / bull for the short let from the nearby listings in the atlas (standing rule 1) and for the long let from comparable rents, each traceable to evidence.
 - In the record, `str.adr_mad` is the middle nearby price in all three scenarios and `str.occupancy` is each scenario's revenue written as a share of the whole year at that price (so price × 365 × occupancy reproduces the atlas revenue); keep the listings' monthly revenues in `str.nearby_revenue_month_mad`.
@@ -100,6 +102,7 @@ The video's steps, in order: (a) pin the exact location; (b) pull comparable Air
 For a mortgage buyer the verdict is the monthly limit test (standing rule 2), stored as `verdict` plus a plain `verdict_label`:
 - **pursue / WITHIN YOUR BUDGET** — typical-year top-up inside the limit at the asking price too, weak year within 125% of it, and at least half the nearby Airbnbs take enough.
 - **conditional / WITHIN BUDGET IF YOU NEGOTIATE** — as above, but only at the lower price the sums assume; **conditional / TIGHT** — typical year inside the limit, weak year well outside it or fewer than half the neighbours take enough.
+- **conditional / NO NEARBY AIRBNB DATA** — the atlas has no listings around the flat, so the income is unproven whatever the city averages say. **conditional / WITHIN BUDGET, PRICE UNCHECKED** — passes the monthly test but there is no usable evidence of what flats sell for there. Never give a green light without both.
 - **pass / OVER YOUR BUDGET** — typical year over the limit. Always say what would bring it inside (deposit, price, loan length). **pass / OFF-PLAN** — no mortgage until the title exists.
 - A real deal-breaker (bad or missing title, building bans short lets, cash demanded under the table) is still a pass whatever the sums say.
 - Cash buyer: **pursue** needs a base-case net yield that beats what the same money earns safely at home (ask; do not invent a rate) and a bear case that is still positive.
