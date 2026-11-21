@@ -183,6 +183,13 @@ def compute(p, A):
     o["pmt_month"] = pmt(A["rate_eff"], A["term_years"], loan)
     o["ins_month"] = loan * A["loan_ins_pct"] / 12
     o["debt_service"] = (o["pmt_month"] + o["ins_month"]) * 12
+    # average interest a year over the life of the loan (with the VAT on it): what the home-country relief is worked on
+    o["interest_y"] = (o["pmt_month"] * 12 - loan / A["term_years"]) if loan > 0 else 0.0
+    rr = A.get("home_interest_relief_pct", 0.0)
+
+    def relief(noi, home):
+        """Home-country tax saved because part of the mortgage interest comes off the tax bill; never more than the tax itself."""
+        return min(home, rr * min(o["interest_y"], max(noi, 0.0)))
     o["ds_pct"] = _div(o["debt_service"], price)
 
     # ---------- short-term rental ----------
@@ -206,7 +213,7 @@ def compute(p, A):
         home = max(0.0, h * noi - tax)
         return noi, tax, home, noi - tax - home
 
-    for k in ("nights", "gross", "platform", "mgmt", "maint", "local_tax", "opex", "noi", "tax", "home_tax", "net", "gross_yield",
+    for k in ("nights", "gross", "platform", "mgmt", "maint", "local_tax", "opex", "noi", "tax", "home_tax", "relief", "net", "gross_yield",
               "net_yield_c", "net_month_c", "cf_m", "cf_m_month", "coc_m", "dscr", "be_occ_c", "be_occ_m"):
         o[k] = {}
     for sc in SCEN:
@@ -223,7 +230,8 @@ def compute(p, A):
         o["gross_yield"][sc] = _div(g, price) if g > 0 else None
         o["net_yield_c"][sc] = _div(net, o["total_cost"]) if g > 0 else None
         o["net_month_c"][sc] = net / 12
-        o["cf_m"][sc] = net - o["debt_service"]
+        o["relief"][sc] = relief(noi, home)
+        o["cf_m"][sc] = net - o["debt_service"] + o["relief"][sc]
         o["cf_m_month"][sc] = o["cf_m"][sc] / 12
         o["coc_m"][sc] = _div(o["cf_m"][sc], o["cash_needed_m"]) if g > 0 else None
         o["dscr"][sc] = _div(noi, o["debt_service"]) if g > 0 else None
@@ -252,7 +260,7 @@ def compute(p, A):
     o["c_syndic"] = o["syndic_month"]
     o["c_upkeep"] = (o["maint"]["base"] + o["insurance_y"]) / 12
     o["c_ma_tax"] = (o["local_tax"]["base"] + o["tax"]["base"] + o["owner_tax_y"]) / 12
-    o["c_home_tax"] = o["home_tax"]["base"] / 12
+    o["c_home_tax"] = (o["home_tax"]["base"] - o["relief"]["base"]) / 12
     o["c_profit"] = (o["c_rev"] - o["c_mort"] - o["c_mgmt"] - A["utilities_month"] - A["internet_month"] - A["subs_month"]
                      - o["c_platform"] - o["c_syndic"] - o["c_upkeep"] - o["c_ma_tax"] - o["c_home_tax"])
     o["c_profit_home"] = o["c_profit"] / A["fx_home"]
@@ -263,7 +271,7 @@ def compute(p, A):
     rent = _scen(lt.get("rent_mad_month"))
     o["rent"] = rent
     for k in ("ltr_gross", "ltr_mgmt", "ltr_maint", "ltr_tsc", "ltr_opex", "ltr_noi", "ltr_tax", "ltr_home_tax",
-              "ltr_net", "ltr_net_yield", "ltr_cf_m"):
+              "ltr_net", "ltr_net_yield", "ltr_relief", "ltr_cf_m"):
         o[k] = {}
     o["ltr_syndic"] = o["syndic_y"] * A["ltr_owner_pays_syndic"]
     for sc in SCEN:
@@ -278,7 +286,8 @@ def compute(p, A):
         o["ltr_home_tax"][sc] = max(0.0, h * o["ltr_noi"][sc] - o["ltr_tax"][sc])
         o["ltr_net"][sc] = o["ltr_noi"][sc] - o["ltr_tax"][sc] - o["ltr_home_tax"][sc]
         o["ltr_net_yield"][sc] = _div(o["ltr_net"][sc], o["total_cost"]) if g > 0 else None
-        o["ltr_cf_m"][sc] = o["ltr_net"][sc] - o["debt_service"]
+        o["ltr_relief"][sc] = relief(o["ltr_noi"][sc], o["ltr_home_tax"][sc])
+        o["ltr_cf_m"][sc] = o["ltr_net"][sc] - o["debt_service"] + o["ltr_relief"][sc]
 
     # ---------- stress tests on the base short-let case ----------
     a0, c0 = adr["base"], occ["base"]
@@ -289,10 +298,10 @@ def compute(p, A):
                             "adr": (a1, c0, o["debt_service"]), "both": (a1, c1, o["debt_service"]),
                             "rate": (a0, c0, ds_stress), "all": (a1, c1, ds_stress)}.items():
         g = a * 365 * c
-        net = after_tax(g)[3]
+        noi_s, _tax_s, home_s, net = after_tax(g)
         o["st_%s_gross" % key] = g
         o["st_%s_net" % key] = net
-        o["st_%s_cf" % key] = net - ds
+        o["st_%s_cf" % key] = net - ds + relief(noi_s, home_s)
 
     # ---------- 10-year view (base short-let income held flat) ----------
     N = 10

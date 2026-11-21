@@ -42,7 +42,7 @@ button[disabled]{opacity:.55;cursor:progress}
 .hint{color:var(--soft);font-size:14px;margin-top:6px}
 .flat{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:34px;padding-top:22px;border-top:2px solid var(--ink)}
 .flat h2{margin:0;font-size:26px} .flat .sub{color:var(--soft);font-size:14.5px;margin-top:4px}
-.stamp{font-family:var(--mono);font-weight:600;font-size:15px;letter-spacing:.14em;padding:8px 14px;border:3px solid currentColor;border-radius:6px;transform:rotate(-3deg);white-space:nowrap}
+.stamp{font-family:var(--mono);font-weight:600;font-size:15px;letter-spacing:.1em;padding:8px 14px;border:3px solid currentColor;border-radius:6px;transform:rotate(-3deg);max-width:260px;text-align:center}
 .stamp.pass{color:var(--red)} .stamp.conditional{color:var(--amber)} .stamp.pursue{color:var(--green)}
 .why{margin:14px 0 0;max-width:70ch}
 /* signature: two till receipts for the same flat */
@@ -54,15 +54,20 @@ button[disabled]{opacity:.55;cursor:progress}
 .receipt header{font-family:var(--display);font-weight:800;font-size:19px;margin-bottom:2px}
 .receipt .tag{font-family:var(--display);font-size:13px;color:var(--soft);margin-bottom:12px;min-height:36px}
 .row{display:flex;justify-content:space-between;gap:12px;padding:3px 0}
-.row .n{white-space:nowrap} .row.muted{color:var(--soft)} .row.rule{border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
+.row .n{white-space:nowrap;text-align:right} .row.muted{color:var(--soft)}
+.hc{display:block;font-size:.86em;font-weight:400;color:var(--soft);white-space:nowrap}
+.sum .row.good .n{color:var(--green)} .sum .row.bad .n{color:var(--red)}
+h3.sub{margin:24px 0 8px} .scroll{overflow-x:auto;max-width:680px} .scroll table{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.old{margin:12px 0 0;padding:10px 14px;border:1px dashed var(--amber);border-radius:10px;color:var(--amber);max-width:70ch;font-size:14.5px}
+.pill.pass{color:var(--red)} .pill.conditional{color:var(--amber)} .pill.pursue{color:var(--green)} .row.rule{border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
 .row.rev{font-weight:600}
 .total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:10px;padding-top:10px;font-family:var(--display)}
 .total .lab{font-weight:600} .total .big{font-family:var(--mono);font-weight:600;font-size:30px;letter-spacing:-.02em}
 .pos{color:var(--green)} .neg{color:var(--red)}
 .small{font-size:12.5px;color:var(--soft);margin-top:6px}
-.gap{margin-top:8px} .bar{display:grid;grid-template-columns:minmax(150px,280px) 1fr 86px;gap:12px;align-items:center;padding:5px 0;font-size:14.5px}
+.gap{margin-top:8px} .bar{display:grid;grid-template-columns:minmax(150px,280px) 1fr 104px;gap:12px;align-items:center;padding:5px 0;font-size:14.5px}
 .bar i{display:block;height:12px;background:var(--blue);border-radius:2px;min-width:2px} .bar .n{font-family:var(--mono);font-size:13px;text-align:right}
-@media (max-width:560px){.bar{grid-template-columns:1fr 70px}.bar i{display:none}}
+@media (max-width:560px){.bar{grid-template-columns:1fr 96px}.bar span:nth-child(2){display:none}}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
 .fact{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
 .fact .v{font-family:var(--mono);font-weight:600;font-size:17px;margin-top:2px} .fact .d{font-size:13px;color:var(--soft);margin-top:3px}
@@ -86,10 +91,11 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n
 .sum{font-family:var(--mono);font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 16px;max-width:680px}
 .sum .row{padding:7px 0;border-bottom:1px dashed var(--line)} .sum .row:last-child{border-bottom:0} .sum .row.eq{font-weight:600}
 .sum .row span:first-child{font-family:var(--display);font-size:15px}
-.sum .row3{display:grid;grid-template-columns:1fr 104px 104px;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--line)}
+.sum .row3{display:grid;grid-template-columns:1fr 116px 116px;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--line)}
 .sum .row3:last-child{border-bottom:0} .sum .row3 span:first-child{font-family:var(--display);font-size:15px} .sum .row3 .n{text-align:right;white-space:nowrap}
 .sum .row3.head{font-family:var(--display);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft)} .sum .row3.eq{font-weight:600} .sum .row3 .no{color:var(--soft)}
-@media (max-width:560px){.sum .row3{grid-template-columns:1fr 78px 78px}}
+@media (max-width:560px){.sum .row3{grid-template-columns:1fr 92px 92px;font-size:12.5px}}
+@media (max-width:560px){.sum .row .n{white-space:normal;max-width:62%;overflow-wrap:anywhere}.sum{padding:6px 12px}}
 .plain{max-width:68ch;margin:12px 0 0} .plain b{font-weight:600}
 .qa{list-style:none;padding:0;margin:0;max-width:680px} .qa li{display:grid;grid-template-columns:1fr auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .qa .a{font-family:var(--mono);font-size:13px;white-space:nowrap} .qa .a.bad{color:var(--red)} .qa .a.ok{color:var(--green)} .qa .a.ask{color:var(--amber)}
@@ -102,7 +108,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n
   <div class="top">
     <div>
       <h3>Morocco deal desk</h3>
-      <h1>Paste a flat. See the video's sum<br>next to the checked one.</h1>
+      <h1>Paste a flat. See the video's sum,<br>the real one, and your monthly limit.</h1>
     </div>
     <div class="terms" id="terms" aria-live="polite"></div>
   </div>
@@ -112,7 +118,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n
     <button id="go" type="submit">Analyse the deal</button>
   </form>
   <div class="status" id="status" role="status"></div>
-  <div class="hint">Reads Mubawab listings. Takes about half a minute: it reads the advert, finds comparable flats and Airbnb listings, and rebuilds the spreadsheet.</div>
+  <div class="hint">Reads Mubawab listings. Takes about half a minute: it reads the advert, finds comparable flats for sale and the Airbnbs around it in your atlas, and rebuilds the spreadsheet.</div>
 
   <main id="result"></main>
 
@@ -120,7 +126,7 @@ td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top} td.n
   <p class="hint" style="margin:-6px 0 10px">Each link you paste is kept here, newest first. Click a row to reopen it.</p>
   <div style="overflow-x:auto">
     <table id="history">
-      <thead><tr><th>When</th><th>Flat</th><th class="n">Asking (MAD)</th><th class="n">MAD/m²</th><th class="n">Video's way / mo</th><th class="n">Checked / mo</th><th class="n">Break-even occupancy</th><th>Verdict</th><th>Advert</th></tr></thead>
+      <thead><tr><th>When</th><th>Flat</th><th class="n">Asking</th><th class="n">Per m²</th><th class="n">Video's way / mo</th><th class="n">Real / mo</th><th class="n">Nearby Airbnbs that fit your limit</th><th>Against your limit</th><th>Advert</th></tr></thead>
       <tbody></tbody>
     </table>
   </div>

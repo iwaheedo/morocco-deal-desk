@@ -52,7 +52,9 @@ Ground rules the user set while building that dashboard: Airbnb's public search 
 
 **Facebook groups**: ask the user to paste the post or a screenshot.
 
-**The user's own Airbnb listing file** (Rabat only, for now): `scripts/str_comps.py --lat … --lng … --beds N` reads `morocco-str/listings.js` — about 1,700 Rabat listings with position, bedrooms, rating, review count and a one-night spot price — and returns the price spread of comparable entire homes within a radius, plus the best-established ones with links. No network access. Use `--min-reviews 5` to drop unproven listings. If the exact address is unknown, use the neighbourhood's centre and say so. The prices are one-night spot prices for nights still unbooked: take roughly 10–15% off before treating the median as an achieved rate.
+**The user's own Airbnb atlas** (Rabat, Salé, Kenitra, Tangier as of 21 Nov 2026 — the first source for occupancy and revenue, by the user's instruction): `scripts/str_comps.py --lat … --lng … --beds N --min-reviews 3 [--city NAME]` reads `morocco-str/listings.js` (published copy: `https://iwaheedo.github.io/morocco-str-atlas/listings.js`) and returns, for comparable entire homes within a radius: the spread of one-night prices, each listing's estimated occupancy and yearly revenue, how full their calendars are for the next six weeks, reviews a year, and the best-established ones with links. No network access of its own. If the exact address is unknown, use the neighbourhood's centre and say so.
+
+What the atlas figures are: occupancy is an ESTIMATE — listings are ranked by reviews per year of age and given the occupancy AirROI measures at that rank in the city, as a share of the nights the calendar is open. Revenue is price × that occupancy × the nights a typical host in the city opens the calendar (243 in Rabat, 249 Tangier, 228 Salé, 204 Kenitra). Prices are one-night spot prices for nights still unbooked. "Revenue potential" is a month at the occupancy the top quarter of the city reaches, open all year: a ceiling.
 
 **Airbnb / Booking** (for what guests pay, any city): open a search in the browser pane, as a person would, and read the visible results — for example `airbnb.com/s/<Area>--<City>--Morocco/homes?checkin=YYYY-MM-DD&checkout=YYYY-MM-DD&adults=2&min_bedrooms=2`. Sample two or three date windows (a high-season week, a low-season week, a midweek stay). Record 5–10 genuinely similar listings: title, bedrooms, rating, review count, total price ÷ nights. That is a handful of page views, not scraping; if the browser pane is unavailable, ask the user to paste what they see. The total a guest sees includes the cleaning fee, so the nightly rate the host earns is lower — knock off roughly 10%, and say so.
 
@@ -60,15 +62,16 @@ Ground rules the user set while building that dashboard: Airbnb's public search 
 
 ## 3. Setting short-let scenarios
 
-Nightly rate (`adr_mad`) — the average actually achieved over a year, net of the cleaning fee:
-- **Base**: median of the comparable listings' prices, less ~10%.
-- **Bear**: the lower quartile, or the city average for that bedroom count.
-- **Bull**: what the best genuinely comparable listings with many reviews charge.
+**Where the atlas has listings nearby (the rule since 21 Nov 2026):** take same-size entire homes with 3+ reviews within 1 km (widen to 1.5, 2.5, 6 km, then the whole city, until there are 8).
+- Nightly price: the middle listed price, the same in all three scenarios.
+- **Typical year (base)**: the middle listing's atlas revenue. **Weak year (bear)**: the lower quartile. **Strong year (bull)**: the upper quartile. Write each as a share of the whole year at the middle price (revenue × 12 ÷ price ÷ 365), which is what the model's `occupancy` means.
+- This is deliberately the atlas's own figure, part-year calendars and all. Worked check, Agdal 2-beds, 20 Nov 2026 (52 listings): booked 41 / 54 / 69% of open nights; middle price 1,068 MAD (£81); revenue 8,408 / 11,660 / 14,341 MAD (£639 / £886 / £1,090) a month; that is about 131 nights a year for the middle listing, and its 25 reviews a year independently point to 105–147 nights (50–70% of guests review, about 3 nights a stay). Do not gross the occupancy up to 365 nights for the typical year: on that evidence it would describe a top-quarter listing.
+- Always run the review-count check; where it points lower than the atlas (seen for 4-beds: 30–40 nights against 79), say so and treat the atlas figure as the hopeful end.
+- Report how many of the nearby listings take enough to keep the buyer inside their monthly limit.
 
-Occupancy:
-- **Bear**: the AirROI market average for the city (≈ 36–40%).
-- **Base**: about 10 points above it (≈ 48–52%) — a professionally managed, always-available flat.
-- **Bull**: the top-quarter level (≈ 60–65%).
+**Where the atlas has nothing nearby** (other cities): the weaker fallback, flagged as such.
+- Nightly rate: median of comparable listings' prices less ~10% (base), lower quartile (bear), best comparable listings (bull).
+- Occupancy: the AirROI city average (bear), about 10 points above it (base), the top-quarter level (bull).
 - Never model the video's 70% as a base case. If a seller or agent quotes it, ask for a platform statement.
 
 Sense-check: compare base revenue (rate × 365 × occupancy) with the city's average rate × average occupancy × 365 for that bedroom count (Rabat 2-bed: 1,052 × 38% × 365 ≈ 146,000 MAD). A base case well above that needs a specific reason (a pool, sea view, exceptional location) — say what would have to be true. The trackers' "revenue per listing" figures (Rabat 2-bed median 75,500) include listings open only part of the year, so they read low; quote them as what a typical host actually banks, not as the ceiling.

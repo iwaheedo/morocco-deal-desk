@@ -65,6 +65,15 @@
    "source": "UK higher rate on residential property gains 2026-27 (18% within the basic-rate band); Moroccan tax on the gain is credited. The UK computes the gain in sterling, so exchange-rate moves change it. Set 0 if not applicable."
   },
   {
+   "key": "home_interest_relief_pct",
+   "group": "Currency and your own tax",
+   "label": "Tax relief at home on mortgage interest",
+   "value": 0.2,
+   "fmt": "pct",
+   "confidence": "medium",
+   "source": "UK: interest and finance costs on a let home are not deducted from the profit; instead 20% of them comes off the tax bill (ITTOIA 2005 s.274A, HMRC PIM2054), for lets abroad as well as in the UK, capped at the profit. Only matters to a buyer with a mortgage. Set to your marginal rate if interest is fully deductible where you live, or 0 if there is no relief."
+  },
+  {
    "key": "reg_duty_pct",
    "group": "Buying costs",
    "label": "Registration duty (droits d'enregistrement)",

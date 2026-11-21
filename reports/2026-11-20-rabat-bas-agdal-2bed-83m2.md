@@ -1,3 +1,5 @@
+> **Superseded on 21 Nov 2026.** This report used city-average occupancy and a profit-or-pass test. The current analysis, from the Airbnbs around the flat and judged against the £400-a-month limit, is `results/2026-11-21_1152_rabat-agdal-2-bed_WITHIN-BUDGET-IF-YOU-NEGOTIATE.md`.
+
 # 2-bed, 83 m², Bas Agdal, Rabat — PASS
 
 Analysed the video's way, this flat shows a profit of about £647 a month. With realistic occupancy and the costs the video leaves out, the same flat loses about £345 a month on the same mortgage. Even if it did reach the video's 70% occupancy it would lose £214 a month once real costs are counted. Pass.

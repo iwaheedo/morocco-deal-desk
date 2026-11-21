@@ -472,7 +472,7 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
     L.triple((None, "c_syndic", None), "Building service charge (syndic)", ("=0", "={syndic_month}", None), "mad", "Not in the video.")
     L.triple((None, "c_upkeep", None), "Upkeep, linen, insurance", ("=0", "=({maint:base}+{insurance_y:base})/12", None), "mad", "Not in the video.")
     L.triple((None, "c_ma_tax", None), "Moroccan taxes", ("=0", "=({local_tax:base}+{tax:base}+{owner_tax_y:base})/12", None), "mad", "Not in the video.")
-    L.triple((None, "c_home_tax", None), "Home-country tax top-up", ("=0", "={home_tax:base}/12", None), "mad", "Not in the video.")
+    L.triple((None, "c_home_tax", None), "Home-country tax top-up", ("=0", "=({home_tax:base}-{relief:base})/12", None), "mad", "Not in the video. After relief on the mortgage interest.")
     L.triple(("v_profit", "c_profit", None), "PROFIT per month",
              ("={v_rev}-{v_mort}-{v_mgmt}" + bills,
               "={c_rev}-{c_mort}-{c_mgmt}" + bills + "-{c_platform}-{c_syndic}-{c_upkeep}-{c_ma_tax}-{c_home_tax}", None), "mad",
@@ -550,6 +550,8 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
              "Full repayment loan at the rate INCLUDING the 10% VAT on interest. (An interest-only figure would be far lower and is not what Moroccan banks offer.)")
     L.single("ins_month", "Mortgage — compulsory insurance per month", "={loan}*{A:loan_ins_pct}/12")
     L.single("debt_service", "Mortgage — total cost per year", "=({pmt_month}+{ins_month})*12", bold=True)
+    L.single("interest_y", "Mortgage — interest per year, averaged over the loan", "=IF({loan}>0,{pmt_month}*12-{loan}/{A:term_years},0)", "mad",
+             "Includes the VAT on interest. Higher in the early years, lower later; your home-country relief is worked on this.")
     L.single("ds_pct", "Mortgage cost as % of the price", '=IF({price}>0,{debt_service}/{price},"")', "pct",
              "The hurdle: unless the flat's net income is a bigger share of the price than this, you top it up from your own pocket every month.")
 
@@ -579,7 +581,7 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
     L.scen("tax", "Moroccan income tax on the rental", "={gross}*{A:str_income_tax_pct}", "mad",
            "A central ESTIMATE: how short lets are taxed is unsettled (see Assumptions). Confirm with a Moroccan tax adviser.")
     L.scen("home_tax", "Home-country tax top-up (estimate)", "=MAX(0,{A:home_tax_rate}*{noi}-{tax})", "mad",
-           "Your home country taxes this income too and credits Moroccan tax. Rough: marginal rate × income before tax, less Moroccan tax. Ignores mortgage-interest relief.")
+           "Your home country taxes this income too and credits Moroccan tax. Rough: marginal rate × income before tax, less Moroccan tax. A cash buyer's figure; relief on mortgage interest is below.")
     L.scen("net", "NET INCOME, cash buyer (after all tax)", "={noi}-{tax}-{home_tax}", bold=True)
     L.scen("net_month_c", "  per month", "={net}/12")
     L.scen("net_month_c_home", "  per month (%s)" % H, "={net_month_c}/{A:fx_home}", "home")
@@ -590,7 +592,9 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
            '=IF({adr}*(1-{var_share})>0,{fixed_y}/({adr}*365*(1-{var_share})),"")', "pct", "Occupancy at which income after Moroccan tax is zero.")
     L.blank()
     L.scen("ds_row", "Mortgage cost per year", "={debt_service}")
-    L.scen("cf_m", "CASH FLOW after mortgage", "={net}-{debt_service}", bold=True)
+    L.scen("relief", "Home-country tax saved on the mortgage interest", "=MIN({home_tax},{A:home_interest_relief_pct}*MIN({interest_y},MAX({noi},0)))", "mad",
+           "In the UK, 20% of the interest comes off the tax bill. It can only cancel tax that would otherwise be due.")
+    L.scen("cf_m", "CASH FLOW after mortgage", "={net}-{debt_service}+{relief}", bold=True)
     L.scen("cf_m_month", "  per month", "={cf_m}/12")
     L.scen("cf_m_month_home", "  per month (%s)" % H, "={cf_m_month}/{A:fx_home}", "home")
     L.scen("coc_m", "Cash-on-cash return (cash flow ÷ cash you put in)", '=IF(AND({cash_needed_m}>0,{gross}>0),{cf_m}/{cash_needed_m},"")', "pct", bold=True)
@@ -627,7 +631,8 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
     L.scen("ltr_home_tax", "Home-country tax top-up (estimate)", "=MAX(0,{A:home_tax_rate}*{ltr_noi}-{ltr_tax})")
     L.scen("ltr_net", "NET INCOME, cash buyer (after all tax)", "={ltr_noi}-{ltr_tax}-{ltr_home_tax}", bold=True)
     L.scen("ltr_net_yield", "NET YIELD, cash buyer", '=IF(AND({total_cost}>0,{ltr_gross}>0),{ltr_net}/{total_cost},"")', "pct", bold=True)
-    L.scen("ltr_cf_m", "Cash flow after mortgage", "={ltr_net}-{debt_service}")
+    L.scen("ltr_relief", "Home-country tax saved on the mortgage interest", "=MIN({ltr_home_tax},{A:home_interest_relief_pct}*MIN({interest_y},MAX({ltr_noi},0)))")
+    L.scen("ltr_cf_m", "Cash flow after mortgage", "={ltr_net}-{debt_service}+{ltr_relief}")
 
     # ---- 6. stress ----
     L.section("6. Stress tests on the base short-let case")
@@ -638,6 +643,8 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
              "Relevant if the bank's offer comes in above the assumed rate, or on a variable rate.")
     net_f = ("=({g}*(1-{var_ex_tax})-{fixed_y})-{g}*{A:str_income_tax_pct}"
              "-MAX(0,{A:home_tax_rate}*({g}*(1-{var_ex_tax})-{fixed_y})-{g}*{A:str_income_tax_pct})")
+    relief_f = ("MIN(MAX(0,{A:home_tax_rate}*({g}*(1-{var_ex_tax})-{fixed_y})-{g}*{A:str_income_tax_pct}),"
+                "{A:home_interest_relief_pct}*MIN({interest_y},MAX({g}*(1-{var_ex_tax})-{fixed_y},0)))")
     for key, lab, gross_f, ds in (
         ("base", "Base case", "={adr:base}*365*{occ:base}", "{debt_service}"),
         ("occ", "Occupancy falls (size set in Assumptions)", "={adr:base}*365*" + o_s, "{debt_service}"),
@@ -647,7 +654,7 @@ def build_property(wb, name, p, a_rows, dd, home, hfmt):
         ("all", "All three at once", "=" + a_s + "*365*" + o_s, "{ds_stress}"),
     ):
         gk, nk, ck = "st_%s_gross" % key, "st_%s_net" % key, "st_%s_cf" % key
-        L.triple((gk, nk, ck), lab, (gross_f, net_f.replace("{g}", "{%s}" % gk), "={%s}-%s" % (nk, ds)))
+        L.triple((gk, nk, ck), lab, (gross_f, net_f.replace("{g}", "{%s}" % gk), ("={%s}-%s+" % (nk, ds)) + relief_f.replace("{g}", "{%s}" % gk)))
 
     # ---- 7. ten-year view ----
     L.section("7. Ten-year view (base short-let income held flat; sale in year 10)")

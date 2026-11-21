@@ -32,5 +32,7 @@
   "_overrides_note": "home_tax_rate: confirmed by the buyer (UK 40% band); home_cgt_rate 24% follows from that band. rate_foreign_non_resident 4.53%: the buyer asked for today's fixed home-loan rate — Bank Al-Maghrib's latest published average for new housing loans (Q2 2026; before the 10% VAT on interest; whether foreigners pay more is unverified). term_years 25 and ltv 70%: the video's terms for a foreign buyer (30% deposit, up to 25 years); Banque Populaire publishes 70% over 25 years, CIH 70% over 15, Bank of Africa 50%.",
   "financing_status": "CONFIRMED by the buyer on 2026-11-20: expects to buy with a Moroccan mortgage.",
   "strategy_status": "CONFIRMED by the buyer on 2026-11-20: rental income, particularly Airbnb, as in the video.",
-  "playbook": "Buyer's instruction, 2026-11-20: follow the video's playbook exactly. Lead every analysis with the video's own 'analyse the deal' calculation (the ★ section), using a fixed rate at today's market level. Show the checked version beside it."
+  "playbook": "Buyer's instruction, 2026-11-20: follow the video's playbook exactly. Lead every analysis with the video's own 'analyse the deal' calculation (the ★ section), using a fixed rate at today's market level. Show the checked version beside it.",
+  "max_monthly_topup_home": 400,
+  "max_monthly_topup_note": "Buyer, 21 Nov 2026: happy to pay up to £400 a month out of pocket if the flat is theirs at the end of the loan. Do not call a deal a pass just because it runs at a monthly loss; test it against this limit and check the Airbnb case is robust."
 }

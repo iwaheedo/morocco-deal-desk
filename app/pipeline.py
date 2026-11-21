@@ -45,7 +45,6 @@ import mubawab  # noqa: E402
 import str_comps  # noqa: E402
 
 UA = "property-research-script/1.0 (personal, low-volume)"
-SPOT_TO_ACHIEVED = 0.82   # one-night Airbnb spot price -> year-round achieved rate for a new listing
 ASKING_RENT_HAIRCUT = 0.95
 FURNISH_PER_M2 = 1200
 OFF_PLAN = re.compile(r"en cours de construction|sur plan|hors[ -]plan|\bvefa\b", re.I)   # "livraison immédiate" and "à partir de" alone prove nothing
@@ -61,7 +60,7 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 
-_OUTBOUND = {"agenz.ma", "nominatim.openstreetmap.org"}   # besides Mubawab, the only sites this ever contacts
+_OUTBOUND = {"agenz.ma", "nominatim.openstreetmap.org", "iwaheedo.github.io"}   # besides Mubawab, the only sites this ever contacts
 
 
 class _NoRedirectElsewhere(urllib.request.HTTPRedirectHandler):
@@ -74,13 +73,42 @@ class _NoRedirectElsewhere(urllib.request.HTTPRedirectHandler):
 _opener = urllib.request.build_opener(_NoRedirectElsewhere)
 
 
-def _get(url, timeout=30):
+def _get(url, timeout=30, cap=4_000_000):
     parts = urllib.parse.urlsplit(url)
     if parts.scheme != "https" or (parts.hostname or "").lower() not in _OUTBOUND:
         raise urllib.error.URLError("outbound request refused: %s" % parts.hostname)
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "fr,en;q=0.8"})
     with _opener.open(req, timeout=timeout) as r:
-        return r.read(4_000_000).decode("utf-8", errors="ignore")
+        return r.read(cap).decode("utf-8", errors="ignore")
+
+
+ATLAS_URL = "https://iwaheedo.github.io/morocco-str-atlas/listings.js"   # the user's own Airbnb atlas
+_atlas = {"text": None, "at": 0.0}
+
+
+def _freshness(text):
+    """(latest date in the file's header, number of listings): which of two copies of the atlas to believe."""
+    dates = re.findall(r'"(?:updatedAt|pulledAt)":\s*"(\d{4}-\d\d-\d\d)"', text[-3000:] + text[:3000])
+    return (max(dates) if dates else "", text.count('"lat":'))
+
+
+def listings_text():
+    """The atlas's listing file: the Mac's own copy if this is the Mac; otherwise the published atlas or the copy
+    shipped with the code, whichever is newer (the shipped copy has no listing names or links)."""
+    if _LIVE_LISTINGS.exists():
+        return _LIVE_LISTINGS.read_text(encoding="utf-8"), "your atlas"
+    if not _atlas["text"] or time.time() - _atlas["at"] > 6 * 3600:
+        try:
+            text = _get(ATLAS_URL, timeout=20, cap=16_000_000)
+            if text.rstrip().endswith(("}", "};")):      # a cut-off download is no use
+                _atlas["text"], _atlas["at"] = text, time.time()
+        except Exception:
+            pass
+    bundled = ROOT / "data" / "listings.js"
+    shipped = bundled.read_text(encoding="utf-8") if bundled.exists() else None
+    if _atlas["text"] and (not shipped or _freshness(_atlas["text"]) >= _freshness(shipped)):
+        return _atlas["text"], "your atlas"
+    return (shipped, "your atlas (the copy saved with the desk)") if shipped else (None, None)
 
 
 def _json_file(path, default):
@@ -94,6 +122,8 @@ def context():
     spec = json.loads((SKILL / "assets" / "defaults.json").read_text(encoding="utf-8"))
     profile = _json_file(DATA / "profile.json", {})
     A, buyer_type, home = deal_model.resolve_assumptions(spec["assumptions"], profile)
+    A["budget_topup_mad"] = float(profile.get("max_monthly_topup_home") or 0) * A["fx_home"]
+    A["home_ccy"] = home
     market = json.loads((SKILL / "assets" / "str_market.json").read_text(encoding="utf-8"))
     return {"A": A, "buyer_type": buyer_type, "home": home, "profile": profile, "market": market,
             "defaults_as_of": spec.get("as_of")}
@@ -106,6 +136,7 @@ def profile_summary():
             "strategy": p.get("strategy") or [], "ltv": A["ltv"], "rate": A["rate"], "rate_eff": A["rate_eff"],
             "term_years": A["term_years"], "home_tax_rate": A["home_tax_rate"], "fx_home": A["fx_home"],
             "defaults_as_of": c["defaults_as_of"], "video_occ": A["video_occ"], "video_mgmt_pct": A["video_mgmt_pct"],
+            "budget_home": float(p.get("max_monthly_topup_home") or 0) or None,
             "live_progress": not DIRECT, "spreadsheet": not DIRECT}
 
 
@@ -195,6 +226,7 @@ def analyse_url(url, say=lambda msg: None):
     url = "https://www.mubawab.ma/fr/%s/%s/x" % (m_id.group(1), m_id.group(2))
     c = context()
     A = c["A"]
+    both = lambda v, unit="": "%s MAD%s (%s)" % (format(round(v), ","), unit, _money(v / A["fx_home"], c["home"]))   # every dirham figure with its home-currency twin
 
     say("Reading the advert")
     try:
@@ -246,9 +278,9 @@ def analyse_url(url, say=lambda msg: None):
     if ref and sale_stats:
         asked = sale_stats["median"] * (1 - A["asking_discount"])
         area_override = {"low": min(ref["mad_per_m2"], asked), "mid": (ref["mad_per_m2"] + asked) / 2, "high": max(ref["mad_per_m2"], asked),
-                         "basis": "Automatic: midpoint of Agenz's reference for %s (%s MAD/m², updated %s) and the median of %d comparable adverts less %d%% (%s). "
+                         "basis": "Automatic: midpoint of Agenz's reference for %s (%s, updated %s) and the median of %d comparable adverts less %d%% (%s). "
                                   "A placeholder until agents tell you what flats actually sold for."
-                                  % (ref["area"], format(ref["mad_per_m2"], ","), ref.get("updated") or "?", len(comps_sale), round(A["asking_discount"] * 100), format(round(asked), ","))}
+                                  % (ref["area"], both(ref["mad_per_m2"], " per m²"), ref.get("updated") or "?", len(comps_sale), round(A["asking_discount"] * 100), both(asked, " per m²"))}
 
     # -- long-let comparables
     say("Finding similar flats to rent")
@@ -285,23 +317,61 @@ def analyse_url(url, say=lambda msg: None):
                 break
     if not geo and city:
         geo = geocode(city, "Morocco")
-    if geo:
-        for radius in (1.0, 1.5, 2.5, 6.0, 40.0):   # widen until there are enough; the last one is the whole city
-            r = str_comps.comps(geo["lat"], geo["lng"], beds=beds, radius_km=radius, min_reviews=5, file=LISTINGS)
-            if "error" in r or r.get("matches", 0) >= 8:
+    nearby_rev, r = [], None
+    ltext, lsource = listings_text()
+    if geo and ltext:
+        # widen until there are enough; the last pass is every listing the atlas holds for this city
+        for radius, only_city in ((1.0, None), (1.5, None), (2.5, None), (6.0, None), (60.0, city)):
+            r = str_comps.comps(geo["lat"], geo["lng"], beds=beds, radius_km=radius, min_reviews=3, text=ltext, city=only_city)
+            if "error" in r or sum(1 for x in r["each_listing"] if x.get("atlas_rev_month_mad")) >= 8:
                 break
-        if "error" not in r and r.get("matches", 0) >= 8 and (r.get("market") or "").lower() == _norm(city):
-            sp = r["one_night_price_mad"]
-            adr = {"bear": _round10(sp["p25"] * SPOT_TO_ACHIEVED), "base": _round10(sp["median"] * SPOT_TO_ACHIEVED), "bull": _round10(sp["p75"] * SPOT_TO_ACHIEVED)}
-            adr_note = ("Automatic: %d established %s-bed Airbnb homes %s (your dashboard data, collected %s) show one-night prices of %s / %s / %s MAD "
-                        "(lower quartile / median / upper quartile). Taken down 18%% for the cleaning fee, the one-night premium and a new listing's lack of reviews."
-                        % (r["matches"], beds, ("within %.1f km of central %s" % (r["filters"]["radius_km"], area)) if r["filters"]["radius_km"] <= 6 else ("across %s — too few this size near %s" % (city, area)),
-                           r.get("collected_on"), format(sp["p25"], ","), format(sp["median"], ","), format(sp["p75"], ",")))
-            for x in r["most_established"][:8]:
-                comps_str.append({"desc": ("%s (%s★, %.2f km)" % (x["name"][:60], x.get("rating"), x["km_away"])) if x.get("name") else "%s-bed Airbnb home, %.2f km away" % (x.get("bedrooms"), x["km_away"]),
-                                  "nightly_mad": x["price_mad"],
-                                  "bedrooms": x.get("bedrooms"), "reviews": x.get("reviews"), "url": x["url"], "note": "one-night price on %s" % x.get("price_date")})
-            str_ev = {"method": "airbnb_file", "matches": r["matches"], "radius_km": r["filters"]["radius_km"], "spot_mad": sp, "collected_on": r.get("collected_on"), "centre": geo}
+    each = [x for x in r["each_listing"] if x.get("atlas_rev_month_mad")] if r and "error" not in r else []
+    if len(each) >= 8:
+        # Everything here is read off the listings themselves, the way the atlas works it out:
+        # a listing's revenue = its nightly price x its occupancy x the nights a typical host keeps the calendar open.
+        sp, oq, rq = _quart([x["price_mad"] for x in each]), _quart([x["occ"] for x in each]), _quart([x["atlas_rev_month_mad"] for x in each])
+        cal, open_n, n_each = r.get("calendar"), r.get("atlas_open_nights") or 243, len(each)
+        if cal and cal["n"] < 8:
+            cal = None
+        rv = r.get("reviews_per_year")
+        # Independent check on nights sold: reviews a year -> stays (50-70% of guests leave one) -> nights (about 3 a stay)
+        review_check = {"per_year": rv["median"], "nights_low": rv["median"] / 0.7 * 3, "nights_high": rv["median"] / 0.5 * 3} if rv else None
+        price0 = _round10(sp["median"])
+        if review_check:
+            sold = rq["median"] * 12 / price0
+            review_check["verdict"] = "lower" if review_check["nights_high"] < sold * 0.85 else "higher" if review_check["nights_low"] > sold * 1.15 else "agrees"
+        whole_city = r["filters"]["radius_km"] > 6
+        where = ("across %s (too few this size near %s)" % (city, area)) if whole_city else ("within %s km of central %s" % (("%.1f" % r["filters"]["radius_km"]).rstrip("0").rstrip("."), area))
+        size = ("%s-bed " % beds) if beds is not None else ""
+        price = _round10(sp["median"])
+        adr = {k: price for k in deal_model.SCEN}
+        # weak / typical / strong year = what the lower-quartile / middle / upper-quartile nearby listing takes,
+        # written as the share of the whole year booked at the middle price
+        occ = {k: round(min(0.95, rq[q] * 12 / (price * 365.0)), 4) for k, q in (("bear", "p25"), ("base", "median"), ("bull", "p75"))}
+        nearby_rev = sorted(x["atlas_rev_month_mad"] for x in each)
+        adr_note = ("From your atlas: %d %sAirbnb homes %s, each with a review history (collected %s). They list at %s / %s / %s a night (cheaper quarter / middle / dearer quarter). "
+                    "The sum uses the middle price. These are prices shown for one night, so a real average over the year may be a little lower."
+                    % (n_each, size, where, r.get("collected_on"), both(sp["p25"]), both(sp["median"]), both(sp["p75"])))
+        occ_note = ("From your atlas: the same %d listings are booked %d%% / %d%% / %d%% of the nights their calendar is open (weakest quarter / middle / best quarter). "
+                    "The atlas estimates each listing's figure from how fast it collects reviews, ranked against the city's measured spread, so it is an estimate, not a meter reading. "
+                    "Hosts in %s keep the calendar open about %d nights a year, which is how the atlas gets each listing's revenue: %s / %s / %s a month.%s%s Across %s, %sAirbnbs average %d%% (AirROI)."
+                    % (n_each, round(oq["p25"] * 100), round(oq["median"] * 100), round(oq["p75"] * 100), city or "this city", open_n,
+                       both(rq["p25"]), both(rq["median"]), both(rq["p75"]),
+                       (" A second check from review counts %s: the middle listing collects about %d reviews a year, which points to roughly %d to %d nights sold." % (
+                           {"agrees": "agrees", "lower": "points LOWER than that", "higher": "points higher than that"}[review_check["verdict"]],
+                           round(review_check["per_year"]), round(review_check["nights_low"], -1), round(review_check["nights_high"], -1))) if review_check else "",
+                       (" Their calendars for %s to %s are %d%% taken already (bookings plus nights the host has blocked; %d listings read)." % (cal["from"], cal["to"], round(cal["median_taken"] * 100), cal["n"])) if cal else "",
+                       (mk["city"] or city or "the city").title(), size if mk.get("bedroom_specific") else "", round(mk["occ"] * 100)))
+        for x in r["most_established"][:12]:
+            comps_str.append({"desc": ("%s (%s★, %.2f km away)" % (x["name"][:60], x.get("rating"), x["km_away"])) if x.get("name") else "%sAirbnb home, %.2f km away" % (size, x["km_away"]),
+                              "nightly_mad": x["price_mad"], "bedrooms": x.get("bedrooms"), "reviews": x.get("reviews"), "url": x.get("url"),
+                              "occ": (x["occ"] / 100.0) if x.get("occ") is not None else None, "note": "one-night price on %s" % x.get("price_date")})
+        str_ev = {"method": "nearby_listings", "matches": n_each, "radius_km": r["filters"]["radius_km"], "whole_city": whole_city, "where": where,
+                  "price_mad": sp, "occupancy_open_nights": oq, "open_nights": open_n, "revenue_month_mad": rq,
+                  "potential_month_mad": (r.get("atlas_potential_month_mad") or {}).get("median"), "top_quarter_occupancy": r.get("atlas_top_quarter_occupancy"),
+                  "review_check": review_check, "nights_year": {k: rq[q] * 12 / price for k, q in (("bear", "p25"), ("base", "median"), ("bull", "p75"))},
+                  "calendar": cal, "collected_on": r.get("collected_on"), "centre": geo, "source": lsource,
+                  "atlas_url": "https://iwaheedo.github.io/morocco-str-atlas/"}
     if adr is None and searches.get("holiday_rental"):
         time.sleep(1.0)
         try:
@@ -312,16 +382,19 @@ def analyse_url(url, say=lambda msg: None):
         if len(pool) >= 4:
             q = _quart([x["price_mad"] for x in pool])
             adr = {"bear": _round10(q["p25"]), "base": _round10(q["median"]), "bull": _round10(q["p75"])}
-            adr_note = "Automatic: %d holiday-let adverts for %s-bed flats in the area on Mubawab (asking nightly prices: lower quartile / median / upper quartile). No Airbnb listing data is held for this city." % (len(pool), beds)
+            adr_note = ("NOT from nearby Airbnb listings: your atlas has no data for this city yet. Instead, %d holiday-let adverts for %s-bed flats in the area on Mubawab ask %s / %s / %s a night (cheaper quarter / middle / dearer quarter)."
+                        % (len(pool), beds, both(q["p25"]), both(q["median"]), both(q["p75"])))
             for x in pool[:8]:
                 comps_str.append({"desc": "%s, %s" % ((x.get("title") or "")[:60], x.get("location") or ""), "nightly_mad": x["price_mad"], "bedrooms": x.get("bedrooms"), "url": x["url"]})
             str_ev = {"method": "mubawab_holiday", "matches": len(pool)}
+    if str_ev.get("method") != "nearby_listings":
+        flags.append({"severity": "amber", "text": "Occupancy and revenue are NOT from nearby Airbnb listings: your atlas has no listings near this flat yet (it covers %s). They rest on the %s average (%d%% booked) and holiday-let adverts, which is much weaker evidence. Add this city to the atlas before trusting them."
+                      % (", ".join((r or {}).get("cities_in_file") or ["Rabat"]), (mk["city"] or "national").title(), round(mk["occ"] * 100))})
     if adr is None:
         base = mk["adr_mad"]
         adr = {"bear": _round10(base * 0.8), "base": _round10(base), "bull": _round10(base * 1.2)}
-        adr_note = "Automatic and WEAK: no local comparables found, so this is the %s market's average nightly rate (AirROI) ± 20%%. Check real Airbnb listings before trusting it." % (mk["city"] or "national")
+        adr_note = "WEAK: no local comparables found, so this is the %s market's average nightly rate (AirROI), %s, ± 20%%. Check real Airbnb listings before trusting it." % (mk["city"] or "national", both(base))
         str_ev = {"method": "market_average"}
-        flags.append({"severity": "amber", "text": "Nightly rate is a city-wide average, not local evidence."})
     evidence["str"] = str_ev
     evidence["market"] = mk
 
@@ -359,9 +432,10 @@ def analyse_url(url, say=lambda msg: None):
             "surface_m2": surface, "surface_note": "From the advert. Confirm on the title certificate.",
             "furniture_value_mad": 0, "syndic_mad_month": None, "agent_fee_pct": None,
             "comps_sale": comps_sale, "furnishing_mad": furnishing,
-            "furnishing_note": "" if furnished else "ASSUMPTION: %s MAD/m² to furnish and equip for letting; the advert does not mention furniture." % format(FURNISH_PER_M2, ","),
+            "furnishing_note": "" if furnished else "ASSUMPTION: %s to furnish and equip for letting; the advert does not mention furniture." % both(FURNISH_PER_M2, " per m²"),
             "renovation_mad": 0,
-            "str": {"comps": comps_str, "adr_mad": adr, "adr_note": adr_note, "occupancy": occ, "occupancy_note": occ_note},
+            "str": {"comps": comps_str, "adr_mad": adr, "adr_note": adr_note, "occupancy": occ, "occupancy_note": occ_note, "nearby_revenue_month_mad": nearby_rev,
+                    "potential_month_mad": str_ev.get("potential_month_mad")},
             "notes": "%s: automatic first pass from the web app." % today,
         }
         if area_override:
@@ -377,16 +451,20 @@ def analyse_url(url, say=lambda msg: None):
         if off_plan:
             flags.insert(1, {"severity": "red", "text": "Reads as off-plan or still under construction: staged payments, developer risk, no rent until delivery and normally no mortgage until the title exists."})
         financing = (c["profile"].get("financing") or "undecided")
-        if financing in ("mortgage", "undecided") and m0["c_profit"] < 0:
-            flags.append({"severity": "red", "text": "On a %d%% mortgage the flat loses about %s%s a month in the checked base case (the video's way shows %s%s%s)."
-                          % (round(A["ltv"] * 100), _sym(c["home"]), format(round(-m0["c_profit"] / fx), ","), "+" if m0["v_profit"] >= 0 else "−", _sym(c["home"]), format(round(abs(m0["v_profit"]) / fx), ","))})
+        x0 = _extras(rec, A)
+        budget, top = x0["budget_mad"], x0["topup"]
+        money = lambda v: _money(v / fx, c["home"])
+        if financing in ("mortgage", "undecided") and top["base"] > budget:
+            flags.append({"severity": "red", "text": "Needs about %s a month from your own pocket in a typical year%s." % (money(top["base"]), (", %s over your %s limit" % (money(top["base"] - budget), money(budget))) if budget else "")})
+        elif financing in ("mortgage", "undecided") and top["bear"] > budget and budget:
+            flags.append({"severity": "amber", "text": "Inside your %s limit in a typical year (%s a month) but a weak year would need %s." % (money(budget), money(top["base"]), money(top["bear"]))})
         if ref and m0.get("ask_m2") and m0["ask_m2"] > ref["mad_per_m2"] * 1.2:
-            flags.append({"severity": "amber", "text": "Asking %s MAD/m² is %d%% above Agenz's reference for %s (%s)."
-                          % (format(round(m0["ask_m2"]), ","), round((m0["ask_m2"] / ref["mad_per_m2"] - 1) * 100), ref["area"], format(ref["mad_per_m2"], ","))})
+            flags.append({"severity": "amber", "text": "Asking %s is %d%% above Agenz's reference for %s, %s."
+                          % (both(m0["ask_m2"], " per m²"), round((m0["ask_m2"] / ref["mad_per_m2"] - 1) * 100), ref["area"], both(ref["mad_per_m2"], " per m²"))})
         med = m0.get("comp_median_m2")
         if med and m0.get("ask_m2") and (m0["ask_m2"] > 2 * med or m0["ask_m2"] < 0.4 * med):
-            flags.insert(1, {"severity": "red", "text": "The asking price works out at %s MAD per m² against about %s for similar flats nearby. That is so far out that the advert probably has a typing error in the price or the size. Confirm both with the agent before reading anything into these numbers."
-                             % (format(round(m0["ask_m2"]), ","), format(round(med), ","))})
+            flags.insert(1, {"severity": "red", "text": "The asking price works out at %s against about %s for similar flats nearby. That is so far out that the advert probably has a typing error in the price or the size. Confirm both with the agent before reading anything into these numbers."
+                             % (both(m0["ask_m2"], " per m²"), both(med, " per m²"))})
         if m0.get("asking_over_fair") and m0["asking_over_fair"] > 0.15 and not (med and m0["ask_m2"] > 2 * med):
             flags.append({"severity": "amber", "text": "The sums assume you negotiate the price down to the fair value, %d%% below asking. If the seller will not move that far, every number here gets worse."
                           % round((1 - m0["price"] / m0["asking"]) * 100)})
@@ -395,22 +473,46 @@ def analyse_url(url, say=lambda msg: None):
         flags.append({"severity": "amber", "text": "Short-let licensing for private flats is unsettled nationally and likely to tighten; this building's own rules are unknown."})
         flags.append({"severity": "amber", "text": "Service charge (syndic) and building age are not in the advert; the service charge is estimated."})
         if not furnished:
-            flags.append({"severity": "amber", "text": "Furnishing budget is an assumption (%s MAD)." % format(furnishing, ",")})
+            flags.append({"severity": "amber", "text": "Furnishing budget is an assumption: %s." % both(furnishing)})
         if not surface:
             flags.insert(1, {"severity": "red", "text": "No surface in the advert: the price cannot be checked per m²."})
         unknowns = ["Is it titled (titre foncier)? Title number?", "Exact address / map pin", "Year the building was built",
                     "Monthly syndic charge and what it covers", "Surface on the title", "Do the building rules allow short-term letting?",
                     "Agent's buyer-side commission", "Is any furniture or equipment included?"]
         rec["flags"], rec["unknowns"] = flags, unknowns
+        years = int(A["term_years"])
+        share = (x0["nearby_ok"] / x0["nearby_n"]) if x0.get("nearby_n") else None
+        nearby_txt = (" %d of the %d nearby Airbnbs take enough to keep you inside it." % (x0["nearby_ok"], x0["nearby_n"])) if share is not None and budget else ""
         if off_plan and financing != "cash":
-            rec["verdict"], why = "pass", "Off-plan, and you are buying with a mortgage."
-        elif financing in ("mortgage", "undecided") and m0["c_profit"] < 0:
-            rec["verdict"] = "pass"
-            why = ("The video's way shows %s a month; with realistic occupancy and the costs it leaves out, the flat loses %s a month on the mortgage."
-                   % (_money(m0["v_profit"] / fx, c["home"], sign=True), _money(-m0["c_profit"] / fx, c["home"])))
+            rec["verdict"], rec["verdict_label"] = "pass", "OFF-PLAN"
+            why = "It is off-plan or still being built, and you are buying with a mortgage: banks do not normally lend until the title exists, and there is no rent until it is finished."
+        elif financing == "cash":
+            rec["verdict"], rec["verdict_label"] = "conditional", "CHECK THE TITLE"
+            why = "Bought for cash it would earn about %s a month after all costs and tax." % money(m0["net"]["base"] / 12)
+        elif top["base"] <= budget and top["bear"] <= budget * 1.25 and (share is None or share >= 0.5) and (x0.get("topup_at_asking") or 0) > budget:
+            rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET IF YOU NEGOTIATE"
+            why = ("At a price of %s, %d%% under the asking price, you would put in about %s a month, inside your %s limit; a weak year would need %s.%s At the full asking price it would be %s a month, over the limit. After %d years the flat is yours and should then pay you about %s a month."
+                   % (both(m0["price"]), round((1 - m0["price"] / m0["asking"]) * 100), money(top["base"]), money(budget), money(top["bear"]), nearby_txt, money(x0["topup_at_asking"]), years, money(m0["net"]["base"] / 12)))
+        elif top["base"] <= budget and top["bear"] <= budget * 1.25 and (share is None or share >= 0.5):
+            rec["verdict"], rec["verdict_label"] = "pursue", "WITHIN YOUR BUDGET"
+            why = ("You would put in about %s a month (your limit is %s); a weak year would need %s.%s After %d years the flat is yours and should then pay you about %s a month."
+                   % (money(top["base"]), money(budget), money(top["bear"]), nearby_txt, years, money(m0["net"]["base"] / 12))) if top["base"] > 0 else \
+                  ("It pays for itself: about %s a month left over in a typical year; a weak year would need %s from you.%s After %d years the flat is yours."
+                   % (money(m0["c_profit"]), money(top["bear"]), nearby_txt, years))
+        elif top["base"] <= budget:
+            rec["verdict"], rec["verdict_label"] = "conditional", "TIGHT"
+            why = ("A typical year needs about %s a month from you, inside your %s limit, but a weak year would need %s.%s After %d years the flat is yours."
+                   % (money(top["base"]), money(budget), money(top["bear"]), nearby_txt, years))
         else:
-            rec["verdict"] = "conditional"
-            why = "The numbers hold in the base case; nothing is certain until the title is confirmed and sold prices are checked."
+            rec["verdict"], rec["verdict_label"] = "pass", "OVER YOUR BUDGET"
+            fix = []
+            if x0.get("deposit_for_budget"):
+                fix.append("a deposit of about %s (%d%% of the price)" % (money(x0["deposit_for_budget"]), round(x0["deposit_share_for_budget"] * 100)))
+            if x0.get("price_for_budget"):
+                fix.append("a price of about %s" % both(x0["price_for_budget"]))
+            why = ("A typical year needs about %s a month from you, %s over your %s limit.%s%s"
+                   % (money(top["base"]), money(top["base"] - budget), money(budget), nearby_txt, (" It would fit with " + " or ".join(fix) + ".") if fix else ""))
+        why = "The video's sum shows %s a month. " % _money(m0["v_profit"] / fx, c["home"], sign=True) + why
         rec["verdict_reason"] = "Automatic first pass. " + why
         (DATA / "properties").mkdir(exist_ok=True)
         path.write_text(json.dumps(rec, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -476,6 +578,10 @@ def _money(x, home, sign=False):
     return s
 
 
+def _pc(x):
+    return ("%.2f" % (x * 100)).rstrip("0").rstrip(".") + "%"
+
+
 def _solve(f, lo, hi, increasing=True):
     for _ in range(60):
         mid = (lo + hi) / 2
@@ -487,21 +593,27 @@ def _solve(f, lo, hi, increasing=True):
 
 
 def _extras(rec, A):
-    """What it would take to break even, and what the flat makes with real costs at the video's occupancy."""
+    """Break-evens, the buyer's monthly limit, how many nearby listings earn enough, and the road to owning it outright."""
     import copy
 
-    def cf(**kw):
-        p = copy.deepcopy(rec)
+    def calc(**kw):
+        p, a = copy.deepcopy(rec), dict(A)
         if "occ" in kw:
             p["str"]["occupancy"] = {s: kw["occ"] for s in deal_model.SCEN}
         if "adr" in kw:
             p["str"]["adr_mad"] = {s: kw["adr"] for s in deal_model.SCEN}
         if "price" in kw:
             p["model_price_mad"] = kw["price"]
-        return deal_model.compute(p, A)["cf_m"]["base"] / 12
+        if "ltv" in kw:
+            a["ltv"] = kw["ltv"]
+        if "term" in kw:
+            a["term_years"] = kw["term"]
+        return deal_model.compute(p, a)
 
-    out = {"real_costs_at_video_occ": cf(occ=A["video_occ"])}
+    cf = lambda **kw: calc(**kw)["cf_m"]["base"] / 12
     base = deal_model.compute(rec, A)
+    budget = float(A.get("budget_topup_mad") or 0)
+    out = {"real_costs_at_video_occ": cf(occ=A["video_occ"])}
     out["be_adr_at_base_occ"] = _solve(lambda x: cf(adr=x), 100, 20000) if base["occ"]["base"] > 0 else None
     out["be_price"] = _solve(lambda x: cf(price=x), 50000, max(base["asking"], 100000) * 1.2, increasing=False) if cf(price=50000) > 0 else None
     out["gap"] = [
@@ -515,6 +627,69 @@ def _extras(rec, A):
         ["Home-country tax", base["c_home_tax"]],
     ]
     out["gap"].sort(key=lambda r: -r[1])
+
+    # -- the monthly limit
+    out["budget_mad"] = budget
+    out["topup"] = {s: max(0.0, -base["cf_m_month"][s]) for s in deal_model.SCEN}
+    price_night = base["adr"]["base"]
+    if price_night > 0:
+        occ_need = _solve(lambda x: cf(occ=x) + budget, 0.0, 1.6)
+        out["occ_for_budget"] = occ_need
+        out["rev_for_budget"] = price_night * 365 * occ_need / 12
+        revs = (rec.get("str") or {}).get("nearby_revenue_month_mad") or []
+        out["nearby_n"] = len(revs)
+        out["nearby_ok"] = sum(1 for v in revs if v >= out["rev_for_budget"])
+    out["topup_at_asking"] = max(0.0, -cf(price=base["asking"])) if base["asking"] else None
+    pot = (rec.get("str") or {}).get("potential_month_mad")
+    if pot and price_night > 0:
+        v = cf(occ=pot * 12 / (price_night * 365.0))
+        out["potential"] = {"rev": pot, "topup": max(0.0, -v), "left": max(0.0, v)}
+    out["stress"] = {"occ_down": max(0.0, -base["st_occ_cf"] / 12), "price_down": max(0.0, -base["st_adr_cf"] / 12), "both": max(0.0, -base["st_both_cf"] / 12),
+                     "occ_pts": A["stress_occ_pts"], "price_pct": A["stress_adr_pct"]}
+    out["empty_month"] = base["c_mort"] + A["utilities_month"] + A["internet_month"] + A["subs_month"] + base["c_syndic"] + base["insurance_y"] / 12
+    if base["rent"]["base"] > 0:        # plan B: an ordinary long let if short lets are stopped
+        out["plan_b"] = {"rent": base["rent"]["base"], "topup": max(0.0, -base["ltr_cf_m"]["base"] / 12), "left": max(0.0, base["ltr_cf_m"]["base"] / 12)}
+    price, loan0 = base["price"], base["loan"]
+    fee = max(price * A["notary_pct"], A["notary_min"])
+    tw = lambda v: "%s MAD (%s)" % (format(round(v), ","), _money(v / A["fx_home"], A.get("home_ccy") or "GBP"))
+    out["notary"] = {
+        "price": price,
+        "lines": [["Registration duty (%s of the price), passed to the tax office" % _pc(A["reg_duty_pct"]), base["reg"]],
+                  ["Land registry (%s of the price) to put the flat in your name" % _pc(A["cf_pct"]), price * A["cf_pct"]],
+                  ["Ownership certificate", A["cf_fixed"]],
+                  ["Notary's own fee (%s of the price, at least %s)" % (_pc(A["notary_pct"]), tw(A["notary_min"])), fee],
+                  ["VAT on the notary's fee (%s)" % _pc(A["notary_vat"]), fee * A["notary_vat"]],
+                  ["Stamps, copies and file costs", A["misc_fixed"]]],
+        "total": base["reg"] + base["cf"] + base["notary"] + base["misc"],
+        "mortgage_lines": [["Registering the bank's mortgage at the land registry (%s on the first %s, %s above)" % (_pc(A["mort_reg_low_pct"]), tw(A["mort_reg_slice"]), _pc(A["mort_reg_pct"])),
+                            min(loan0, A["mort_reg_slice"]) * A["mort_reg_low_pct"] + max(0.0, loan0 - A["mort_reg_slice"]) * A["mort_reg_pct"]],
+                           ["Bank's file fee (%s of the loan)" % _pc(A["bank_fee_pct"]), loan0 * A["bank_fee_pct"]],
+                           ["Mortgage deed and certificates", A["mort_fixed"] if loan0 > 0 else 0.0]],
+        "mortgage_total": base["mort_costs"],
+    }
+    out["notary"]["share"] = out["notary"]["total"] / price if price else None
+    eg = 1500000.0      # the worked example in Wafir's 2026 fee guide, for the cross-check line
+    out["notary"]["example"] = {"price": eg, "guide_share": 0.068,
+                                "share": (eg * (A["reg_duty_pct"] + A["cf_pct"]) + A["cf_fixed"] + max(eg * A["notary_pct"], A["notary_min"]) * (1 + A["notary_vat"]) + A["misc_fixed"]) / eg}
+    if out["topup"]["base"] > budget:
+        if cf(ltv=0.0) + budget > 0:        # a smaller loan can bring it inside the limit
+            ltv = _solve(lambda x: cf(ltv=x) + budget, 0.0, A["ltv"], increasing=False)
+            out["deposit_share_for_budget"] = 1 - ltv
+            out["deposit_for_budget"] = base["price"] * (1 - ltv)
+        if cf(price=50000) + budget > 0:
+            out["price_for_budget"] = _solve(lambda x: cf(price=x) + budget, 50000, max(base["asking"], 100000) * 1.2, increasing=False)
+
+    # -- when the flat is yours
+    term, loan = int(A["term_years"]), base["loan"]
+    top = out["topup"]["base"]
+    out["term_years"] = term
+    out["topup_total"] = top * 12 * term
+    out["cash_in_total"] = base["cash_needed_m"] + out["topup_total"]
+    out["income_after_payoff_month"] = base["net"]["base"] / 12
+    out["timeline"] = [{"year": y, "loan_left": deal_model.loan_balance(A["rate_eff"], term, loan, y * 12),
+                        "paid_in": base["cash_needed_m"] + top * 12 * y, "owned_share": 1 - deal_model.loan_balance(A["rate_eff"], term, loan, y * 12) / base["price"]}
+                       for y in sorted({5, 10, 15, 20, term}) if y <= term]
+    out["terms"] = [{"years": t, "topup": max(0.0, -cf(term=t)), "repayment": calc(term=t)["c_mort"]} for t in (15, 20, 25)]
     return out
 
 
@@ -544,9 +719,10 @@ def _screening_message(rec, li):
 
 # ---------------------------------------------------------------- history
 def row_of(r):
-    m, rec, fx = r.get("metrics") or {}, r.get("record") or {}, r.get("fx_home") or 1
-    return {"run_id": r["run_id"], "at": r["at"], "title": rec.get("title"), "city": rec.get("city"), "area": rec.get("neighbourhood"),
-            "asking_mad": rec.get("asking_price_mad"), "ask_m2": m.get("ask_m2"), "verdict": rec.get("verdict"), "source": r.get("source"),
+    m, rec, fx, x = r.get("metrics") or {}, r.get("record") or {}, r.get("fx_home") or 1, r.get("extras") or {}
+    return {"run_id": r["run_id"], "fx_home": fx, "nearby_ok": x.get("nearby_ok"), "nearby_n": x.get("nearby_n"),
+            "topup_home": ((x.get("topup") or {}).get("base") / fx) if x.get("topup") else None, "at": r["at"], "title": rec.get("title"), "city": rec.get("city"), "area": rec.get("neighbourhood"),
+            "asking_mad": rec.get("asking_price_mad"), "ask_m2": m.get("ask_m2"), "verdict": rec.get("verdict"), "verdict_label": rec.get("verdict_label"), "source": r.get("source"),
             "video_profit_home": (m.get("v_profit") or 0) / fx, "checked_profit_home": (m.get("c_profit") or 0) / fx,
             "be_occ": (m.get("be_occ_m") or {}).get("base"), "home_currency": r.get("home_currency"), "url": r.get("url"),
             "failed": bool(r.get("failed")), "error": r.get("error")}
@@ -625,14 +801,16 @@ def sync(push=True, message="Update from the deal desk"):
 
 
 def export_listings(src, dst):
-    """The repository is public, so it carries only what the nightly-rate sum needs from the Airbnb file:
-    rounded position, bedrooms, review count and spot price. No listing ids, names, hosts or ratings."""
+    """Fallback copy, used only if the published atlas cannot be reached. It carries what the nearby-listing sum needs:
+    rounded position, bedrooms, review count, spot price and the atlas's occupancy and revenue estimates. No ids, names or hosts."""
     m = re.search(r"=\s*(\{.*\})\s*;?\s*$", Path(src).read_text(encoding="utf-8"), flags=re.S)
     data = json.loads(m.group(1))
     items = [{"room": i.get("room"), "lat": round(i["lat"], 3), "lng": round(i["lng"], 3), "bedrooms": i.get("bedrooms"),
-              "reviews": i.get("reviews"), "adr": i.get("adr"), "priceDate": i.get("priceDate")}
+              "reviews": i.get("reviews"), "adr": i.get("adr"), "priceDate": i.get("priceDate"), "city": i.get("city"),
+              "occ": i.get("occ"), "rev": i.get("rev"), "calOcc": i.get("calOcc"), "priceOdd": i.get("priceOdd"), "since": i.get("since")}
              for i in data.get("items", []) if i.get("lat") is not None and i.get("adr")]
-    meta = {k: data.get("meta", {}).get(k) for k in ("pulledAt", "currency", "market")}
+    items = [{k: v for k, v in i.items() if v is not None} for i in items]
+    meta = {k: data.get("meta", {}).get(k) for k in ("pulledAt", "updatedAt", "currency", "market", "calFrom", "calTo", "cities")}
     meta["note"] = "Reduced copy: positions rounded to about 100 m; no listing ids or names."
     Path(dst).write_text("// Reduced copy for the public deal desk.\nwindow.STR_LISTINGS = " + json.dumps({"meta": meta, "items": items}, separators=(",", ":")) + ";\n", encoding="utf-8")
 

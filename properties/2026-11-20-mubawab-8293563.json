@@ -24,7 +24,7 @@
   "off_plan": false,
   "seller_type": "agent",
   "asking_price_mad": 3850000,
-  "asking_note": "From the advert (read 2026-11-20).",
+  "asking_note": "From the advert (read 2026-11-21).",
   "surface_m2": 190.0,
   "surface_note": "From the advert. Confirm on the title certificate.",
   "furniture_value_mad": 0,
@@ -68,94 +68,156 @@
     }
   ],
   "furnishing_mad": 228000,
-  "furnishing_note": "ASSUMPTION: 1,200 MAD/m² to furnish and equip for letting; the advert does not mention furniture.",
+  "furnishing_note": "ASSUMPTION: 1,200 MAD per m² (£91) to furnish and equip for letting; the advert does not mention furniture.",
   "renovation_mad": 0,
   "str": {
     "comps": [
       {
-        "desc": "Beautiful apartment center rabat 3/410 (4.77★, 8.83 km)",
+        "desc": "Beautiful apartment center rabat 3/410 (4.77★, 8.83 km away)",
         "nightly_mad": 871,
         "bedrooms": 4,
         "reviews": 188,
         "url": "https://www.airbnb.co.uk/rooms/36204235",
+        "occ": 0.55,
         "note": "one-night price on 2026-11-23"
       },
       {
-        "desc": "Beautiful apartment center rabat 5/311 (4.77★, 8.74 km)",
+        "desc": "Beautiful apartment center rabat 5/311 (4.77★, 8.74 km away)",
         "nightly_mad": 838,
         "bedrooms": 4,
         "reviews": 88,
         "url": "https://www.airbnb.co.uk/rooms/51156804",
+        "occ": 0.47,
         "note": "one-night price on 2026-11-22"
       },
       {
-        "desc": "Peaceful Villa with Garden in Hay Riad (4.78★, 1.32 km)",
+        "desc": "Peaceful Villa with Garden in Hay Riad (4.78★, 1.32 km away)",
         "nightly_mad": 2018,
         "bedrooms": 4,
         "reviews": 76,
         "url": "https://www.airbnb.co.uk/rooms/926876884167429564",
+        "occ": 0.52,
         "note": "one-night price on 2026-12-14"
       },
       {
-        "desc": "Agdal Center · 4BR · Walk to Mall & Parking (4.7★, 6.21 km)",
-        "nightly_mad": 1951,
+        "desc": "Agdal Center · 4BR · Walk to Mall & Parking (4.7★, 6.21 km away)",
+        "nightly_mad": 2425,
         "bedrooms": 4,
         "reviews": 64,
         "url": "https://www.airbnb.co.uk/rooms/1041856263758090142",
-        "note": "one-night price on 2026-11-22"
+        "occ": 0.52,
+        "note": "one-night price on 2026-11-21"
       },
       {
-        "desc": "House overlooking the Haut-Agdal forest | Swimming pool & ga (4.68★, 5.79 km)",
+        "desc": "House overlooking the Haut-Agdal forest | Swimming pool & ga (4.68★, 5.79 km away)",
         "nightly_mad": 1543,
         "bedrooms": 4,
         "reviews": 22,
         "url": "https://www.airbnb.co.uk/rooms/1118836133321804057",
+        "occ": 0.37,
         "note": "one-night price on 2027-01-04"
       },
       {
-        "desc": "Dar Azami (4.38★, 9.35 km)",
-        "nightly_mad": 1421,
+        "desc": "Dar Azami (4.38★, 9.35 km away)",
+        "nightly_mad": 1271,
         "bedrooms": 4,
         "reviews": 13,
         "url": "https://www.airbnb.co.uk/rooms/1285498699944855880",
-        "note": "one-night price on 2026-11-25"
+        "occ": 0.35,
+        "note": "one-night price on 2026-12-01"
       },
       {
-        "desc": "PEACE house, 4-bedroom in the heart of Rabat (4.56★, 9.20 km)",
-        "nightly_mad": 2159,
+        "desc": "PEACE house, 4-bedroom in the heart of Rabat (4.56★, 9.20 km away)",
+        "nightly_mad": 2161,
         "bedrooms": 4,
         "reviews": 9,
         "url": "https://www.airbnb.co.uk/rooms/657056443058698240",
-        "note": "one-night price on 2026-11-21"
+        "occ": 0.28,
+        "note": "one-night price on 2026-12-01"
       },
       {
-        "desc": "Three-room Panorama apartment with a sea view (4.29★, 10.96 km)",
+        "desc": "Three-room Panorama apartment with a sea view (4.29★, 10.96 km away)",
         "nightly_mad": 606,
         "bedrooms": 4,
         "reviews": 7,
         "url": "https://www.airbnb.co.uk/rooms/1119434959205169752",
+        "occ": 0.29,
         "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Mausoleum view · 4 bedrooms · Balcony · Parking · 24/7 (5★, 9.62 km away)",
+        "nightly_mad": 1301,
+        "bedrooms": 4,
+        "reviews": 6,
+        "url": "https://www.airbnb.co.uk/rooms/1801425088606998326",
+        "occ": 0.54,
+        "note": "one-night price on 2026-11-22"
+      },
+      {
+        "desc": "Quiétude Apartment (5★, 3.65 km away)",
+        "nightly_mad": 1614,
+        "bedrooms": 4,
+        "reviews": 4,
+        "url": "https://www.airbnb.co.uk/rooms/1086094717574286094",
+        "occ": 0.26,
+        "note": "one-night price on 2026-11-21"
+      },
+      {
+        "desc": "Comfortable Apartment in Rabat (3.33★, 2.62 km away)",
+        "nightly_mad": 656,
+        "bedrooms": 4,
+        "reviews": 3,
+        "url": "https://www.airbnb.co.uk/rooms/1267432498298858941",
+        "occ": 0.26,
+        "note": "one-night price on 2026-11-20"
+      },
+      {
+        "desc": "Villa with a Moroccan touch (3★, 7.72 km away)",
+        "nightly_mad": 1816,
+        "bedrooms": 4,
+        "reviews": 3,
+        "url": "https://www.airbnb.co.uk/rooms/1020687873378647086",
+        "occ": 0.25,
+        "note": "one-night price on 2026-11-20"
       }
     ],
     "adr_mad": {
-      "bear": 710,
-      "base": 1170,
-      "bull": 1600
+      "bear": 1540,
+      "base": 1540,
+      "bull": 1540
     },
-    "adr_note": "Automatic: 9 established 4-bed Airbnb homes across Rabat — too few this size near Riyad (your dashboard data, collected 2026-11-20) show one-night prices of 871 / 1,421 / 1,951 MAD (lower quartile / median / upper quartile). Taken down 18% for the cleaning fee, the one-night premium and a new listing's lack of reviews.",
+    "adr_note": "From your atlas: 15 4-bed Airbnb homes across Rabat (too few this size near Riyad), each with a review history (collected 2026-11-20). They list at 1,071 MAD (£81) / 1,543 MAD (£117) / 1,888 MAD (£144) a night (cheaper quarter / middle / dearer quarter). The sum uses the middle price. These are prices shown for one night, so a real average over the year may be a little lower.",
     "occupancy": {
-      "bear": 0.35,
-      "base": 0.45,
-      "bull": 0.57
+      "bear": 0.1877,
+      "base": 0.2172,
+      "bull": 0.2809
     },
-    "occupancy_note": "Automatic: Rabat 4-bed average occupancy 35% (AirROI, 12 months to Oct 2026) as the bear case; +10 points for an always-available managed flat (base); +22 points, about the top quarter of listings (bull)."
+    "occupancy_note": "From your atlas: the same 15 listings are booked 28% / 35% / 50% of the nights their calendar is open (weakest quarter / middle / best quarter). The atlas estimates each listing's figure from how fast it collects reviews, ranked against the city's measured spread, so it is an estimate, not a meter reading. Hosts in Rabat keep the calendar open about 243 nights a year, which is how the atlas gets each listing's revenue: 8,794 MAD (£669) / 10,172 MAD (£773) / 13,159 MAD (£1,000) a month. A second check from review counts points LOWER than that: the middle listing collects about 6 reviews a year, which points to roughly 30 to 40 nights sold. Across Rabat, 4-bed Airbnbs average 35% (AirROI).",
+    "nearby_revenue_month_mad": [
+      3504,
+      3546,
+      7956,
+      8659,
+      8930,
+      9345,
+      9748,
+      10172,
+      10613,
+      11529,
+      12125,
+      14193,
+      15996,
+      21450,
+      25480
+    ],
+    "potential_month_mad": 29107.655705666668
   },
-  "notes": "2026-11-20: automatic first pass from the web app.",
+  "notes": "2026-11-21: automatic first pass from the web app.",
   "area_price_per_m2": {
     "low": 18609,
     "mid": 18988.04430379747,
     "high": 19367.088607594935,
-    "basis": "Automatic: midpoint of Agenz's reference for Riyad (18,609 MAD/m², updated 29/01/2026) and the median of 5 comparable adverts less 10% (19,367). A placeholder until agents tell you what flats actually sold for."
+    "basis": "Automatic: midpoint of Agenz's reference for Riyad (18,609 MAD per m² (£1,415), updated 29/01/2026) and the median of 5 comparable adverts less 10% (19,367 MAD per m² (£1,472)). A placeholder until agents tell you what flats actually sold for."
   },
   "flags": [
     {
@@ -164,7 +226,7 @@
     },
     {
       "severity": "red",
-      "text": "On a 70% mortgage the flat loses about £965 a month in the checked base case (the video's way shows +£516)."
+      "text": "Needs about £1,105 a month from your own pocket in a typical year, £705 over your £400 limit."
     },
     {
       "severity": "amber",
@@ -176,7 +238,7 @@
     },
     {
       "severity": "amber",
-      "text": "Furnishing budget is an assumption (228,000 MAD)."
+      "text": "Furnishing budget is an assumption: 228,000 MAD (£17,333)."
     }
   ],
   "unknowns": [
@@ -190,5 +252,6 @@
     "Is any furniture or equipment included?"
   ],
   "verdict": "pass",
-  "verdict_reason": "Automatic first pass. The video's way shows +£516 a month; with realistic occupancy and the costs it leaves out, the flat loses £965 a month on the mortgage."
+  "verdict_label": "OVER YOUR BUDGET",
+  "verdict_reason": "Automatic first pass. The video's sum shows +£1,047 a month. A typical year needs about £1,105 a month from you, £705 over your £400 limit. 0 of the 15 nearby Airbnbs take enough to keep you inside it. It would fit with a deposit of about £196,506 (72% of the price) or a price of about 1,461,273 MAD (£111,090)."
 }

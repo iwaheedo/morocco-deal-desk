@@ -130,7 +130,7 @@ No wealth tax; no inheritance or gift tax (1% registration on a post-death inven
 ## 8. Home-country tax (UK resident)
 
 - The UK–Morocco treaty lets Morocco tax the rent and the gain, and the UK tax its resident on the same, with **credit for Moroccan tax** (arts 6, 13, 22). **H**
-- UK income tax applies to the UK-measured profit (actual expenses, not Morocco's 40% allowance) at 20 / 40 / 45% — announced to become 22 / 42 / 47% for property income from April 2027. Mortgage interest gets basic-rate relief only. The furnished-holiday-let regime ended in April 2025. **H/M**
+- UK income tax applies to the UK-measured profit (actual expenses, not Morocco's 40% allowance) at 20 / 40 / 45% — announced to become 22 / 42 / 47% for property income from April 2027. Mortgage interest gets basic-rate relief only: 20% of it comes off the tax bill, capped at the profit (modelled as `home_interest_relief_pct`, on the loan's average yearly interest). The furnished-holiday-let regime ended in April 2025. **H/M**
 - For a 40% taxpayer the UK bill usually exceeds the Moroccan one, so the total is roughly the UK charge. Moroccan *local* taxes are not creditable.
 - UK capital gains tax on sale: 18% / 24% of the **sterling** gain, less Moroccan tax on the gain; £3,000 annual allowance. Exchange-rate movement creates or removes UK gain. **H**
 - Report on the foreign pages of the tax return.
