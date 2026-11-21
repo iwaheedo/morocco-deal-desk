@@ -47,6 +47,8 @@ def render(run):
 
     label = r.get("verdict_label") or (r.get("verdict") or "conditional").upper()
     budget = x.get("budget_mad") or 0
+    ceiling = x.get("stretch_mad") or budget
+    flex = ceiling > budget + 0.5
     top = x.get("topup") or {k: max(0.0, -m["cf_m_month"][k]) for k in ("bear", "base", "bull")}
     nights = 365 * m["occ"]["base"] / 12
     L = ["# %s — %s" % (r.get("title") or "Flat", label), "", (r.get("verdict_reason") or ""), ""]
@@ -56,7 +58,7 @@ def render(run):
     L.append("")
     L.append("Loan: %s of the price over %s years, fixed %s (%s with VAT on interest). Price used: %s.%s"
              % (_pct(t["ltv"]), t["term_years"], _pct(t["rate"], 2), _pct(t["rate_eff"], 2), both(m["price"]),
-                (" Your limit: %s a month out of pocket (%s MAD)." % (home(budget), _n(budget))) if budget else ""))
+                (" Your guide: %s a month out of pocket (%s MAD)%s." % (home(budget), _n(budget), (", up to %s (%s MAD)" % (home(ceiling), _n(ceiling))) if flex else "")) if budget else ""))
 
     # ---- buying
     N = x.get("notary")
@@ -116,7 +118,7 @@ def render(run):
     # ---- the limit, robustness, the road to owning it
     if x.get("topup") is not None:
         if budget:
-            L += ["", "## Against your limit of %s a month" % home(budget), "", "| | |", "|---|---|",
+            L += ["", "## Against your guide of %s a month%s" % (home(budget), (" (up to %s)" % home(ceiling)) if flex else ""), "", "| | |", "|---|---|",
                   "| Typical year | %s |" % put_in(top["base"]), "| Weak year | %s |" % put_in(top["bear"]), "| Strong year | %s |" % put_in(top["bull"])]
             if x.get("topup_at_asking") is not None and abs(m["price"] - m["asking"]) > 1:
                 L.append("| Typical year at the full asking price | %s |" % put_in(x["topup_at_asking"]))
@@ -126,6 +128,9 @@ def render(run):
             L.append("| Money the flat must take each month to keep you at %s | %s |" % (home(budget), both(x["rev_for_budget"])))
         if x.get("nearby_n"):
             L.append("| Nearby Airbnbs that take at least that | **%d of %d** |" % (x["nearby_ok"], x["nearby_n"]))
+            if flex and x.get("rev_for_stretch") is not None:
+                L += ["| Money it must take to keep you at %s, the most you allow | %s |" % (home(ceiling), both(x["rev_for_stretch"])),
+                      "| Nearby Airbnbs that take at least that | **%d of %d** |" % (x["nearby_ok_stretch"], x["nearby_n"])]
         else:
             L.append("| Nearby Airbnbs that take at least that | none in your atlas near this flat |")
         if st.get("occ_pts"):
@@ -152,7 +157,7 @@ def render(run):
             if x.get("price_for_budget"):
                 fix.append("a price of %s" % both(x["price_for_budget"]))
             if fix:
-                L += ["", "What would bring it inside your limit: " + " or ".join(fix) + "."]
+                L += ["", "What would bring it down to %s a month: " % home(x.get("fit_target_mad") or budget) + " or ".join(fix) + "."]
 
     if x.get("gap"):
         L += ["", "## Why the video's answer is %s a month higher" % both(sum(g[1] for g in x["gap"])), "", "| | A month |", "|---|---:|"]

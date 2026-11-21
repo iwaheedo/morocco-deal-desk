@@ -314,10 +314,6 @@
     },
     {
       "severity": "amber",
-      "text": "Inside your £400 limit in a typical year (£334 a month) but a weak year would need £439."
-    },
-    {
-      "severity": "amber",
       "text": "Asking 22,892 MAD per m² (£1,740) is 44% above Agenz's reference for Agdal, 15,889 MAD per m² (£1,208)."
     },
     {
@@ -347,7 +343,7 @@
     "Agent's buyer-side commission",
     "Is any furniture or equipment included?"
   ],
-  "verdict": "conditional",
-  "verdict_label": "WITHIN BUDGET IF YOU NEGOTIATE",
-  "verdict_reason": "Automatic first pass. The video's sum shows +£951 a month. At a price of 1,655,330 MAD (£125,842), 13% under the asking price, you would put in about £334 a month, inside your £400 limit; a weak year would need £439. 32 of the 52 nearby Airbnbs take enough to keep you inside it. At the full asking price it would be £415 a month, over the limit. After 25 years the flat is yours and should then pay you about £168 a month."
+  "verdict": "pursue",
+  "verdict_label": "WITHIN YOUR BUDGET",
+  "verdict_reason": "Automatic first pass. The video's sum shows +£951 a month. You would put in about £334 a month (your guide is £400); a weak year would need £439 (inside your 20% margin). That is at a price of 1,655,330 MAD (£125,842), 13% under asking; at the full asking price it would be £415 a month (inside your 20% margin). 32 of the 52 nearby Airbnbs take enough to keep you at £400 or less, 43 of them at £480 or less. After 25 years the flat is yours and should then pay you about £168 a month."
 }

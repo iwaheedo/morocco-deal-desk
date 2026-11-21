@@ -226,7 +226,7 @@
     },
     {
       "severity": "red",
-      "text": "Needs about £1,105 a month from your own pocket in a typical year, £705 over your £400 limit."
+      "text": "Needs about £1,105 a month from your own pocket in a typical year, £625 more than the £480 you allow at most (£400, give or take 20%)."
     },
     {
       "severity": "amber",
@@ -253,5 +253,5 @@
   ],
   "verdict": "pass",
   "verdict_label": "OVER YOUR BUDGET",
-  "verdict_reason": "Automatic first pass. The video's sum shows +£1,047 a month. A typical year needs about £1,105 a month from you, £705 over your £400 limit. 0 of the 15 nearby Airbnbs take enough to keep you inside it. It would fit with a deposit of about £196,506 (72% of the price) or a price of about 1,461,273 MAD (£111,090)."
+  "verdict_reason": "Automatic first pass. The video's sum shows +£1,047 a month. A typical year needs about £1,105 a month from you, £625 more than the £480 you allow at most (£400, give or take 20%). 0 of the 15 nearby Airbnbs take enough to keep you at £400 or less, 0 of them at £480 or less. To get it down to £480 a month it would take a deposit of about £183,538 (67% of the price) or a price of about 1,704,948 MAD (£129,614)."
 }

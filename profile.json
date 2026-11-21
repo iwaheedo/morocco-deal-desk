@@ -34,5 +34,6 @@
   "strategy_status": "CONFIRMED by the buyer on 2026-11-20: rental income, particularly Airbnb, as in the video.",
   "playbook": "Buyer's instruction, 2026-11-20: follow the video's playbook exactly. Lead every analysis with the video's own 'analyse the deal' calculation (the ★ section), using a fixed rate at today's market level. Show the checked version beside it.",
   "max_monthly_topup_home": 400,
-  "max_monthly_topup_note": "Buyer, 21 Nov 2026: happy to pay up to £400 a month out of pocket if the flat is theirs at the end of the loan. Do not call a deal a pass just because it runs at a monthly loss; test it against this limit and check the Airbnb case is robust."
+  "max_monthly_topup_note": "Buyer, 21 Nov 2026: happy to pay about £400 a month out of pocket if the flat is theirs at the end of the loan; the figure is indicative, \"plus minus 20%\", so up to about £480 is acceptable. Do not call a deal a pass just because it runs at a monthly loss; test it against this range and check the Airbnb case is robust.",
+  "max_monthly_topup_flex": 0.2
 }

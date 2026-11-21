@@ -123,6 +123,7 @@ def context():
     profile = _json_file(DATA / "profile.json", {})
     A, buyer_type, home = deal_model.resolve_assumptions(spec["assumptions"], profile)
     A["budget_topup_mad"] = float(profile.get("max_monthly_topup_home") or 0) * A["fx_home"]
+    A["budget_flex"] = max(0.0, float(profile.get("max_monthly_topup_flex") or 0))     # the limit is a guide: this much over it is still acceptable
     A["home_ccy"] = home
     market = json.loads((SKILL / "assets" / "str_market.json").read_text(encoding="utf-8"))
     return {"A": A, "buyer_type": buyer_type, "home": home, "profile": profile, "market": market,
@@ -136,7 +137,7 @@ def profile_summary():
             "strategy": p.get("strategy") or [], "ltv": A["ltv"], "rate": A["rate"], "rate_eff": A["rate_eff"],
             "term_years": A["term_years"], "home_tax_rate": A["home_tax_rate"], "fx_home": A["fx_home"],
             "defaults_as_of": c["defaults_as_of"], "video_occ": A["video_occ"], "video_mgmt_pct": A["video_mgmt_pct"],
-            "budget_home": float(p.get("max_monthly_topup_home") or 0) or None,
+            "budget_home": float(p.get("max_monthly_topup_home") or 0) or None, "budget_flex": float(p.get("max_monthly_topup_flex") or 0),
             "live_progress": not DIRECT, "spreadsheet": not DIRECT}
 
 
@@ -490,12 +491,16 @@ def analyse_url(url, say=lambda msg: None):
             flags.insert(1, {"severity": "red", "text": "Reads as off-plan or still under construction: staged payments, developer risk, no rent until delivery and normally no mortgage until the title exists."})
         financing = (c["profile"].get("financing") or "undecided")
         x0 = _extras(rec, A)
-        budget, top = x0["budget_mad"], x0["topup"]
+        budget, ceiling, top = x0["budget_mad"], x0["stretch_mad"], x0["topup"]
         money = lambda v: _money(v / fx, c["home"])
-        if financing in ("mortgage", "undecided") and top["base"] > budget:
-            flags.append({"severity": "red", "text": "Needs about %s a month from your own pocket in a typical year%s." % (money(top["base"]), (", %s over your %s limit" % (money(top["base"] - budget), money(budget))) if budget else "")})
-        elif financing in ("mortgage", "undecided") and top["bear"] > budget and budget:
-            flags.append({"severity": "amber", "text": "Inside your %s limit in a typical year (%s a month) but a weak year would need %s." % (money(budget), money(top["base"]), money(top["bear"]))})
+        flex_pc = round(A["budget_flex"] * 100)
+        rng = ("your %s guide" % money(budget)) if ceiling <= budget else ("your %s guide, give or take %d%%" % (money(budget), flex_pc))
+        if financing in ("mortgage", "undecided") and budget and top["base"] > ceiling:
+            flags.append({"severity": "red", "text": "Needs about %s a month from your own pocket in a typical year, %s more than %s." % (money(top["base"]), money(top["base"] - ceiling), ("the %s you allow at most (%s, give or take %d%%)" % (money(ceiling), money(budget), flex_pc)) if ceiling > budget else rng)})
+        elif financing in ("mortgage", "undecided") and budget and top["base"] > budget:
+            flags.append({"severity": "amber", "text": "Needs about %s a month in a typical year: above your %s guide, but inside the %d%% margin you allow (up to %s)." % (money(top["base"]), money(budget), flex_pc, money(ceiling))})
+        elif financing in ("mortgage", "undecided") and budget and top["bear"] > ceiling:
+            flags.append({"severity": "amber", "text": "Inside your %s guide in a typical year (%s a month), but a weak year would need %s, more than the %s you allow at most." % (money(budget), money(top["base"]), money(top["bear"]), money(ceiling))})
         if ref and m0.get("ask_m2") and m0["ask_m2"] > ref["mad_per_m2"] * 1.2:
             flags.append({"severity": "amber", "text": "Asking %s is %d%% above Agenz's reference for %s, %s."
                           % (both(m0["ask_m2"], " per m²"), round((m0["ask_m2"] / ref["mad_per_m2"] - 1) * 100), ref["area"], both(ref["mad_per_m2"], " per m²"))})
@@ -524,8 +529,13 @@ def analyse_url(url, say=lambda msg: None):
                     "Agent's buyer-side commission", "Is any furniture or equipment included?"]
         rec["flags"], rec["unknowns"] = flags, unknowns
         years = int(A["term_years"])
-        share = (x0["nearby_ok"] / x0["nearby_n"]) if x0.get("nearby_n") else None
-        nearby_txt = (" %d of the %d nearby Airbnbs take enough to keep you inside it." % (x0["nearby_ok"], x0["nearby_n"])) if share is not None and budget else ""
+        share = (x0["nearby_ok_stretch"] / x0["nearby_n"]) if x0.get("nearby_n") else None      # neighbours that keep you inside the top of your range
+        if share is not None and budget:
+            nearby_txt = (" %d of the %d nearby Airbnbs take enough to keep you at %s or less" % (x0["nearby_ok"], x0["nearby_n"], money(budget))) + \
+                         ((", %d of them at %s or less." % (x0["nearby_ok_stretch"], money(ceiling))) if ceiling > budget else ".")
+        else:
+            nearby_txt = ""
+        margin = lambda v: (" (inside your %d%% margin)" % flex_pc) if budget < v <= ceiling else ""
         if off_plan and financing != "cash":
             rec["verdict"], rec["verdict_label"] = "pass", "OFF-PLAN"
             why = "It is off-plan or still being built, and you are buying with a mortgage: banks do not normally lend until the title exists, and there is no rent until it is finished."
@@ -534,32 +544,47 @@ def analyse_url(url, say=lambda msg: None):
             why = "Bought for cash it would earn about %s a month after all costs and tax." % money(m0["net"]["base"] / 12)
         elif str_ev.get("method") != "nearby_listings":
             rec["verdict"], rec["verdict_label"] = "conditional", "NO NEARBY AIRBNB DATA"
-            why = ("On city-wide averages it would need about %s a month from you (your limit is %s), but your atlas has no Airbnbs near this flat, so the income is unproven. Add the area to the atlas, or get a local manager's real figures, before relying on it."
+            why = ("On city-wide averages it would need about %s a month from you (your guide is %s), but your atlas has no Airbnbs near this flat, so the income is unproven. Add the area to the atlas, or get a local manager's real figures, before relying on it."
                    % (money(top["base"]), money(budget))) if top["base"] > 0 else \
                   ("On city-wide averages it would cover itself, but your atlas has no Airbnbs near this flat, so the income is unproven. Add the area to the atlas, or get a local manager's real figures, before relying on it.")
-        elif top["base"] <= budget and top["bear"] <= budget * 1.25 and (share is None or share >= 0.5) and (x0.get("topup_at_asking") or 0) > budget:
-            rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET IF YOU NEGOTIATE"
-            why = ("At a price of %s, %d%% under the asking price, you would put in about %s a month, inside your %s limit; a weak year would need %s.%s At the full asking price it would be %s a month, over the limit. After %d years the flat is yours and should then pay you about %s a month."
-                   % (both(m0["price"]), round((1 - m0["price"] / m0["asking"]) * 100), money(top["base"]), money(budget), money(top["bear"]), nearby_txt, money(x0["topup_at_asking"]), years, money(m0["net"]["base"] / 12)))
-        elif top["base"] <= budget and top["bear"] <= budget * 1.25 and (share is None or share >= 0.5):
-            rec["verdict"], rec["verdict_label"] = "pursue", "WITHIN YOUR BUDGET"
-            why = ("You would put in about %s a month (your limit is %s); a weak year would need %s.%s After %d years the flat is yours and should then pay you about %s a month."
-                   % (money(top["base"]), money(budget), money(top["bear"]), nearby_txt, years, money(m0["net"]["base"] / 12))) if top["base"] > 0 else \
-                  ("It pays for itself: about %s a month left over in a typical year; a weak year would need %s from you.%s After %d years the flat is yours."
-                   % (money(m0["c_profit"]), money(top["bear"]), nearby_txt, years))
-        elif top["base"] <= budget:
-            rec["verdict"], rec["verdict_label"] = "conditional", "TIGHT"
-            why = ("A typical year needs about %s a month from you, inside your %s limit, but a weak year would need %s.%s After %d years the flat is yours."
-                   % (money(top["base"]), money(budget), money(top["bear"]), nearby_txt, years))
-        else:
+        elif top["base"] > ceiling:
             rec["verdict"], rec["verdict_label"] = "pass", "OVER YOUR BUDGET"
             fix = []
             if x0.get("deposit_for_budget"):
                 fix.append("a deposit of about %s (%d%% of the price)" % (money(x0["deposit_for_budget"]), round(x0["deposit_share_for_budget"] * 100)))
             if x0.get("price_for_budget"):
                 fix.append("a price of about %s" % both(x0["price_for_budget"]))
-            why = ("A typical year needs about %s a month from you, %s over your %s limit.%s%s"
-                   % (money(top["base"]), money(top["base"] - budget), money(budget), nearby_txt, (" It would fit with " + " or ".join(fix) + ".") if fix else ""))
+            why = ("A typical year needs about %s a month from you, %s more than %s.%s%s"
+                   % (money(top["base"]), money(top["base"] - ceiling), ("the %s you allow at most (%s, give or take %d%%)" % (money(ceiling), money(budget), flex_pc)) if ceiling > budget else rng, nearby_txt,
+                      (" To get it down to %s a month it would take %s." % (money(x0["fit_target_mad"]), " or ".join(fix))) if fix else ""))
+        elif top["base"] > budget:
+            rec["verdict"], rec["verdict_label"] = "conditional", "INSIDE YOUR %d%% MARGIN" % flex_pc
+            fix = []
+            if x0.get("deposit_for_budget"):
+                fix.append("a deposit of about %s (%d%% of the price)" % (money(x0["deposit_for_budget"]), round(x0["deposit_share_for_budget"] * 100)))
+            if x0.get("price_for_budget"):
+                fix.append("a price of about %s" % both(x0["price_for_budget"]))
+            why = ("A typical year needs about %s a month from you: above your %s guide, but inside the %d%% margin you allow (up to %s). A weak year would need %s.%s%s After %d years the flat is yours and should then pay you about %s a month."
+                   % (money(top["base"]), money(budget), flex_pc, money(ceiling), money(top["bear"]), nearby_txt,
+                      (" To bring it down to %s it would take %s." % (money(budget), " or ".join(fix))) if fix else "", years, money(m0["net"]["base"] / 12)))
+        elif top["bear"] > ceiling or (share is not None and share < 0.5):
+            rec["verdict"], rec["verdict_label"] = "conditional", "TIGHT"
+            why = ("A typical year needs about %s a month from you, inside your %s guide, but a weak year would need %s%s.%s After %d years the flat is yours."
+                   % (money(top["base"]), money(budget), money(top["bear"]), (", more than the %s you allow at most" % money(ceiling)) if top["bear"] > ceiling else "", nearby_txt, years))
+        elif (x0.get("topup_at_asking") or 0) > ceiling:
+            rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET IF YOU NEGOTIATE"
+            why = ("At a price of %s, %d%% under the asking price, you would put in about %s a month, inside your %s guide; a weak year would need %s%s.%s At the full asking price it would be %s a month, more than the %s you allow at most. After %d years the flat is yours and should then pay you about %s a month."
+                   % (both(m0["price"]), round((1 - m0["price"] / m0["asking"]) * 100), money(top["base"]), money(budget), money(top["bear"]), margin(top["bear"]), nearby_txt, money(x0["topup_at_asking"]), money(ceiling), years, money(m0["net"]["base"] / 12)))
+        else:
+            rec["verdict"], rec["verdict_label"] = "pursue", "WITHIN YOUR BUDGET"
+            asking_txt = ""
+            if m0["asking"] and abs(m0["price"] - m0["asking"]) > 1 and x0.get("topup_at_asking") is not None:
+                asking_txt = " That is at a price of %s, %d%% under asking; at the full asking price it would be %s a month%s." % (
+                    both(m0["price"]), round((1 - m0["price"] / m0["asking"]) * 100), money(x0["topup_at_asking"]), margin(x0["topup_at_asking"]))
+            why = ("You would put in about %s a month (your guide is %s); a weak year would need %s%s.%s%s After %d years the flat is yours and should then pay you about %s a month."
+                   % (money(top["base"]), money(budget), money(top["bear"]), margin(top["bear"]), asking_txt, nearby_txt, years, money(m0["net"]["base"] / 12))) if top["base"] > 0 else \
+                  ("It pays for itself: about %s a month left over in a typical year; a weak year would need %s from you%s.%s%s After %d years the flat is yours."
+                   % (money(m0["c_profit"]), money(top["bear"]), margin(top["bear"]), asking_txt, nearby_txt, years))
         if rec["verdict"] == "pursue" and not m0.get("fair_mid"):      # a green light needs a checked price
             rec["verdict"], rec["verdict_label"] = "conditional", "WITHIN BUDGET, PRICE UNCHECKED"
             why += " The price itself could not be checked: there is no reliable evidence of what flats sell for in this neighbourhood, so find that out from local agents before offering."
@@ -681,6 +706,8 @@ def _extras(rec, A):
 
     # -- the monthly limit
     out["budget_mad"] = budget
+    stretch = budget * (1 + float(A.get("budget_flex") or 0))
+    out["stretch_mad"], out["budget_flex"] = stretch, float(A.get("budget_flex") or 0)
     out["topup"] = {s: max(0.0, -base["cf_m_month"][s]) for s in deal_model.SCEN}
     price_night = base["adr"]["base"]
     if price_night > 0:
@@ -690,6 +717,8 @@ def _extras(rec, A):
         revs = (rec.get("str") or {}).get("nearby_revenue_month_mad") or []
         out["nearby_n"] = len(revs)
         out["nearby_ok"] = sum(1 for v in revs if v >= out["rev_for_budget"])
+        out["rev_for_stretch"] = price_night * 365 * _solve(lambda x: cf(occ=x) + stretch, 0.0, 1.6) / 12
+        out["nearby_ok_stretch"] = sum(1 for v in revs if v >= out["rev_for_stretch"])
     out["topup_at_asking"] = max(0.0, -cf(price=base["asking"])) if base["asking"] else None
     pot = (rec.get("str") or {}).get("potential_month_mad")
     if pot and price_night > 0:
@@ -723,12 +752,15 @@ def _extras(rec, A):
     out["notary"]["example"] = {"price": eg, "guide_share": 0.068,
                                 "share": (eg * (A["reg_duty_pct"] + A["cf_pct"]) + A["cf_fixed"] + max(eg * A["notary_pct"], A["notary_min"]) * (1 + A["notary_vat"]) + A["misc_fixed"]) / eg}
     if out["topup"]["base"] > budget:
-        if cf(ltv=0.0) + budget > 0:        # a smaller loan can bring it inside the limit
-            ltv = _solve(lambda x: cf(ltv=x) + budget, 0.0, A["ltv"], increasing=False)
+        # over the top of the range: what gets it back inside the range; inside the margin: what gets it down to the guide figure
+        target = stretch if out["topup"]["base"] > stretch else budget
+        out["fit_target_mad"] = target
+        if cf(ltv=0.0) + target > 0:        # a smaller loan can do it
+            ltv = _solve(lambda x: cf(ltv=x) + target, 0.0, A["ltv"], increasing=False)
             out["deposit_share_for_budget"] = 1 - ltv
             out["deposit_for_budget"] = base["price"] * (1 - ltv)
-        if cf(price=50000) + budget > 0:
-            out["price_for_budget"] = _solve(lambda x: cf(price=x) + budget, 50000, max(base["asking"], 100000) * 1.2, increasing=False)
+        if cf(price=50000) + target > 0:
+            out["price_for_budget"] = _solve(lambda x: cf(price=x) + target, 50000, max(base["asking"], 100000) * 1.2, increasing=False)
 
     # -- when the flat is yours
     term, loan = int(A["term_years"]), base["loan"]

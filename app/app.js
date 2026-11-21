@@ -32,7 +32,8 @@ async function loadProfile() {
   if (p.ltv == null) { $('#terms').textContent = who; return; }
   const s = SYM[HOME] || HOME;
   $('#terms').innerHTML = `<b>${esc(who)}</b> · ${esc(p.financing)}<br>Loan <b>${pct(p.ltv)}</b> over <b>${p.term_years} yrs</b> · fixed <b>${pct(p.rate, 2)}</b> (${pct(p.rate_eff, 2)} with VAT)<br>` +
-    (p.budget_home ? `Your limit: <b>${s}${n0(p.budget_home)} a month</b> out of pocket (${n0(p.budget_home * p.fx_home)} MAD)<br>` : '') +
+    (p.budget_home ? `Your guide: <b>${s}${n0(p.budget_home)} a month</b> out of pocket (${n0(p.budget_home * p.fx_home)} MAD)` +
+      (p.budget_flex ? `, up to <b>${s}${n0(p.budget_home * (1 + p.budget_flex))}</b> (${n0(p.budget_home * (1 + p.budget_flex) * p.fx_home)} MAD)` : '') + '<br>' : '') +
     `Home tax <b>${pct(p.home_tax_rate)}</b> · ${s}1 = <b>${p.fx_home.toFixed(2)} MAD</b>`;
 }
 
@@ -46,8 +47,8 @@ function receipt(title, tag, lines, total, extra) {
 }
 
 const STAMP = {pass: 'PASS', conditional: 'MAYBE', pursue: 'PURSUE'};
-const VERDICT_LINE = {'WITHIN YOUR BUDGET': 'inside your monthly limit', 'WITHIN BUDGET IF YOU NEGOTIATE': 'inside your limit, but only at a lower price', 'TIGHT': 'inside your limit, but a weak year breaks it',
-  'OVER YOUR BUDGET': 'over your monthly limit as it stands', 'OFF-PLAN': 'off-plan, so a mortgage will not work yet', 'NO NEARBY AIRBNB DATA': 'income unproven — no Airbnbs near it in your atlas', 'WITHIN BUDGET, PRICE UNCHECKED': 'inside your monthly limit, but the price is unchecked', 'CHECK THE TITLE': 'the numbers work for cash; check the title'};
+const VERDICT_LINE = {'WITHIN YOUR BUDGET': 'inside your monthly guide', 'WITHIN BUDGET IF YOU NEGOTIATE': 'inside your guide, but only at a lower price', 'TIGHT': 'inside your guide, but a weak year breaks it',
+  'OVER YOUR BUDGET': 'over the most you allow each month, as it stands', 'OFF-PLAN': 'off-plan, so a mortgage will not work yet', 'NO NEARBY AIRBNB DATA': 'income unproven — no Airbnbs near it in your atlas', 'WITHIN BUDGET, PRICE UNCHECKED': 'inside your monthly guide, but the price is unchecked', 'CHECK THE TITLE': 'the numbers work for cash; check the title'};
 
 function render(run) {
   const box = $('#result'); box.innerHTML = '';
@@ -64,7 +65,8 @@ function render(run) {
   const step = (n, title, ...kids) => el('section', {class: 'step'}, el('div', {class: 'num'}, n), el('div', {}, el('h2', {}, title), kids));
   const tbl = (heads, rows) => el('div', {class: 'scroll'}, el('table', {}, el('thead', {}, el('tr', {}, heads.map(h => el('th', {class: h[1] || ''}, h[0])))), el('tbody', {}, rows.map(c => el('tr', {}, c.map((v, i) => el('td', {class: heads[i][1] || ''}, v)))))));
   const S = ev.str || {}, near = S.method === 'nearby_listings', newMethod = x.topup != null;
-  const budget = x.budget_mad || 0;
+  const budget = x.budget_mad || 0, ceiling = x.stretch_mad || budget, flex = ceiling > budget + 0.5;
+  const hm = v => [home(v), el('small', {class: 'hc'}, n0(v) + ' MAD')];
   const top = x.topup || {bear: Math.max(0, -m.cf_m_month.bear), base: Math.max(0, -m.cf_m_month.base), bull: Math.max(0, -m.cf_m_month.bull)};
   const putIn = v => v > 0.5 ? ['you put in ' + home(v), el('small', {class: 'hc'}, n0(v) + ' MAD')] : ['nothing — it covers itself', el('small', {class: 'hc'}, '0 MAD')];
   const label = r.verdict_label || STAMP[verdict] || verdict.toUpperCase();
@@ -210,11 +212,14 @@ function render(run) {
         ['Money coming in', dual(m.c_rev), 'rev'], ['Fixed costs (step 5)', less(fixedC)], ['Manager ' + pct(t.mgmt_pct), less(m.c_mgmt)],
         ['Airbnb takes ' + pct(t.platform_pct, 1), less(m.c_platform)], ['Repairs and linen', less(repairsM)], ['Tax in Morocco', less(m.c_ma_tax)], ['Tax at home', less(m.c_home_tax)]],
         m.c_profit, `Weak year ${home(m.cf_m_month.bear, true)} (${madS(m.cf_m_month.bear)}), strong year ${home(m.cf_m_month.bull, true)} (${madS(m.cf_m_month.bull)}) a month.`)),
-    budget ? [sub(`Against your limit of ${home(budget)} a month`),
-      sum(row('Your limit', [home(budget), el('small', {class: 'hc'}, n0(budget) + ' MAD')]),
+    budget ? [sub(flex ? `Against your guide of ${home(budget)} a month (up to ${home(ceiling)})` : `Against your limit of ${home(budget)} a month`),
+      sum(row(flex ? 'Your guide figure' : 'Your limit', hm(budget)),
+          flex ? row(`The most you allow (${pct(x.budget_flex)} over)`, hm(ceiling)) : null,
           row('Typical year', putIn(top.base), 'eq'), row('Weak year', putIn(top.bear)), row('Strong year', putIn(top.bull)),
           x.topup_at_asking != null && Math.abs(m.price - m.asking) > 1 ? row('Typical year, if you paid the full asking price', putIn(x.topup_at_asking)) : null,
-          row(top.base <= budget ? '= room to spare in a typical year' : '= over your limit in a typical year', [home(Math.abs(budget - top.base)), el('small', {class: 'hc'}, n0(Math.abs(budget - top.base)) + ' MAD')], 'eq ' + (top.base <= budget ? 'good' : 'bad')))] : null,
+          top.base <= budget ? row('= under your guide in a typical year, by', hm(budget - top.base), 'eq good')
+            : top.base <= ceiling ? row(`= over your guide by ${home(top.base - budget)}, but inside your margin with this much to spare`, hm(ceiling - top.base), 'eq')
+            : row(flex ? '= over the most you allow, by' : '= over your limit in a typical year, by', hm(top.base - ceiling), 'eq bad'))] : null,
     gapBars));
 
   // 10 — is the Airbnb play robust?
@@ -223,8 +228,10 @@ function render(run) {
     const share = x.nearby_n ? x.nearby_ok / x.nearby_n : null;
     out.append(step(10, 'Is the Airbnb play robust?',
       say('A monthly top-up is fine by you, so the question is how sure the income is. These are the ways it could go wrong, and what each would cost you a month.'),
-      sum(budget && x.rev_for_budget != null ? row(`Money the flat must take each month to keep you at ${home(budget)}`, dual(x.rev_for_budget)) : null,
+      sum(budget && x.rev_for_budget != null ? row(`Money the flat must take each month to keep you at ${home(budget)}`, x.rev_for_budget < 1 ? 'none: even with no guests you stay under it' : dual(x.rev_for_budget)) : null,
           x.nearby_n ? row('Nearby Airbnbs that take at least that', `${x.nearby_ok} of ${x.nearby_n}  (${pct(share)})`, 'eq') : row('Nearby Airbnbs that take at least that', 'no nearby listings in your atlas', 'bad'),
+          flex && x.rev_for_stretch != null && x.rev_for_budget >= 1 ? row(`Money it must take to keep you at ${home(ceiling)}, the most you allow`, x.rev_for_stretch < 1 ? 'none: even with no guests you stay under it' : dual(x.rev_for_stretch)) : null,
+          flex && x.nearby_n && x.nearby_ok_stretch != null && x.rev_for_budget >= 1 ? row('Nearby Airbnbs that take at least that', `${x.nearby_ok_stretch} of ${x.nearby_n}  (${pct(x.nearby_ok_stretch / x.nearby_n)})`, 'eq') : null,
           row('Weak year (the weakest quarter of nearby listings)', putIn(top.bear)),
           st.occ_pts ? row(`Bookings fall a further ${Math.round(st.occ_pts * 100)} points of the year`, putIn(st.occ_down)) : null,
           st.price_pct ? row(`Nightly price falls ${pct(st.price_pct)}`, putIn(st.price_down)) : null,
@@ -233,7 +240,7 @@ function render(run) {
           pb ? row(`Plan B: an ordinary long let at ${both(pb.rent)} a month`, pb.topup > 0.5 ? putIn(pb.topup) : ['leaves you ' + home(pb.left), el('small', {class: 'hc'}, n0(pb.left) + ' MAD')]) : row('Plan B: an ordinary long let', 'no rents found nearby to judge'),
           pot ? row('Best case: the atlas’s revenue potential', pot.topup > 0.5 ? putIn(pot.topup) : ['leaves you ' + home(pot.left), el('small', {class: 'hc'}, n0(pot.left) + ' MAD')]) : null,
           row('Mortgage rate', 'fixed: the repayment cannot rise')),
-      plain(robustLine(x, top, budget, near, pb))));
+      plain(robustLine(x, top, budget, ceiling, near, pb))));
 
     // 11 — when the flat is yours
     const tl = x.timeline || [], terms = x.terms || [], yrs = x.term_years || t.term_years;
@@ -250,9 +257,9 @@ function render(run) {
           row('Then the flat pays you, each month after costs and tax', dual(x.income_after_payoff_month))),
       plain('No rise in the flat’s value or in rents is counted here; both would improve this. Furniture is replaced out of the repairs line.'),
       terms.length ? [sub('A shorter loan gets you there sooner but costs more each month'),
-        tbl([['Loan over'], ['Repayment a month', 'n'], ['You put in a month', 'n'], ['Your limit', 'n']],
-          terms.map(o => [o.years + ' years', dual(o.repayment), dual(o.topup), budget ? (o.topup <= budget ? 'inside' : 'over by ' + home(o.topup - budget)) : '—']))] : null,
-      top.base > budget && budget && (x.deposit_for_budget || x.price_for_budget) ? [sub('What would bring it inside your limit'),
+        tbl([['Loan over'], ['Repayment a month', 'n'], ['You put in a month', 'n'], ['Against your guide', 'n']],
+          terms.map(o => [o.years + ' years', dual(o.repayment), dual(o.topup), budget ? (o.topup <= budget ? 'inside your guide' : o.topup <= ceiling ? 'inside your margin' : 'over by ' + home(o.topup - ceiling)) : '—']))] : null,
+      top.base > budget && budget && (x.deposit_for_budget || x.price_for_budget) ? [sub(`What would bring it down to ${home(x.fit_target_mad || budget)} a month`),
         sum(x.deposit_for_budget ? row(`A bigger deposit: ${pct(x.deposit_share_for_budget)} of the price instead of ${pct(1 - t.ltv)}`, dual(x.deposit_for_budget)) : null,
             x.price_for_budget ? row(`Or a lower price: ${pct(x.price_for_budget / m.asking)} of the asking price`, dual(x.price_for_budget)) : null)] : null,
       plain(`If you sold after ten years instead, counting everything paid in and the sale: <b>${m.profit_m.base < 0 ? 'a loss of about ' + both(-m.profit_m.base) : 'a gain of about ' + both(m.profit_m.base)}</b>, with a range from ${both(m.profit_m.bear)} to ${both(m.profit_m.bull)} depending on where prices go.`)));
@@ -262,7 +269,7 @@ function render(run) {
   const flags = r.flags || [];
   const copy = el('button', {class: 'quiet', type: 'button'}, 'Copy the French');
   copy.onclick = async () => { try { await navigator.clipboard.writeText(run.message_fr); copy.textContent = 'Copied'; } catch (e) { copy.textContent = 'Select and copy by hand'; } setTimeout(() => copy.textContent = 'Copy the French', 1800); };
-  out.append(step(newMethod ? 12 : 10, 'Verdict: ' + (VERDICT_LINE[label] || {pass: 'pass on this one', conditional: 'maybe — if the conditions are met', pursue: 'worth pursuing'}[verdict] || verdict),
+  out.append(step(newMethod ? 12 : 10, 'Verdict: ' + (VERDICT_LINE[label] || (/^INSIDE YOUR \d+% MARGIN$/.test(label) ? 'over your guide figure, but inside the margin you allow' : null) || {pass: 'pass on this one', conditional: 'maybe — if the conditions are met', pursue: 'worth pursuing'}[verdict] || verdict),
     el('p', {class: 'plain', style: 'margin-top:0'}, (r.verdict_reason || '').replace(/^Automatic first pass\. /, '')),
     el('div', {style: 'height:12px'}),
     sum(row('To cover itself with no top-up, it would need booking', pct(m.be_occ_m.base) + ' of the year'), row(near ? 'The middle nearby Airbnb manages' : 'Typical for the city', pct(near ? m.occ.base : mk.occ)),
@@ -286,14 +293,15 @@ function render(run) {
 }
 
 // One plain sentence on how sturdy the income looks, built only from the figures shown in step 10.
-function robustLine(x, top, budget, near, pb) {
-  const bits = [];
+function robustLine(x, top, budget, ceiling, near, pb) {
+  const bits = [], flex = ceiling > budget + 0.5;
   if (!near) bits.push('<b>Not robust yet:</b> there are no Airbnbs near this flat in your atlas, so the income is a guess from city averages.');
-  else if (budget && x.nearby_n) { const s = x.nearby_ok / x.nearby_n;
-    bits.push(s >= 0.6 ? `<b>Sturdy:</b> ${x.nearby_ok} of the ${x.nearby_n} Airbnbs around it already take enough to keep you inside your limit, so you do not need to beat the neighbours.`
-      : s >= 0.4 ? `<b>Finely balanced:</b> about half the Airbnbs around it (${x.nearby_ok} of ${x.nearby_n}) take enough to keep you inside your limit. You need to run it at least as well as the middle one.`
-      : `<b>Fragile:</b> only ${x.nearby_ok} of the ${x.nearby_n} Airbnbs around it take enough to keep you inside your limit. The plan only works if this flat beats most of its neighbours.`); }
-  if (budget && top.bear > budget) bits.push(`A weak year costs ${home(top.bear)} a month, ${home(top.bear - budget)} over your limit.`);
+  else if (budget && x.nearby_n) { const ok = flex && x.nearby_ok_stretch != null ? x.nearby_ok_stretch : x.nearby_ok, s = ok / x.nearby_n, at = home(flex ? ceiling : budget);
+    bits.push(s >= 0.6 ? `<b>Sturdy:</b> ${ok} of the ${x.nearby_n} Airbnbs around it already take enough to keep you at ${at} a month or less, so you do not need to beat the neighbours.`
+      : s >= 0.4 ? `<b>Finely balanced:</b> about half the Airbnbs around it (${ok} of ${x.nearby_n}) take enough to keep you at ${at} a month or less. You need to run it at least as well as the middle one.`
+      : `<b>Fragile:</b> only ${ok} of the ${x.nearby_n} Airbnbs around it take enough to keep you at ${at} a month or less. The plan only works if this flat beats most of its neighbours.`); }
+  if (budget && top.bear > ceiling) bits.push(`A weak year costs ${home(top.bear)} a month, ${home(top.bear - ceiling)} more than ${flex ? 'the most you allow' : 'your limit'}.`);
+  else if (budget && flex && top.bear > budget) bits.push(`A weak year costs ${home(top.bear)} a month: over your ${home(budget)} guide, inside your margin.`);
   if (pb) bits.push(pb.topup < top.base - 1 ? `Note that an ordinary long let would cost you less each month (${home(pb.topup)}) than the typical Airbnb year (${home(top.base)}), so the Airbnb only earns its extra work if it does better than the middle listing.`
     : `If short lets were ever stopped in the building, an ordinary long let would cost you ${home(pb.topup)} a month.`);
   bits.push('The rule on short lets in private flats is still unsettled in Morocco, and the building’s own rules can forbid them: confirm both before you rely on any of this.');
